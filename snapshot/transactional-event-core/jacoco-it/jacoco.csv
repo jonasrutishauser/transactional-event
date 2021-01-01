@@ -13,7 +13,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher,18,117,0,8,6,25,1,10,1,6
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkerImpl,0,31,0,0,0,11,0,3,0,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,7,86,0,2,2,22,1,5,1,4
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,129,491,11,23,33,97,11,18,1,11
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,129,486,11,23,33,97,11,18,1,11
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,9,0,0,0,4,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker.new TransactionalWorker.EventHandlerLiteral() {...},0,14,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,1,72,2,4,0,16,2,9,0,8
