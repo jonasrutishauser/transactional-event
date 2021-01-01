@@ -11,7 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -27,16 +29,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 
 @Dependent
-class PendingEventStore {
+class PendingEventStore implements EventStore {
 
     private static final String INSERT_SQL = "INSERT INTO event_store (id, event_type, payload, published_at, tries, lock_owner, locked_until) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String READ_SQL = "SELECT id, event_type, payload, published_at, tries, lock_owner, locked_until FROM event_store WHERE id=? FOR UPDATE";
     private static final String DELETE_SQL = "DELETE FROM event_store WHERE id=? AND lock_owner=?";
     private static final String UPDATE_SQL = "UPDATE event_store SET tries=?, lock_owner=?, locked_until=? WHERE id=?";
     private static final String AQUIRE_SQL = "SELECT id, tries FROM event_store WHERE locked_until<=? {LIMIT 10} FOR UPDATE";
+    private static final String READ_BLOCKED_SQL = "SELECT id, event_type, payload, published_at FROM event_store WHERE locked_until=" + Long.MAX_VALUE;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -52,6 +57,51 @@ class PendingEventStore {
     PendingEventStore(@Events DataSource dataSource, LockOwner lockOwner) {
         this.dataSource = dataSource;
         this.lockOwner = lockOwner;
+    }
+
+    @Override
+    @Transactional
+    public boolean unblock(String eventId) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement readStatement = connection
+                     .prepareStatement(addSkipLocked(connection, READ_BLOCKED_SQL + " AND id=? FOR UPDATE"));
+             PreparedStatement updateStatement = connection.prepareStatement(UPDATE_SQL)) {
+            readStatement.setString(1, eventId);
+            try (ResultSet resultSet = readStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    updateStatement.setInt(1, 0);
+                    updateStatement.setNull(2, VARCHAR);
+                    updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));
+                    updateStatement.setString(4, eventId);
+                    return updateStatement.executeUpdate() > 0;
+                } else {
+                    return false;
+                }
+            }
+        } catch (SQLException exception) {
+            LOGGER.error("failed to unblock event '{}'", eventId, exception);
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Collection<BlockedEvent> getBlockedEvents(int maxElements) {
+        Collection<BlockedEvent> result = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection
+                     .prepareStatement(READ_BLOCKED_SQL + " {LIMIT " + maxElements + "}");
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                result.add(new BlockedEvent(resultSet.getString("id"), //
+                        resultSet.getString("event_type"), //
+                        resultSet.getString("payload"), //
+                        resultSet.getTimestamp("published_at").toLocalDateTime()));
+            }
+        } catch (SQLException exception) {
+            LOGGER.error("failed to read blocked events", exception);
+        }
+        return result;
     }
 
     @Transactional(MANDATORY)
@@ -112,7 +162,7 @@ class PendingEventStore {
              PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
             statement.setString(1, event.getId());
             statement.setString(2, lockOwner.getId());
-            statement.execute();
+            statement.executeUpdate();
         } catch (SQLException exception) {
             String errorMessage = "failed to delete pending event with id " + event.getId();
             LOGGER.error(errorMessage, exception);
@@ -129,7 +179,7 @@ class PendingEventStore {
             statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));
             statement.setString(4, event.getId());
             statement.setString(5, lockOwner.getId());
-            statement.execute();
+            statement.executeUpdate();
         } catch (SQLException exception) {
             String errorMessage = "failed to update pending event with id " + event.getId();
             LOGGER.error(errorMessage, exception);

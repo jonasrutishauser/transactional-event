@@ -1,16 +1,27 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Priority;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
@@ -29,6 +40,7 @@ import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.ContainerProperties;
 import org.apache.openejb.testing.ContainerProperties.Property;
 import org.apache.openejb.testing.Default;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -38,6 +50,8 @@ import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandl
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventSerializer;
+import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.core.openejb.ApplicationComposerExtension;
 
 @Default
@@ -65,12 +79,19 @@ public class TransactionalEventPublisherIT {
     @Inject
     ReceivedMessages messages;
 
-    @Test
-    void testPublish() throws Exception {
+    @Inject
+    EventStore store;
+
+    @BeforeEach
+    void initDb() throws Exception {
         try (Statement statement = dataSource.getConnection().createStatement()) {
             statement.execute(new String(Files.readAllBytes(Paths.get(getClass().getResource("/table.sql").toURI())),
                     StandardCharsets.UTF_8));
         }
+    }
+
+    @Test
+    void testPublish() throws Exception {
         transaction.begin();
         publisher.publish(new TestSerializableEvent("test"));
         publisher.publish(new TestJaxbTypeEvent("foo"));
@@ -86,32 +107,59 @@ public class TransactionalEventPublisherIT {
         await().conditionEvaluationListener(condition -> dispatcher.schedule()).until(() -> messages.contains("test"));
     }
 
+    @Test
+    void testBlocking() throws Exception {
+        assertFalse(store.unblock("unknown-id"));
+
+        messages.setBlock(true);
+        LocalDateTime start = LocalDateTime.now();
+        transaction.begin();
+        publisher.publish(new TestJsonbEvent("blocking message"));
+        transaction.commit();
+
+        assertThat(store.getBlockedEvents(10), is(empty()));
+        await().atMost(2, MINUTES).conditionEvaluationListener(condition -> dispatcher.schedule()) //
+                .until(() -> store.getBlockedEvents(10), is(not(empty())));
+
+        messages.setBlock(false);
+        BlockedEvent event = store.getBlockedEvents(10).iterator().next();
+        assertEquals("TestJsonbEvent", event.getEventType());
+        assertEquals("{\"message\":\"blocking message\"}", event.getPayload());
+        assertThat(event.getPublishedAt(), is(both(greaterThanOrEqualTo(start)).and(lessThan(LocalDateTime.now()))));
+        assertTrue(store.unblock(event.getEventId()));
+        assertFalse(store.unblock(event.getEventId()));
+
+        dispatcher.schedule();
+
+        assertThat(store.getBlockedEvents(10), is(empty()));
+        await().until(() -> messages.contains("blocking message"));
+        assertThat(store.getBlockedEvents(10), is(empty()));
+    }
+
     @Dependent
-    @Priority(1)
     static class Configuration {
 
         @Events
         @Produces
         @Resource(name = "testDb")
         private DataSource ds;
-        
-//        @Resource
-//        private ManagedScheduledExecutorService executorService;
-//        
-//        @Events
-//        @Produces
-//        @Alternative
-//        public ManagedScheduledExecutorService getExecutorService() {
-//            return executorService;
-//        }
 
     }
 
     @ApplicationScoped
     static class ReceivedMessages {
         private Set<String> messages = new HashSet<>();
+
+        private boolean block;
+
+        public void setBlock(boolean block) {
+            this.block = block;
+        }
         
         public void add(String message) {
+            if (block) {
+                throw new IllegalStateException("block requested");
+            }
             messages.add(message);
         }
         
