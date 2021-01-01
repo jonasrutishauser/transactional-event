@@ -32,6 +32,13 @@ jobs:
           restore-keys: ${{ runner.os }}-m2-${{ matrix.java }} ${{ runner.os }}-m2
       - name: Build with Maven
         run: mvn -B -V -e install
+      - name: Upload Openliberty logfiles
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: openliberty-logs
+          path: '**/target/liberty/wlp/usr/servers/*/logs/**/*.log'
+          retention-days: 5
       - name: Unittest Coverage
         if: ${{ matrix.java == '11' }}
         run: mvn -B jacoco:report && bash <(curl -s https://codecov.io/bash) -c -F unittests
