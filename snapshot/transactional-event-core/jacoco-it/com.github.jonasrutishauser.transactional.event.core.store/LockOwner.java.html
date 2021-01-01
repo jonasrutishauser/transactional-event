@@ -39,9 +39,9 @@ class LockOwner {
     }
 
     public long getUntilForRetry(int tries, String eventId) {
-<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (tries &gt; 5) {</span>
-<span class="nc" id="L43">            LOGGER.info(&quot;max attempts used, event with id '{}' will be blocked&quot;, eventId);</span>
-<span class="nc" id="L44">            return Long.MAX_VALUE;</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (tries &gt; 5) {</span>
+<span class="fc" id="L43">            LOGGER.info(&quot;max attempts used, event with id '{}' will be blocked&quot;, eventId);</span>
+<span class="fc" id="L44">            return Long.MAX_VALUE;</span>
         }
 <span class="fc" id="L46">        return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();</span>
     }
