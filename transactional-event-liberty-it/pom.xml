@@ -10,6 +10,8 @@
 	<artifactId>transactional-event-liberty-it</artifactId>
 	<packaging>war</packaging>
 
+	<name>Transactional Event Library Openliberty Tests</name>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
