@@ -134,7 +134,7 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>              PreparedStatement statement = connection.prepareStatement(UPDATE_SQL + <span class="jxr_string">" AND lock_owner=?"</span>)) {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             statement.setInt(1, event.getTries() + 1);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>             statement.setNull(2, VARCHAR);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             statement.setLong(3, lockOwner.getUntilForRetry(event.getTries()));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             statement.setString(4, event.getId());
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>             statement.setString(5, lockOwner.getId());
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>             statement.execute();

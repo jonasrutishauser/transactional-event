@@ -38,19 +38,20 @@ class LockOwner {
 <span class="fc" id="L38">        return Instant.now(clock).plusSeconds(300).toEpochMilli();</span>
     }
 
-    public long getUntilForRetry(int tries) {
+    public long getUntilForRetry(int tries, String eventId) {
 <span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (tries &gt; 5) {</span>
-<span class="nc" id="L43">            return Long.MAX_VALUE;</span>
+<span class="nc" id="L43">            LOGGER.info(&quot;max attempts used, event with id '{}' will be blocked&quot;, eventId);</span>
+<span class="nc" id="L44">            return Long.MAX_VALUE;</span>
         }
-<span class="fc" id="L45">        return Instant.now(clock).plusSeconds(tries * tries * 2).toEpochMilli();</span>
+<span class="fc" id="L46">        return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();</span>
     }
 
     public long getMinUntilForAquire() {
-<span class="fc" id="L49">        return Instant.now(clock).toEpochMilli();</span>
+<span class="fc" id="L50">        return Instant.now(clock).toEpochMilli();</span>
     }
 
     public boolean isOwningForProcessing(String owner, long lockedUntil) {
-<span class="pc bpc" id="L53" title="2 of 4 branches missed.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
+<span class="pc bpc" id="L54" title="2 of 4 branches missed.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
     }
 
 }
