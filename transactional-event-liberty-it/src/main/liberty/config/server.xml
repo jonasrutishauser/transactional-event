@@ -2,7 +2,7 @@
 	<featureManager>
 		<feature>concurrent-1.0</feature>
 		<feature>cdi-2.0</feature>
-		<feature>jdbc-4.3</feature>
+		<feature>jdbc-4.2</feature>
 		<feature>jaxrs-2.1</feature>
 		<feature>jndi-1.0</feature>
 		<feature>jsonb-1.0</feature>
