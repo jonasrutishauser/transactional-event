@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -31,7 +32,11 @@ public class SerializableSerialization implements GenericSerialization {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        return bout.toString(StandardCharsets.UTF_8);
+        try {
+            return bout.toString(StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override

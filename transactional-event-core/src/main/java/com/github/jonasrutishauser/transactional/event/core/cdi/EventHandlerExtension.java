@@ -62,7 +62,7 @@ public class EventHandlerExtension implements Extension {
             EventHandler annotation = beanEvent.getAnnotated().getAnnotation(EventHandler.class);
             Optional<ParameterizedType> abstractHandlerType = getAbstractHandlerType(beanEvent.getBean().getTypes());
             if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(annotation.eventType())) {
-                if (abstractHandlerType.isEmpty()) {
+                if (!abstractHandlerType.isPresent()) {
                     beanEvent.addDefinitionError(new IllegalStateException("AbstractHandler type is missing on bean "
                             + beanEvent.getBean() + " with implicit event type"));
                 } else if (!beanEvent.getBean().getTypes().contains(beanEvent.getBean().getBeanClass())) {
@@ -116,7 +116,7 @@ public class EventHandlerExtension implements Extension {
                 Literal.INSTANCE);
         instance.forEach(serializations::add);
         for (Class<?> eventType : genericSerializationEventTypes) {
-            if (serializations.stream().filter(s -> s.accepts(eventType)).findAny().isEmpty()) {
+            if (serializations.stream().noneMatch(s -> s.accepts(eventType))) {
                 event.addDeploymentProblem(
                         new UnsatisfiedResolutionException("No GenericSerialization found for " + eventType));
             }
