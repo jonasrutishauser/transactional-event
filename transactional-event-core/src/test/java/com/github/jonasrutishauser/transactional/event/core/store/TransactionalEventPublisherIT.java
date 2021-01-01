@@ -1,23 +1,19 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Statement;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Priority;
 import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.json.bind.annotation.JsonbCreator;
@@ -33,7 +29,6 @@ import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.ContainerProperties;
 import org.apache.openejb.testing.ContainerProperties.Property;
 import org.apache.openejb.testing.Default;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -73,7 +68,8 @@ public class TransactionalEventPublisherIT {
     @Test
     void testPublish() throws Exception {
         try (Statement statement = dataSource.getConnection().createStatement()) {
-            statement.execute(Files.readString(Paths.get(getClass().getResource("/table.sql").toURI())));
+            statement.execute(new String(Files.readAllBytes(Paths.get(getClass().getResource("/table.sql").toURI())),
+                    StandardCharsets.UTF_8));
         }
         transaction.begin();
         publisher.publish(new TestSerializableEvent("test"));
