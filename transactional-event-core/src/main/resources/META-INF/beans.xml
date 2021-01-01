@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                           http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
+	version="1.1" bean-discovery-mode="annotated">
+	<scan>
+		<exclude name="com.github.jonasrutishauser.transactional.event.core.serialization.JaxbSerialization">
+			<if-class-not-available name="javax.xml.bind.JAXBException"/>
+		</exclude>
+		<exclude name="com.github.jonasrutishauser.transactional.event.core.serialization.JsonbSerialization">
+			<if-class-not-available name="javax.json.bind.JsonbBuilder"/>
+		</exclude>
+	</scan>
+</beans>

@@ -1,0 +1,19 @@
+<server description="transaction-event-integration-test">
+	<featureManager>
+		<feature>concurrent-1.0</feature>
+		<feature>cdi-2.0</feature>
+		<feature>jdbc-4.3</feature>
+		<feature>jaxrs-2.1</feature>
+		<feature>jndi-1.0</feature>
+		<feature>jsonb-1.0</feature>
+	</featureManager>
+
+	<dataSource jndiName="jdbc/testDatasource" type="javax.sql.ConnectionPoolDataSource">
+		<jdbcDriver javax.sql.ConnectionPoolDataSource="org.h2.jdbcx.JdbcDataSource">
+			<library>
+				<fileset dir="${shared.resource.dir}" includes="h2*.jar" />
+			</library>
+		</jdbcDriver>
+		<properties password="pwd" URL="jdbc:h2:mem:test;LOCK_TIMEOUT=20000;DB_CLOSE_DELAY=-1;INIT=runscript from '../../../../../../../transactional-event-core/src/test/resources/table.sql'" user="test" />
+	</dataSource>
+</server>

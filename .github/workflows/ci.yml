@@ -1,0 +1,51 @@
+name: Maven CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java:
+          - 1.8
+          - 11
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Setup Git
+        run: git config --global user.email "actions@github.com" && git config --global user.name "GitHub Actions"
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-${{ matrix.java }} ${{ runner.os }}-m2
+      - name: Build with Maven
+        run: mvn -B -V -e install
+      - name: Unittest Coverage
+        if: ${{ matrix.java == '11' }}
+        run: mvn -B jacoco:report && bash <(curl -s https://codecov.io/bash) -c -F unittests
+      - name: Integrationstest Coverage
+        if: ${{ matrix.java == '11' }}
+        run: mvn -B jacoco:report-integration && bash <(curl -s https://codecov.io/bash) -c -F integration
+      - name: Sonar Report
+        if: ${{ matrix.java == '11' }}
+        run: git fetch --unshallow && mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Deploy Site
+        if: ${{ matrix.java == '1.8' }}
+        run: mvn -B -e site-deploy
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
