@@ -7,6 +7,17 @@ A [Transactional Event Library](https://jonasrutishauser.github.io/transactional
 [![Build Status](https://img.shields.io/github/workflow/status/jonasrutishauser/transactional-event/Maven%20CI.svg?label=Build)](https://github.com/jonasrutishauser/transactional-event/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/jonasrutishauser/transactional-event/master.svg?label=Coverage)](https://codecov.io/gh/jonasrutishauser/transactional-event)
 
+## Used Jakarta EE APIs
+The following APIs are required:
+- CDI 2.0
+- Concurrency Utilities 1.0
+- JDBC 4.2
+- JTA 1.2
+
+The following APIs are optionally supported for serialization:
+- JAXB 2.2
+- JSON-B 1.0
+
 ## Publish an Event
 An Event can be published using the [`EventPublisher`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/EventPublisher.html) API:
 
@@ -23,7 +34,7 @@ An Event can be published using the [`EventPublisher`](https://jonasrutishauser.
 ```
 
 ## Handle an Event
-For every event type published there must be a corresponding [Handler](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/handler/Handler.html) (qualified by [`EventHandler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/handler/EventHandler.html)):
+For every event type published there must be a corresponding [`Handler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/handler/Handler.html) (qualified by [`EventHandler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/handler/EventHandler.html)):
 
 ```java
 @Dependent
