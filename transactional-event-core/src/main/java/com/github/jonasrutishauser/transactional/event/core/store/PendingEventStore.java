@@ -89,14 +89,15 @@ class PendingEventStore implements EventStore {
     public Collection<BlockedEvent> getBlockedEvents(int maxElements) {
         Collection<BlockedEvent> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection
-                     .prepareStatement(READ_BLOCKED_SQL + " {LIMIT " + maxElements + "}");
-             ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                result.add(new BlockedEvent(resultSet.getString("id"), //
-                        resultSet.getString("event_type"), //
-                        resultSet.getString("payload"), //
-                        resultSet.getTimestamp("published_at").toLocalDateTime()));
+             PreparedStatement statement = connection.prepareStatement(READ_BLOCKED_SQL + " {LIMIT ?}")) {
+            statement.setInt(1, maxElements);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    result.add(new BlockedEvent(resultSet.getString("id"), //
+                            resultSet.getString("event_type"), //
+                            resultSet.getString("payload"), //
+                            resultSet.getTimestamp("published_at").toLocalDateTime()));
+                }
             }
         } catch (SQLException exception) {
             LOGGER.error("failed to read blocked events", exception);
