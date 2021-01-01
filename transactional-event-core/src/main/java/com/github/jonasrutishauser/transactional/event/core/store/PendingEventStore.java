@@ -126,7 +126,7 @@ class PendingEventStore {
              PreparedStatement statement = connection.prepareStatement(UPDATE_SQL + " AND lock_owner=?")) {
             statement.setInt(1, event.getTries() + 1);
             statement.setNull(2, VARCHAR);
-            statement.setLong(3, lockOwner.getUntilForRetry(event.getTries()));
+            statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));
             statement.setString(4, event.getId());
             statement.setString(5, lockOwner.getId());
             statement.execute();

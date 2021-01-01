@@ -38,11 +38,12 @@ class LockOwner {
         return Instant.now(clock).plusSeconds(300).toEpochMilli();
     }
 
-    public long getUntilForRetry(int tries) {
+    public long getUntilForRetry(int tries, String eventId) {
         if (tries > 5) {
+            LOGGER.info("max attempts used, event with id '{}' will be blocked", eventId);
             return Long.MAX_VALUE;
         }
-        return Instant.now(clock).plusSeconds(tries * tries * 2).toEpochMilli();
+        return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();
     }
 
     public long getMinUntilForAquire() {

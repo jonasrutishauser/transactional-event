@@ -72,6 +72,6 @@ class TransactionalWorker {
     }
 
     @SuppressWarnings("serial")
-    private static abstract class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {}
+    private abstract static class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {}
 
 }
