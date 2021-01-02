@@ -28,9 +28,9 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      }
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>      @Inject
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <a name="Serializer" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/Serializer.html#Serializer">Serializer</a>(@Any Instance&lt;EventSerializer&lt;?&gt;&gt; serializerFactory) {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">for</strong> (EventSerializer&lt;?&gt; serializer : serializerFactory) {
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>              serializers.put(serializer.getType(), serializer);
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <a name="Serializer" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/Serializer.html#Serializer">Serializer</a>(@Any Instance&lt;EventSerializer&lt;?&gt;&gt; serializers) {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">for</strong> (EventSerializer&lt;?&gt; serializer : serializers) {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>              <strong class="jxr_keyword">this</strong>.serializers.put(serializer.getType(), serializer);
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>          }
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
