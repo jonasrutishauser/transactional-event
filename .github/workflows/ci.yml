@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-${{ matrix.java }} ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn -B -V -e install
+        run: mvn -B -V -e clean verify
       - name: Upload Openliberty logfiles
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
