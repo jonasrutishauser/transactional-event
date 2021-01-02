@@ -163,7 +163,9 @@ class PendingEventStore implements EventStore {
              PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
             statement.setString(1, event.getId());
             statement.setString(2, lockOwner.getId());
-            statement.executeUpdate();
+            if (statement.executeUpdate() < 1) {
+                throw new NoSuchElementException("failed to delete pending event with id " + event.getId());
+            }
         } catch (SQLException exception) {
             String errorMessage = "failed to delete pending event with id " + event.getId();
             LOGGER.error(errorMessage, exception);
@@ -180,7 +182,9 @@ class PendingEventStore implements EventStore {
             statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));
             statement.setString(4, event.getId());
             statement.setString(5, lockOwner.getId());
-            statement.executeUpdate();
+            if (statement.executeUpdate() < 1) {
+                throw new NoSuchElementException("failed to update pending event with id " + event.getId());
+            }
         } catch (SQLException exception) {
             String errorMessage = "failed to update pending event with id " + event.getId();
             LOGGER.error(errorMessage, exception);

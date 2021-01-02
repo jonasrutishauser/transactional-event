@@ -11,7 +11,12 @@ public interface EventSerializer<T> {
     default Class<T> getType() {
         for (Type iface : getClass().getGenericInterfaces()) {
             if (iface instanceof ParameterizedType && EventSerializer.class.equals(((ParameterizedType) iface).getRawType())) {
-                return (Class<T>) ((ParameterizedType) iface).getActualTypeArguments()[0];
+                Type type = ((ParameterizedType) iface).getActualTypeArguments()[0];
+                if (type instanceof Class) {
+                    return (Class<T>) type;
+                } else if (type instanceof ParameterizedType) {
+                    return (Class<T>) ((ParameterizedType) type).getRawType();
+                }
             }
         }
         throw new IllegalStateException("Class does not implement EventSerializer directly.");

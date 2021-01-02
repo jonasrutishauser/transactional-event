@@ -1,6 +1,7 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
 import static com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -21,11 +22,11 @@ class LockOwner {
 
     @Inject
     public LockOwner() {
-        this(Clock.systemUTC());
+        this(Clock.systemUTC(), randomId());
     }
     
-    LockOwner(Clock clock) {
-        id = randomId();
+    LockOwner(Clock clock, String id) {
+        this.id = id;
         LOGGER.info("using lock id: {}", id);
         this.clock = clock;
     }
@@ -35,7 +36,7 @@ class LockOwner {
     }
 
     public long getUntilToProcess() {
-        return Instant.now(clock).plusSeconds(300).toEpochMilli();
+        return Instant.now(clock).plus(5, MINUTES).toEpochMilli();
     }
 
     public long getUntilForRetry(int tries, String eventId) {

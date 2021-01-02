@@ -20,9 +20,9 @@ class Serializer {
     }
 
     @Inject
-    Serializer(@Any Instance<EventSerializer<?>> serializerFactory) {
-        for (EventSerializer<?> serializer : serializerFactory) {
-            serializers.put(serializer.getType(), serializer);
+    Serializer(@Any Instance<EventSerializer<?>> serializers) {
+        for (EventSerializer<?> serializer : serializers) {
+            this.serializers.put(serializer.getType(), serializer);
         }
     }
 
