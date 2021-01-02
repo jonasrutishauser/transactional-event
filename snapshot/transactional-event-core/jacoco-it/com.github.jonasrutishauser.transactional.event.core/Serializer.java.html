@@ -20,9 +20,9 @@ class Serializer {
 <span class="nc" id="L20">    }</span>
 
     @Inject
-<span class="fc" id="L23">    Serializer(@Any Instance&lt;EventSerializer&lt;?&gt;&gt; serializerFactory) {</span>
-<span class="fc bfc" id="L24" title="All 2 branches covered.">        for (EventSerializer&lt;?&gt; serializer : serializerFactory) {</span>
-<span class="fc" id="L25">            serializers.put(serializer.getType(), serializer);</span>
+<span class="fc" id="L23">    Serializer(@Any Instance&lt;EventSerializer&lt;?&gt;&gt; serializers) {</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        for (EventSerializer&lt;?&gt; serializer : serializers) {</span>
+<span class="fc" id="L25">            this.serializers.put(serializer.getType(), serializer);</span>
 <span class="fc" id="L26">        }</span>
 <span class="fc" id="L27">    }</span>
 
