@@ -23,7 +23,9 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Setup Git
-        run: git config --global user.email "actions@github.com" && git config --global user.name "GitHub Actions"
+        run: >
+          git config --global user.email "actions@github.com" && 
+          git config --global user.name "GitHub Actions"
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
@@ -41,13 +43,19 @@ jobs:
           retention-days: 5
       - name: Unittest Coverage
         if: ${{ matrix.java == '11' }}
-        run: mvn -B jacoco:report && bash <(curl -s https://codecov.io/bash) -c -F unittests
+        run: >
+          mvn -B jacoco:report && 
+          bash <(curl -s https://codecov.io/bash) -c -F unittests
       - name: Integrationstest Coverage
         if: ${{ matrix.java == '11' }}
-        run: mvn -B jacoco:report-integration && bash <(curl -s https://codecov.io/bash) -c -F integration
+        run: >
+          mvn -B jacoco:report-integration && 
+          bash <(curl -s https://codecov.io/bash) -c -F integration
       - name: Sonar Report
         if: ${{ matrix.java == '11' }}
-        run: git fetch --unshallow && mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
+        run: >
+          git fetch --unshallow && 
+          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
         env:
           GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
