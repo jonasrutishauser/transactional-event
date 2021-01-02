@@ -181,6 +181,7 @@
 						<goals>
 							<goal>prepare-agent-integration</goal>
 						</goals>
+						<phase>package</phase>
 						<configuration>
 							<propertyName>liberty.jvm.jacoco</propertyName>
 						</configuration>
