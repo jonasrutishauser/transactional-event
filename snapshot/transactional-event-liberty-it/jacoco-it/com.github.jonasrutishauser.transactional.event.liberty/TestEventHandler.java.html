@@ -8,18 +8,18 @@ import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 
 @Dependent
 @EventHandler
-<span class="nc" id="L11">public class TestEventHandler extends AbstractHandler&lt;TestEvent&gt; {</span>
+<span class="fc" id="L11">public class TestEventHandler extends AbstractHandler&lt;TestEvent&gt; {</span>
 
     @Inject
     private Messages messages;
 
     @Override
     protected void handle(TestEvent event) {
-<span class="nc bnc" id="L18" title="All 4 branches missed.">        if (event.getMessage().contains(&quot;failure&quot;) &amp;&amp; messages.addFailure(event.getMessage())) {</span>
-<span class="nc" id="L19">            throw new IllegalStateException(event.getMessage());</span>
+<span class="fc bfc" id="L18" title="All 4 branches covered.">        if (event.getMessage().contains(&quot;failure&quot;) &amp;&amp; messages.addFailure(event.getMessage())) {</span>
+<span class="fc" id="L19">            throw new IllegalStateException(event.getMessage());</span>
         }
-<span class="nc" id="L21">        messages.add(event.getMessage());</span>
-<span class="nc" id="L22">    }</span>
+<span class="fc" id="L21">        messages.add(event.getMessage());</span>
+<span class="fc" id="L22">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -8,25 +8,25 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-<span class="nc" id="L11">public class Messages {</span>
+<span class="fc" id="L11">public class Messages {</span>
 
-<span class="nc" id="L13">    private final Set&lt;String&gt; items = new CopyOnWriteArraySet&lt;&gt;();</span>
-<span class="nc" id="L14">    private final Set&lt;String&gt; failures = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L13">    private final Set&lt;String&gt; items = new CopyOnWriteArraySet&lt;&gt;();</span>
+<span class="fc" id="L14">    private final Set&lt;String&gt; failures = new HashSet&lt;&gt;();</span>
 
     protected void add(String message) {
-<span class="nc" id="L17">        items.add(message);</span>
-<span class="nc" id="L18">    }</span>
+<span class="fc" id="L17">        items.add(message);</span>
+<span class="fc" id="L18">    }</span>
 
     public Collection&lt;String&gt; get() {
-<span class="nc" id="L21">        return items;</span>
+<span class="fc" id="L21">        return items;</span>
     }
 
     protected boolean addFailure(String message) {
-<span class="nc bnc" id="L25" title="All 2 branches missed.">        if (!failures.add(message)) {</span>
-<span class="nc" id="L26">            failures.remove(message);</span>
-<span class="nc" id="L27">            return false;</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (!failures.add(message)) {</span>
+<span class="fc" id="L26">            failures.remove(message);</span>
+<span class="fc" id="L27">            return false;</span>
         }
-<span class="nc" id="L29">        return true;</span>
+<span class="fc" id="L29">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

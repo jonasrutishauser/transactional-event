@@ -16,7 +16,7 @@ import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 
 @Path(&quot;/test&quot;)
 @RequestScoped
-<span class="nc" id="L19">public class TestResource {</span>
+<span class="fc" id="L19">public class TestResource {</span>
 
     @Inject
     private EventPublisher publisher;
@@ -27,13 +27,13 @@ import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
     @POST
     @Transactional
     public void publish(String message) {
-<span class="nc" id="L30">        publisher.publish(new TestEvent(message));</span>
-<span class="nc" id="L31">    }</span>
+<span class="fc" id="L30">        publisher.publish(new TestEvent(message));</span>
+<span class="fc" id="L31">    }</span>
 
     @GET
     @Produces(APPLICATION_JSON)
     public Collection&lt;String&gt; getMessages() {
-<span class="nc" id="L36">        return messages.get();</span>
+<span class="fc" id="L36">        return messages.get();</span>
     }
 
 }
