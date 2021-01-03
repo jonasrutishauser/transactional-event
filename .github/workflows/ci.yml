@@ -1,6 +1,8 @@
 name: Maven CI
 
 on:
+  schedule:
+    - cron: '42 0 * * *'
   push:
     branches:
       - master
