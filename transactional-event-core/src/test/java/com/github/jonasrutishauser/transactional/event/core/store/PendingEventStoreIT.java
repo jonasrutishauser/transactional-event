@@ -4,14 +4,14 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.mariadb.jdbc.MariaDbDataSource;
 import org.postgresql.ds.PGSimpleDataSource;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import com.mysql.cj.jdbc.MysqlDataSource;
 
 import oracle.jdbc.pool.OracleDataSource;
 
@@ -33,14 +33,41 @@ class PendingEventStoreIT {
     }
 
     @Testcontainers
-    static class MySQLIT extends PendingEventStoreTest {
+    static class MariaDBIT extends PendingEventStoreTest {
         @Container
-        static MySQLContainer<?> mysql = new MySQLContainer<>("mysql");
+        static MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb");
 
         @Override
         protected DataSource getDataSource() throws Exception {
-            MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setURL(mysql.getJdbcUrl());
+            MariaDbDataSource dataSource = new MariaDbDataSource();
+            dataSource.setUrl(mariadb.getJdbcUrl());
+            dataSource.setUser(mariadb.getUsername());
+            dataSource.setPassword(mariadb.getPassword());
+            return dataSource;
+        }
+    }
+
+    @Testcontainers
+    static class MySQLIT extends PendingEventStoreTest {
+        private static final class MySQLContainerUsingMariaDbDriver
+                extends MySQLContainer<MySQLContainerUsingMariaDbDriver> {
+            private MySQLContainerUsingMariaDbDriver() {
+                super("mysql");
+            }
+
+            @Override
+            public String getDriverClassName() {
+                return org.mariadb.jdbc.Driver.class.getName();
+            }
+        }
+
+        @Container
+        static MySQLContainer<?> mysql = new MySQLContainerUsingMariaDbDriver();
+
+        @Override
+        protected DataSource getDataSource() throws Exception {
+            MariaDbDataSource dataSource = new MariaDbDataSource();
+            dataSource.setUrl(mysql.getJdbcUrl());
             dataSource.setUser(mysql.getUsername());
             dataSource.setPassword(mysql.getPassword());
             return dataSource;

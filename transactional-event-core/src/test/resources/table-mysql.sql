@@ -1,6 +1,4 @@
-DROP TABLE event_store;
-
-CREATE TABLE event_store (
+CREATE TABLE IF NOT EXISTS event_store (
 	id VARCHAR(50) NOT NULL,
 	event_type VARCHAR(50) NOT NULL,
 	payload VARCHAR(4000) NOT NULL,
@@ -11,6 +9,6 @@ CREATE TABLE event_store (
 	PRIMARY KEY (id)
 );
 
-DROP INDEX event_store_locked_until;
+DROP INDEX event_store_locked_until ON event_store;
 
 CREATE INDEX event_store_locked_until ON event_store (locked_until);

@@ -60,6 +60,8 @@ class QueryAdapterFactory {
         String productName = connection.getMetaData().getDatabaseProductName();
         if (productName.contains("Oracle")) {
             queryAdapter = new OracleQueryAdapter();
+        } else if (productName.contains("MariaDB")) {
+            queryAdapter = new MariaDBQueryAdapter();
         } else if (productName.contains("PostgreSQL") || productName.contains("MySQL")) {
             queryAdapter = new LimitQueryAdapter();
         } else {
@@ -97,6 +99,13 @@ class QueryAdapterFactory {
         @Override
         public String fixLimits(String sql) {
             return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "AND rownum <= $1");
+        }
+    }
+
+    private static class MariaDBQueryAdapter extends SimpleQueryAdapter {
+        @Override
+        public String fixLimits(String sql) {
+            return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "LIMIT $1");
         }
     }
 
