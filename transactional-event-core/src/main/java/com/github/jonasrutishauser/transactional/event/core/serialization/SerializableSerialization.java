@@ -32,11 +32,7 @@ public class SerializableSerialization implements GenericSerialization {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        try {
-            return bout.toString(StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
+        return new String(bout.toByteArray(), StandardCharsets.UTF_8);
     }
 
     @Override

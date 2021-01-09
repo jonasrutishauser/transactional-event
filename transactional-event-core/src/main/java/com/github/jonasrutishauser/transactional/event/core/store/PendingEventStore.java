@@ -1,5 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static java.sql.Statement.SUCCESS_NO_INFO;
 import static java.sql.Types.VARCHAR;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -19,7 +20,7 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -33,7 +34,7 @@ import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 
-@Dependent
+@ApplicationScoped
 class PendingEventStore implements EventStore {
 
     private static final String INSERT_SQL = "INSERT INTO event_store (id, event_type, payload, published_at, tries, lock_owner, locked_until) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -41,11 +42,12 @@ class PendingEventStore implements EventStore {
     private static final String DELETE_SQL = "DELETE FROM event_store WHERE id=? AND lock_owner=?";
     private static final String UPDATE_SQL = "UPDATE event_store SET tries=?, lock_owner=?, locked_until=? WHERE id=?";
     private static final String AQUIRE_SQL = "SELECT id, tries FROM event_store WHERE locked_until<=? {LIMIT 10} FOR UPDATE";
-    private static final String READ_BLOCKED_SQL = "SELECT id, event_type, payload, published_at FROM event_store WHERE locked_until=" + Long.MAX_VALUE;
+    private static final String READ_BLOCKED_SQL = "SELECT id, event_type, payload, published_at FROM event_store WHERE locked_until="
+            + Long.MAX_VALUE;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private Boolean supportsSkipLocked;
+    private QueryAdapter queryAdapter;
     private final DataSource dataSource;
     private final LockOwner lockOwner;
 
@@ -89,7 +91,8 @@ class PendingEventStore implements EventStore {
     public Collection<BlockedEvent> getBlockedEvents(int maxElements) {
         Collection<BlockedEvent> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(READ_BLOCKED_SQL + " {LIMIT ?}")) {
+             PreparedStatement statement = connection
+                     .prepareStatement(fixLimits(connection, READ_BLOCKED_SQL + " {LIMIT ?}"))) {
             statement.setInt(1, maxElements);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -107,6 +110,7 @@ class PendingEventStore implements EventStore {
 
     @Transactional(MANDATORY)
     void store(@Observes(during = BEFORE_COMPLETION) EventsPublished events) {
+        String errorMessage = "failed to insert pending events";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
             for (PendingEvent event : events.getEvents()) {
@@ -120,19 +124,18 @@ class PendingEventStore implements EventStore {
                 statement.addBatch();
             }
             int[] result = statement.executeBatch();
-            if (result.length != events.getEvents().size() || Arrays.stream(result).anyMatch(count -> count != 1)) {
-                String message = "failed to insert pending events";
-                LOGGER.error(message);
-                throw new IllegalStateException(message);
+            if (result.length != events.getEvents().size()
+                    || Arrays.stream(result).anyMatch(count -> count != 1 && count != SUCCESS_NO_INFO)) {
+                LOGGER.error("failed to insert pending events (results: {})", result);
+                throw new IllegalStateException(errorMessage);
             }
         } catch (SQLException exception) {
-            String message = "failed to insert pending events";
-            LOGGER.error(message, exception);
-            throw new IllegalStateException(message, exception);
+            LOGGER.error(errorMessage, exception);
+            throw new IllegalStateException(errorMessage, exception);
         }
     }
 
-    @Transactional(value=MANDATORY, dontRollbackOn = NoSuchElementException.class)
+    @Transactional(value = MANDATORY, dontRollbackOn = NoSuchElementException.class)
     public PendingEvent getAndLockEvent(String id) {
         String errorMessage = "failed to read pending event with id " + id;
         try (Connection connection = dataSource.getConnection();
@@ -163,6 +166,7 @@ class PendingEventStore implements EventStore {
              PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
             statement.setString(1, event.getId());
             statement.setString(2, lockOwner.getId());
+            statement.setQueryTimeout(10);
             if (statement.executeUpdate() < 1) {
                 throw new NoSuchElementException("failed to delete pending event with id " + event.getId());
             }
@@ -182,6 +186,7 @@ class PendingEventStore implements EventStore {
             statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));
             statement.setString(4, event.getId());
             statement.setString(5, lockOwner.getId());
+            statement.setQueryTimeout(10);
             if (statement.executeUpdate() < 1) {
                 throw new NoSuchElementException("failed to update pending event with id " + event.getId());
             }
@@ -195,7 +200,8 @@ class PendingEventStore implements EventStore {
     @Transactional
     public Set<String> aquire() {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement aquireStatement = connection.prepareStatement(addSkipLocked(connection, AQUIRE_SQL));
+             PreparedStatement aquireStatement = connection
+                     .prepareStatement(fixLimits(connection, addSkipLocked(connection, AQUIRE_SQL)));
              PreparedStatement updateStatement = connection.prepareStatement(UPDATE_SQL)) {
             aquireStatement.setLong(1, lockOwner.getMinUntilForAquire());
             Set<String> result = new HashSet<>();
@@ -210,7 +216,7 @@ class PendingEventStore implements EventStore {
                 }
                 if (!result.isEmpty()) {
                     for (int res : updateStatement.executeBatch()) {
-                        if (res < 1) {
+                        if (res != 1 && res != SUCCESS_NO_INFO) {
                             LOGGER.warn("failed to aquire pending events (update failed)");
                             return emptySet();
                         }
@@ -224,15 +230,72 @@ class PendingEventStore implements EventStore {
         }
     }
 
+    private String fixLimits(Connection connection, String sql) throws SQLException {
+        initQueryAdapter(connection);
+        return queryAdapter.fixLimits(sql);
+    }
+
     private String addSkipLocked(Connection connection, String sql) throws SQLException {
-        if (supportsSkipLocked == null) {
-            Set<String> keywords = new HashSet<>(asList(connection.getMetaData().getSQLKeywords().split(",")));
-            supportsSkipLocked = Boolean.valueOf(keywords.contains("SKIP") && keywords.contains("LOCKED"));
+        initQueryAdapter(connection);
+        return queryAdapter.addSkipLocked(sql);
+    }
+
+    private void initQueryAdapter(Connection connection) throws SQLException {
+        if (queryAdapter == null) {
+            String productName = connection.getMetaData().getDatabaseProductName();
+            if (productName.contains("Oracle")) {
+                queryAdapter = new OracleQueryAdapter();
+            } else if (productName.contains("MySQL") || productName.contains("PostgreSQL")) {
+                queryAdapter = new LimitQueryAdapter();
+            } else {
+                Set<String> keywords = new HashSet<>(asList(connection.getMetaData().getSQLKeywords().split(",")));
+                if (keywords.contains("SKIP") && keywords.contains("LOCKED")) {
+                    queryAdapter = new SkipLockedQueryAdapter();
+                } else {
+                    queryAdapter = new SimpleQueryAdapter();
+                }
+            }
+            LOGGER.debug(() -> "DB '" + productName + "' uses " + queryAdapter.getClass().getSimpleName());
         }
-        if (supportsSkipLocked.booleanValue()) {
+    }
+
+    private interface QueryAdapter {
+        String fixLimits(String sql);
+
+        String addSkipLocked(String sql);
+    }
+
+    private static class SimpleQueryAdapter implements QueryAdapter {
+        @Override
+        public String fixLimits(String sql) {
+            return sql;
+        }
+
+        @Override
+        public String addSkipLocked(String sql) {
+            return sql;
+        }
+    }
+
+    private static class SkipLockedQueryAdapter extends SimpleQueryAdapter {
+        @Override
+        public String addSkipLocked(String sql) {
             return sql.replace("FOR UPDATE", "FOR UPDATE SKIP LOCKED");
         }
-        return sql;
+    }
+
+    private static class OracleQueryAdapter extends SkipLockedQueryAdapter {
+        @Override
+        public String fixLimits(String sql) {
+            return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "AND rownum <= $1");
+        }
+    }
+
+    private static class LimitQueryAdapter extends SkipLockedQueryAdapter {
+        @Override
+        public String fixLimits(String sql) {
+            return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "LIMIT $1");
+        }
     }
 
 }
