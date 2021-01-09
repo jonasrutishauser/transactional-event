@@ -3,26 +3,26 @@
 import javax.enterprise.context.Dependent;
 
 @Dependent
-<span class="nc" id="L6">public class Configuration {</span>
+<span class="fc" id="L6">public class Configuration {</span>
 
     protected static final int DEFAULT_MAX_DISPATCHER_INTERVAL = 60;
     protected static final String DEFAULT_TABLE_NAME = &quot;event_store&quot;;
     protected static final int DEFAULT_MAX_AQUIRE = 10;
 
     public int getMaxDispatchInterval() {
-<span class="nc" id="L13">        return DEFAULT_MAX_DISPATCHER_INTERVAL;</span>
+<span class="fc" id="L13">        return DEFAULT_MAX_DISPATCHER_INTERVAL;</span>
     }
 
     public int getInitialDispatchInterval() {
-<span class="nc" id="L17">        return getMaxDispatchInterval();</span>
+<span class="fc" id="L17">        return getMaxDispatchInterval() / 2;</span>
     }
 
     public String getTableName() {
-<span class="nc" id="L21">        return DEFAULT_TABLE_NAME;</span>
+<span class="fc" id="L21">        return DEFAULT_TABLE_NAME;</span>
     }
 
     public int getMaxAquire() {
-<span class="nc" id="L25">        return DEFAULT_MAX_AQUIRE;</span>
+<span class="fc" id="L25">        return DEFAULT_MAX_AQUIRE;</span>
     }
 
 }
