@@ -76,7 +76,7 @@
 <section>
 <h2><a name="File_Activity_Report"></a>File Activity Report</h2><section>
 <h3><a name="Changes_between_2020-01-10_and_2021-01-10"></a>Changes between 2020-01-10 and 2021-01-10</h3>
-<p>Total commits: 1<br />Total number of files changed: 65</p>
+<p>Total commits: 1<br />Total number of files changed: 70</p>
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Filename</th>
@@ -103,13 +103,19 @@
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/pom.xml">transactional-event-api/<b>pom.xml</b></a> </td>
 <td>1</td></tr>
 <tr class="a">
-<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/EventPublisher.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>EventPublisher.java</b></a> </td>
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/Configuration.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>Configuration.java</b></a> </td>
 <td>1</td></tr>
 <tr class="b">
-<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/EventTypeResolver.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>EventTypeResolver.java</b></a> </td>
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/EventPublisher.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>EventPublisher.java</b></a> </td>
 <td>1</td></tr>
 <tr class="a">
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/EventTypeResolver.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>EventTypeResolver.java</b></a> </td>
+<td>1</td></tr>
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/Events.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>Events.java</b></a> </td>
+<td>1</td></tr>
+<tr class="a">
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/MPConfiguration.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/<b>MPConfiguration.java</b></a> </td>
 <td>1</td></tr>
 <tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/handler/AbstractHandler.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/handler/<b>AbstractHandler.java</b></a> </td>
@@ -134,6 +140,12 @@
 <td>1</td></tr>
 <tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/store/EventStore.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/store/<b>EventStore.java</b></a> </td>
+<td>1</td></tr>
+<tr class="b">
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/store/QueryAdapter.java">transactional-event-api/src/main/java/com/github/jonasrutishauser/transactional/event/api/store/<b>QueryAdapter.java</b></a> </td>
+<td>1</td></tr>
+<tr class="a">
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/main/resources/META-INF/beans.xml">transactional-event-api/src/main/resources/META-INF/<b>beans.xml</b></a> </td>
 <td>1</td></tr>
 <tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-api/src/test/java/com/github/jonasrutishauser/transactional/event/api/handler/AbstractHandlerTest.java">transactional-event-api/src/test/java/com/github/jonasrutishauser/transactional/event/api/handler/<b>AbstractHandlerTest.java</b></a> </td>
@@ -205,75 +217,78 @@
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/PendingEventStore.java">transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/<b>PendingEventStore.java</b></a> </td>
 <td>1</td></tr>
 <tr class="a">
+<td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/QueryAdapterFactory.java">transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/<b>QueryAdapterFactory.java</b></a> </td>
+<td>1</td></tr>
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/Scheduler.java">transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/<b>Scheduler.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/TransactionalWorker.java">transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/<b>TransactionalWorker.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/Worker.java">transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/<b>Worker.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/WorkerImpl.java">transactional-event-core/src/main/java/com/github/jonasrutishauser/transactional/event/core/store/<b>WorkerImpl.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/resources/META-INF/beans.xml">transactional-event-core/src/main/resources/META-INF/<b>beans.xml</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/main/resources/META-INF/services/javax.enterprise.inject.spi.Extension">transactional-event-core/src/main/resources/META-INF/services/<b>javax.enterprise.inject.spi.Extension</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/openejb/ApplicationComposerExtension.java">transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/openejb/<b>ApplicationComposerExtension.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/store/PendingEventStoreIT.java">transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/store/<b>PendingEventStoreIT.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/store/PendingEventStoreTest.java">transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/store/<b>PendingEventStoreTest.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/store/TransactionalEventPublisherIT.java">transactional-event-core/src/test/java/com/github/jonasrutishauser/transactional/event/core/store/<b>TransactionalEventPublisherIT.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/resources/log4j2-test.xml">transactional-event-core/src/test/resources/<b>log4j2-test.xml</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/resources/table-mysql.sql">transactional-event-core/src/test/resources/<b>table-mysql.sql</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/resources/table-oracle.sql">transactional-event-core/src/test/resources/<b>table-oracle.sql</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-core/src/test/resources/table.sql">transactional-event-core/src/test/resources/<b>table.sql</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/pom.xml">transactional-event-liberty-it/<b>pom.xml</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/DataSourceProvider.java">transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/<b>DataSourceProvider.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/Messages.java">transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/<b>Messages.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/TestApplication.java">transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/<b>TestApplication.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/TestEvent.java">transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/<b>TestEvent.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/TestEventHandler.java">transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/<b>TestEventHandler.java</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/TestResource.java">transactional-event-liberty-it/src/main/java/com/github/jonasrutishauser/transactional/event/liberty/<b>TestResource.java</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/liberty/config/server.xml">transactional-event-liberty-it/src/main/liberty/config/<b>server.xml</b></a> </td>
 <td>1</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/main/resources/log4j2.xml">transactional-event-liberty-it/src/main/resources/<b>log4j2.xml</b></a> </td>
 <td>1</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a class="externalLink" href="https://github.com/jonasrutishauser/transactional-event/blob/master/transactional-event-liberty-it/src/test/java/com/github/jonasrutishauser/transactional/event/liberty/TransactionalEventIT.java">transactional-event-liberty-it/src/test/java/com/github/jonasrutishauser/transactional/event/liberty/<b>TransactionalEventIT.java</b></a> </td>
 <td>1</td></tr></table></section></section>
         </main>
