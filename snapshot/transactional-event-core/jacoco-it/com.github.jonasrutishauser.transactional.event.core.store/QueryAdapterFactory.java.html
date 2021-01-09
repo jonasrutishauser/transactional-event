@@ -77,42 +77,44 @@ class QueryAdapterFactory {
     }
 
     private static class SimpleQueryAdapter implements QueryAdapter {
+        protected static final String LIMIT_EXPRESSION = &quot;\\{LIMIT ([^}]+)\\}&quot;;
+
         @Override
         public String fixLimits(String sql) {
-<span class="fc" id="L82">            return sql;</span>
+<span class="fc" id="L84">            return sql;</span>
         }
 
         @Override
         public String addSkipLocked(String sql) {
-<span class="fc" id="L87">            return sql;</span>
+<span class="fc" id="L89">            return sql;</span>
         }
     }
 
-<span class="fc" id="L91">    private static class SkipLockedQueryAdapter extends SimpleQueryAdapter {</span>
+<span class="fc" id="L93">    private static class SkipLockedQueryAdapter extends SimpleQueryAdapter {</span>
         @Override
         public String addSkipLocked(String sql) {
-<span class="fc" id="L94">            return sql.replace(&quot;FOR UPDATE&quot;, &quot;FOR UPDATE SKIP LOCKED&quot;);</span>
+<span class="fc" id="L96">            return sql.replace(&quot;FOR UPDATE&quot;, &quot;FOR UPDATE SKIP LOCKED&quot;);</span>
         }
     }
 
-<span class="fc" id="L98">    private static class OracleQueryAdapter extends SkipLockedQueryAdapter {</span>
+<span class="fc" id="L100">    private static class OracleQueryAdapter extends SkipLockedQueryAdapter {</span>
         @Override
         public String fixLimits(String sql) {
-<span class="fc" id="L101">            return sql.replaceAll(&quot;\\{LIMIT ([^}]+)\\}&quot;, &quot;AND rownum &lt;= $1&quot;);</span>
+<span class="fc" id="L103">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;AND rownum &lt;= $1&quot;);</span>
         }
     }
 
-<span class="fc" id="L105">    private static class MariaDBQueryAdapter extends SimpleQueryAdapter {</span>
+<span class="fc" id="L107">    private static class MariaDBQueryAdapter extends SimpleQueryAdapter {</span>
         @Override
         public String fixLimits(String sql) {
-<span class="fc" id="L108">            return sql.replaceAll(&quot;\\{LIMIT ([^}]+)\\}&quot;, &quot;LIMIT $1&quot;);</span>
+<span class="fc" id="L110">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;LIMIT $1&quot;);</span>
         }
     }
 
-<span class="fc" id="L112">    private static class LimitQueryAdapter extends SkipLockedQueryAdapter {</span>
+<span class="fc" id="L114">    private static class LimitQueryAdapter extends SkipLockedQueryAdapter {</span>
         @Override
         public String fixLimits(String sql) {
-<span class="fc" id="L115">            return sql.replaceAll(&quot;\\{LIMIT ([^}]+)\\}&quot;, &quot;LIMIT $1&quot;);</span>
+<span class="fc" id="L117">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;LIMIT $1&quot;);</span>
         }
     }
 
