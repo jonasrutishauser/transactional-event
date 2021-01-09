@@ -167,6 +167,7 @@
 					<excludes>
 						<exclude/>
 					</excludes>
+					<forkCount>2C</forkCount>
 				</configuration>
 			</plugin>
 		</plugins>
