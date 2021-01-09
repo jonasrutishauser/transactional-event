@@ -52,7 +52,7 @@ class LockOwner {
     }
 
     public boolean isOwningForProcessing(String owner, long lockedUntil) {
-<span class="pc bpc" id="L55" title="2 of 4 branches missed.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
+<span class="fc bfc" id="L55" title="All 4 branches covered.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
     }
 
 }

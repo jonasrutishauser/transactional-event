@@ -1,6 +1,6 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.random,Random,0,18,0,0,0,5,0,2,0,2
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,SerializableSerialization,18,50,0,0,6,10,0,4,0,4
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,SerializableSerialization,12,52,0,0,4,10,0,4,0,4
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,0,26,0,0,0,8,0,5,0,5
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JaxbSerialization,18,109,0,8,6,19,0,11,0,7
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,DefaultEventSerializer,17,46,1,3,3,11,2,4,1,3
@@ -12,11 +12,15 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,PublishedEvents,4,31,0,2,2,8,1,3,1,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher,18,117,0,8,6,25,1,10,1,6
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkerImpl,0,31,0,0,0,11,0,3,0,3
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore.SkipLockedQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,7,86,0,2,2,22,1,5,1,4
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,155,488,13,25,35,97,13,18,1,11
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore.OracleQueryAdapter,0,9,0,0,0,2,0,2,0,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,38,686,8,38,8,138,7,31,0,15
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,9,0,0,0,4,0,2,0,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore.LimitQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker.new TransactionalWorker.EventHandlerLiteral() {...},0,14,0,0,0,2,0,2,0,2
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,1,73,2,4,0,16,2,9,0,8
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,0,74,0,6,0,16,0,11,0,8
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher.new Trigger() {...},0,16,0,0,0,3,0,3,0,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,72,303,7,25,9,62,7,20,0,11
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,DefaultEventDeserializer,5,20,1,1,1,6,1,2,0,2

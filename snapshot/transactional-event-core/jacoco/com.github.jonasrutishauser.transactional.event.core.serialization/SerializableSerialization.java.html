@@ -32,20 +32,16 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.Generic
 <span class="nc" id="L32">        } catch (IOException e) {</span>
 <span class="nc" id="L33">            throw new IllegalStateException(e);</span>
 <span class="nc" id="L34">        }</span>
-        try {
-<span class="nc" id="L36">            return bout.toString(StandardCharsets.UTF_8.name());</span>
-<span class="nc" id="L37">        } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L38">            throw new IllegalStateException(e);</span>
-        }
+<span class="nc" id="L35">        return new String(bout.toByteArray(), StandardCharsets.UTF_8);</span>
     }
 
     @Override
     public &lt;T&gt; T deserialize(String event, Class&lt;T&gt; type) {
-<span class="nc" id="L44">        try (ObjectInputStream in = new ObjectInputStream(</span>
-<span class="nc" id="L45">                Base64.getDecoder().wrap(new ByteArrayInputStream(event.getBytes(StandardCharsets.UTF_8))))) {</span>
-<span class="nc" id="L46">            return type.cast(in.readObject());</span>
-<span class="nc" id="L47">        } catch (IOException | ClassNotFoundException e) {</span>
-<span class="nc" id="L48">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L40">        try (ObjectInputStream in = new ObjectInputStream(</span>
+<span class="nc" id="L41">                Base64.getDecoder().wrap(new ByteArrayInputStream(event.getBytes(StandardCharsets.UTF_8))))) {</span>
+<span class="nc" id="L42">            return type.cast(in.readObject());</span>
+<span class="nc" id="L43">        } catch (IOException | ClassNotFoundException e) {</span>
+<span class="nc" id="L44">            throw new IllegalStateException(e);</span>
         }
     }
 

@@ -106,12 +106,12 @@ function toggleDisplay(elementId) {
 <th>Success Rate</th>
 <th>Time</th></tr>
 <tr class="b">
-<td>2</td>
+<td>80</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>100%</td>
-<td>117.74</td></tr></table><br />
+<td>327.464</td></tr></table><br />
 <p>Note: failures are anticipated and checked for with assertions while errors are unanticipated.</p><br /></section><section>
 <h2><a name="Package_List"></a>Package List</h2><a name="Package_List"></a>
 <p>[<a href="#Summary">Summary</a>] [<a href="#Package_List">Package List</a>] [<a href="#Test_Cases">Test Cases</a>]</p><br />
@@ -126,12 +126,12 @@ function toggleDisplay(elementId) {
 <th>Time</th></tr>
 <tr class="b">
 <td><a href="#com.github.jonasrutishauser.transactional.event.core.store">com.github.jonasrutishauser.transactional.event.core.store</a></td>
-<td>2</td>
+<td>80</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>100%</td>
-<td>117.74</td></tr></table><br />
+<td>327.464</td></tr></table><br />
 <p>Note: package statistics are not computed recursively, they only sum up all of its testsuites numbers.</p><section>
 <h3><a name="com.github.jonasrutishauser.transactional.event.core.store"></a>com.github.jonasrutishauser.transactional.event.core.store</h3><a name="com.github.jonasrutishauser.transactional.event.core.store"></a>
 <table border="1" class="table table-striped">
@@ -145,6 +145,33 @@ function toggleDisplay(elementId) {
 <th>Success Rate</th>
 <th>Time</th></tr>
 <tr class="b">
+<td><a href="#com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$MySQLIT"><figure><img src="images/icon_success_sml.gif" alt="" /></figure></a></td>
+<td><a href="#com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$MySQLIT">PendingEventStoreIT$MySQLIT</a></td>
+<td>26</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>57.872</td></tr>
+<tr class="a">
+<td><a href="#com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$PostgreSQLIT"><figure><img src="images/icon_success_sml.gif" alt="" /></figure></a></td>
+<td><a href="#com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$PostgreSQLIT">PendingEventStoreIT$PostgreSQLIT</a></td>
+<td>26</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>43.517</td></tr>
+<tr class="b">
+<td><a href="#com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$OracleIT"><figure><img src="images/icon_success_sml.gif" alt="" /></figure></a></td>
+<td><a href="#com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$OracleIT">PendingEventStoreIT$OracleIT</a></td>
+<td>26</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>109.144</td></tr>
+<tr class="a">
 <td><a href="#com.github.jonasrutishauser.transactional.event.core.store.TransactionalEventPublisherIT"><figure><img src="images/icon_success_sml.gif" alt="" /></figure></a></td>
 <td><a href="#com.github.jonasrutishauser.transactional.event.core.store.TransactionalEventPublisherIT">TransactionalEventPublisherIT</a></td>
 <td>2</td>
@@ -152,19 +179,337 @@ function toggleDisplay(elementId) {
 <td>0</td>
 <td>0</td>
 <td>100%</td>
-<td>117.74</td></tr></table></section><br /></section><section>
+<td>116.931</td></tr></table></section><br /></section><section>
 <h2><a name="Test_Cases"></a>Test Cases</h2><a name="Test_Cases"></a>
 <p>[<a href="#Summary">Summary</a>] [<a href="#Package_List">Package List</a>] [<a href="#Test_Cases">Test Cases</a>]</p><section>
+<h3><a name="PendingEventStoreIT.24MySQLIT"></a>PendingEventStoreIT$MySQLIT</h3><a name="com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$MySQLIT"></a>
+<table border="1" class="table table-striped">
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.unblockWhenExists"></a>unblockWhenExists</td>
+<td>0.423</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.unblockWhenLocked"></a>unblockWhenLocked</td>
+<td>0.141</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.updateForRetryWhenNotExists"></a>updateForRetryWhenNotExists</td>
+<td>0.106</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.aquireWhenTableNotExists"></a>aquireWhenTableNotExists</td>
+<td>0.25</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.updateForRetryWhenSuccessful"></a>updateForRetryWhenSuccessful</td>
+<td>0.126</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.deleteWhenLocked"></a>deleteWhenLocked</td>
+<td>10.382</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getAndLockEventWhenOtherTheOwner"></a>getAndLockEventWhenOtherTheOwner</td>
+<td>0.094</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getBlockedEventsWhenMoreEventsThanLimit"></a>getBlockedEventsWhenMoreEventsThanLimit</td>
+<td>0.152</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.storeSingleEventDuplicateId"></a>storeSingleEventDuplicateId</td>
+<td>0.253</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getAndLockEventWhenNotExists"></a>getAndLockEventWhenNotExists</td>
+<td>0.036</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getBlockedEventsWhenSomeEvents"></a>getBlockedEventsWhenSomeEvents</td>
+<td>0.123</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.aquireWhenEmpty"></a>aquireWhenEmpty</td>
+<td>0.165</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.storeMultipleEvent"></a>storeMultipleEvent</td>
+<td>0.119</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getAndLockEventWhenSuccessful"></a>getAndLockEventWhenSuccessful</td>
+<td>0.144</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getAndLockEventWhenLockedByOther"></a>getAndLockEventWhenLockedByOther</td>
+<td>1.198</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.updateForRetryWhenSuccessfulAfterTooManyTries"></a>updateForRetryWhenSuccessfulAfterTooManyTries</td>
+<td>0.11</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.deleteWhenSuccessful"></a>deleteWhenSuccessful</td>
+<td>0.135</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.unblockWhenEmpty"></a>unblockWhenEmpty</td>
+<td>0.076</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getAndLockEventWhenNoLongerTheOwner"></a>getAndLockEventWhenNoLongerTheOwner</td>
+<td>0.098</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.proxyConstructor"></a>proxyConstructor</td>
+<td>0.149</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.storeSingleEvent"></a>storeSingleEvent</td>
+<td>0.13</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.deleteWhenNotExists"></a>deleteWhenNotExists</td>
+<td>0.096</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.aquireWhenSomeMessages"></a>aquireWhenSomeMessages</td>
+<td>0.153</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getBlockedEventsWhenTableNotExists"></a>getBlockedEventsWhenTableNotExists</td>
+<td>0.157</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.getBlockedEventsWhenEmpty"></a>getBlockedEventsWhenEmpty</td>
+<td>0.058</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITMySQLIT.updateForRetryWhenLocked"></a>updateForRetryWhenLocked</td>
+<td>10.187</td></tr></table></section><section>
+<h3><a name="PendingEventStoreIT.24PostgreSQLIT"></a>PendingEventStoreIT$PostgreSQLIT</h3><a name="com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$PostgreSQLIT"></a>
+<table border="1" class="table table-striped">
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.unblockWhenExists"></a>unblockWhenExists</td>
+<td>0.705</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.unblockWhenLocked"></a>unblockWhenLocked</td>
+<td>0.038</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.updateForRetryWhenNotExists"></a>updateForRetryWhenNotExists</td>
+<td>0.06</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.aquireWhenTableNotExists"></a>aquireWhenTableNotExists</td>
+<td>0.16</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.updateForRetryWhenSuccessful"></a>updateForRetryWhenSuccessful</td>
+<td>0.023</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.deleteWhenLocked"></a>deleteWhenLocked</td>
+<td>10.085</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getAndLockEventWhenOtherTheOwner"></a>getAndLockEventWhenOtherTheOwner</td>
+<td>0.024</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getBlockedEventsWhenMoreEventsThanLimit"></a>getBlockedEventsWhenMoreEventsThanLimit</td>
+<td>0.061</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.storeSingleEventDuplicateId"></a>storeSingleEventDuplicateId</td>
+<td>0.123</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getAndLockEventWhenNotExists"></a>getAndLockEventWhenNotExists</td>
+<td>0</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getBlockedEventsWhenSomeEvents"></a>getBlockedEventsWhenSomeEvents</td>
+<td>0.007</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.aquireWhenEmpty"></a>aquireWhenEmpty</td>
+<td>0.017</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.storeMultipleEvent"></a>storeMultipleEvent</td>
+<td>0.027</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getAndLockEventWhenSuccessful"></a>getAndLockEventWhenSuccessful</td>
+<td>0.04</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getAndLockEventWhenLockedByOther"></a>getAndLockEventWhenLockedByOther</td>
+<td>1.142</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.updateForRetryWhenSuccessfulAfterTooManyTries"></a>updateForRetryWhenSuccessfulAfterTooManyTries</td>
+<td>0.002</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.deleteWhenSuccessful"></a>deleteWhenSuccessful</td>
+<td>0.009</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.unblockWhenEmpty"></a>unblockWhenEmpty</td>
+<td>0.023</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getAndLockEventWhenNoLongerTheOwner"></a>getAndLockEventWhenNoLongerTheOwner</td>
+<td>0.029</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.proxyConstructor"></a>proxyConstructor</td>
+<td>0.013</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.storeSingleEvent"></a>storeSingleEvent</td>
+<td>0.016</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.deleteWhenNotExists"></a>deleteWhenNotExists</td>
+<td>0.016</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.aquireWhenSomeMessages"></a>aquireWhenSomeMessages</td>
+<td>0.047</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getBlockedEventsWhenTableNotExists"></a>getBlockedEventsWhenTableNotExists</td>
+<td>0.155</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.getBlockedEventsWhenEmpty"></a>getBlockedEventsWhenEmpty</td>
+<td>0</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITPostgreSQLIT.updateForRetryWhenLocked"></a>updateForRetryWhenLocked</td>
+<td>10.139</td></tr></table></section><section>
+<h3><a name="PendingEventStoreIT.24OracleIT"></a>PendingEventStoreIT$OracleIT</h3><a name="com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreIT$OracleIT"></a>
+<table border="1" class="table table-striped">
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.unblockWhenExists"></a>unblockWhenExists</td>
+<td>0.338</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.unblockWhenLocked"></a>unblockWhenLocked</td>
+<td>0.239</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.updateForRetryWhenNotExists"></a>updateForRetryWhenNotExists</td>
+<td>0.139</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.aquireWhenTableNotExists"></a>aquireWhenTableNotExists</td>
+<td>0.174</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.updateForRetryWhenSuccessful"></a>updateForRetryWhenSuccessful</td>
+<td>0.115</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.deleteWhenLocked"></a>deleteWhenLocked</td>
+<td>15.652</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getAndLockEventWhenOtherTheOwner"></a>getAndLockEventWhenOtherTheOwner</td>
+<td>0.106</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getBlockedEventsWhenMoreEventsThanLimit"></a>getBlockedEventsWhenMoreEventsThanLimit</td>
+<td>0.105</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.storeSingleEventDuplicateId"></a>storeSingleEventDuplicateId</td>
+<td>0.178</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getAndLockEventWhenNotExists"></a>getAndLockEventWhenNotExists</td>
+<td>0.039</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getBlockedEventsWhenSomeEvents"></a>getBlockedEventsWhenSomeEvents</td>
+<td>0.112</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.aquireWhenEmpty"></a>aquireWhenEmpty</td>
+<td>0.089</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.storeMultipleEvent"></a>storeMultipleEvent</td>
+<td>0.104</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getAndLockEventWhenSuccessful"></a>getAndLockEventWhenSuccessful</td>
+<td>0.101</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getAndLockEventWhenLockedByOther"></a>getAndLockEventWhenLockedByOther</td>
+<td>3.283</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.updateForRetryWhenSuccessfulAfterTooManyTries"></a>updateForRetryWhenSuccessfulAfterTooManyTries</td>
+<td>0.047</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.deleteWhenSuccessful"></a>deleteWhenSuccessful</td>
+<td>0.126</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.unblockWhenEmpty"></a>unblockWhenEmpty</td>
+<td>0.077</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getAndLockEventWhenNoLongerTheOwner"></a>getAndLockEventWhenNoLongerTheOwner</td>
+<td>0.102</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.proxyConstructor"></a>proxyConstructor</td>
+<td>0.058</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.storeSingleEvent"></a>storeSingleEvent</td>
+<td>0.103</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.deleteWhenNotExists"></a>deleteWhenNotExists</td>
+<td>0.096</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.aquireWhenSomeMessages"></a>aquireWhenSomeMessages</td>
+<td>0.145</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getBlockedEventsWhenTableNotExists"></a>getBlockedEventsWhenTableNotExists</td>
+<td>0.192</td></tr>
+<tr class="a">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.getBlockedEventsWhenEmpty"></a>getBlockedEventsWhenEmpty</td>
+<td>0.045</td></tr>
+<tr class="b">
+<td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
+<td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.PendingEventStoreITOracleIT.updateForRetryWhenLocked"></a>updateForRetryWhenLocked</td>
+<td>12.539</td></tr></table></section><section>
 <h3><a name="TransactionalEventPublisherIT"></a>TransactionalEventPublisherIT</h3><a name="com.github.jonasrutishauser.transactional.event.core.store.TransactionalEventPublisherIT"></a>
 <table border="1" class="table table-striped">
 <tr class="a">
 <td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
 <td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.TransactionalEventPublisherIT.testPublish"></a>testPublish</td>
-<td>6.431</td></tr>
+<td>5.836</td></tr>
 <tr class="b">
 <td><figure><img src="images/icon_success_sml.gif" alt="" /></figure></td>
 <td><a name="TC_com.github.jonasrutishauser.transactional.event.core.store.TransactionalEventPublisherIT.testBlocking"></a>testBlocking</td>
-<td>111.289</td></tr></table></section><br /></section>
+<td>111.093</td></tr></table></section><br /></section>
         </main>
       </div>
     </div>
