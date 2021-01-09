@@ -11,7 +11,7 @@
 	<dataSource jndiName="jdbc/testDatasource" type="javax.sql.ConnectionPoolDataSource">
 		<jdbcDriver javax.sql.ConnectionPoolDataSource="org.h2.jdbcx.JdbcDataSource">
 			<library>
-				<fileset dir="${shared.resource.dir}" includes="h2*.jar" />
+				<fileset dir="${server.config.dir}/lib/global" includes="h2*.jar" />
 			</library>
 		</jdbcDriver>
 		<properties password="pwd" URL="jdbc:h2:mem:test;LOCK_TIMEOUT=20000;DB_CLOSE_DELAY=-1;INIT=runscript from '../../../../../../../transactional-event-core/src/test/resources/table.sql'" user="test" />

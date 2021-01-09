@@ -98,33 +98,19 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<?m2e execute onConfiguration?>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifact>
-									<groupId>com.h2database</groupId>
-									<artifactId>h2</artifactId>
-									<version>1.4.200</version>
-								</artifact>
-							</artifactItems>
-							<outputDirectory>${project.build.directory}/liberty/wlp/usr/shared/resources</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>io.openliberty.tools</groupId>
 				<artifactId>liberty-maven-plugin</artifactId>
-				<version>3.2.3</version>
+				<version>3.3.3</version>
 				<configuration>
-					<applications>${project.actifactId}</applications>
+					<applications>${project.artifactId}</applications>
 					<stripVersion>true</stripVersion>
+					<copyDependencies>
+						<dependency>
+							<groupId>com.h2database</groupId>
+							<artifactId>h2</artifactId>
+							<version>1.4.200</version>
+						</dependency>
+					</copyDependencies>
 				</configuration>
 				<executions>
 					<execution>
