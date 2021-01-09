@@ -12,19 +12,19 @@ public class MPConfiguration extends Configuration {
 
     @Inject
     @ConfigProperty(name = "transactional.event.maxDispatchInterval")
-    private Optional<Integer> maxDispatchInterval = Optional.empty();
+    Optional<Integer> maxDispatchInterval = Optional.empty();
 
     @Inject
     @ConfigProperty(name = "transactional.event.initialDispatchInterval")
-    private Optional<Integer> initialDispatchInterval = Optional.empty();
+    Optional<Integer> initialDispatchInterval = Optional.empty();
 
     @Inject
     @ConfigProperty(name = "transactional.event.table")
-    private Optional<String> tableName = Optional.empty();
+    Optional<String> tableName = Optional.empty();
 
     @Inject
     @ConfigProperty(name = "transactional.event.maxAquire")
-    private Optional<Integer> maxAquire = Optional.empty();
+    Optional<Integer> maxAquire = Optional.empty();
 
     @Override
     public int getMaxDispatchInterval() {

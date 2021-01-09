@@ -14,7 +14,7 @@ public class Configuration {
     }
 
     public int getInitialDispatchInterval() {
-        return getMaxDispatchInterval();
+        return getMaxDispatchInterval() / 2;
     }
 
     public String getTableName() {
