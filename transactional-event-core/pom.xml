@@ -162,6 +162,7 @@
 					<systemPropertyVariables>
 						<java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
 						<oracle.net.disableOob>true</oracle.net.disableOob>
+						<oracle.jdbc.timezoneAsRegion>false</oracle.jdbc.timezoneAsRegion>
 					</systemPropertyVariables>
 					<excludes>
 						<exclude/>
