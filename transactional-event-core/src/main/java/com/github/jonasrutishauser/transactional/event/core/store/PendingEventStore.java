@@ -50,6 +50,7 @@ class PendingEventStore implements EventStore {
     private String readSQL;
     private String deleteSQL;
     private String updateSQL;
+    private String updateSQLwithLockOwner;
     private String aquireSQL;
     private String readBlockedSQL;
     private String readBlockedForUpdateSQL;
@@ -75,6 +76,7 @@ class PendingEventStore implements EventStore {
         readSQL = "SELECT * FROM " + configuration.getTableName() + " WHERE id=? FOR UPDATE";
         deleteSQL = "DELETE FROM " + configuration.getTableName() + " WHERE id=? AND lock_owner=?";
         updateSQL = "UPDATE " + configuration.getTableName() + " SET tries=?, lock_owner=?, locked_until=? WHERE id=?";
+        updateSQLwithLockOwner = updateSQL + " AND lock_owner=?";
         aquireSQL = adapter.fixLimits(adapter.addSkipLocked("SELECT id, tries FROM " + configuration.getTableName()
                 + " WHERE locked_until<=? {LIMIT ?} FOR UPDATE"));
         String readBlocked = "SELECT * FROM " + configuration.getTableName() + " WHERE locked_until=" + Long.MAX_VALUE;
@@ -199,7 +201,7 @@ class PendingEventStore implements EventStore {
     @Transactional(MANDATORY)
     public void updateForRetry(PendingEvent event) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(updateSQL + " AND lock_owner=?")) {
+             PreparedStatement statement = connection.prepareStatement(updateSQLwithLockOwner)) {
             statement.setInt(1, event.getTries() + 1);
             statement.setNull(2, VARCHAR);
             statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));

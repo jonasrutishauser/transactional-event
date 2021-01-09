@@ -77,6 +77,8 @@ class QueryAdapterFactory {
     }
 
     private static class SimpleQueryAdapter implements QueryAdapter {
+        protected static final String LIMIT_EXPRESSION = "\\{LIMIT ([^}]+)\\}";
+
         @Override
         public String fixLimits(String sql) {
             return sql;
@@ -98,21 +100,21 @@ class QueryAdapterFactory {
     private static class OracleQueryAdapter extends SkipLockedQueryAdapter {
         @Override
         public String fixLimits(String sql) {
-            return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "AND rownum <= $1");
+            return sql.replaceAll(LIMIT_EXPRESSION, "AND rownum <= $1");
         }
     }
 
     private static class MariaDBQueryAdapter extends SimpleQueryAdapter {
         @Override
         public String fixLimits(String sql) {
-            return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "LIMIT $1");
+            return sql.replaceAll(LIMIT_EXPRESSION, "LIMIT $1");
         }
     }
 
     private static class LimitQueryAdapter extends SkipLockedQueryAdapter {
         @Override
         public String fixLimits(String sql) {
-            return sql.replaceAll("\\{LIMIT ([^}]+)\\}", "LIMIT $1");
+            return sql.replaceAll(LIMIT_EXPRESSION, "LIMIT $1");
         }
     }
 
