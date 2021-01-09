@@ -44,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
@@ -55,7 +56,7 @@ import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.core.openejb.ApplicationComposerExtension;
 
 @Default
-@Classes(cdi = true)
+@Classes(cdi = true, value = Configuration.class)
 @ExtendWith(ApplicationComposerExtension.class)
 @ContainerProperties({@Property(name = "testDb", value = "new://Resource?type=DataSource"),
         @Property(name = "testDb.JdbcUrl",

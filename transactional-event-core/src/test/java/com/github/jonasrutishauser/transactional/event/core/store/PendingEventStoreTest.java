@@ -35,6 +35,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.github.jonasrutishauser.transactional.event.api.MPConfiguration;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 
@@ -54,8 +55,9 @@ class PendingEventStoreTest {
     @BeforeEach
     void initDb() throws Exception {
         dataSource = getDataSource();
-        testee = new PendingEventStore(dataSource,
+        testee = new PendingEventStore(new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
                 new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
+        testee.initSqlQueries();
         try (Statement statement = dataSource.getConnection().createStatement()) {
             for (String sql : new String(Files.readAllBytes(Paths.get(getClass().getResource(ddl()).toURI())),
                     StandardCharsets.UTF_8).split(";")) {

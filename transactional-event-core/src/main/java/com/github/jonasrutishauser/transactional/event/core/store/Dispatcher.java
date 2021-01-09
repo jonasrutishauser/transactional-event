@@ -1,5 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 
@@ -7,6 +8,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.concurrent.ContextService;
 import javax.enterprise.concurrent.LastExecution;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -18,22 +20,23 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.TransientReference;
 import javax.inject.Inject;
 
+import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 
 @ApplicationScoped
 class Dispatcher implements Scheduler {
 
-    private static final int MAX_INTERVAL = 60;
-
+    private final Configuration configuration;
     private final Scheduler scheduler;
     private final ManagedScheduledExecutorService executor;
     private final PendingEventStore store;
     private final Worker worker;
 
-    private volatile int intervalSeconds = MAX_INTERVAL / 2;
+    private volatile int intervalSeconds = 30;
 
     Dispatcher() {
+        this.configuration = null;
         this.scheduler = null;
         this.executor = null;
         this.store = null;
@@ -41,12 +44,18 @@ class Dispatcher implements Scheduler {
     }
 
     @Inject
-    Dispatcher(Scheduler scheduler, @Events ManagedScheduledExecutorService executor, PendingEventStore store,
-            Worker worker, @Events @TransientReference ContextService contextService) {
+    Dispatcher(Configuration configuration, Scheduler scheduler, @Events ManagedScheduledExecutorService executor,
+            PendingEventStore store, Worker worker, @Events @TransientReference ContextService contextService) {
+        this.configuration = configuration;
         this.scheduler = contextService.createContextualProxy(scheduler, Scheduler.class);
         this.executor = executor;
         this.store = store;
         this.worker = contextService.createContextualProxy(worker, Worker.class);
+    }
+
+    @PostConstruct
+    void initIntervalSeconds() {
+        intervalSeconds = configuration.getInitialDispatchInterval();
     }
 
     void directDispatch(@Observes(during = AFTER_SUCCESS) EventsPublished events) {
@@ -85,9 +94,9 @@ class Dispatcher implements Scheduler {
             events.stream().map(this::processor).forEach(executor::execute);
         }
         if (processed) {
-            intervalSeconds = 1;
+            intervalSeconds = 0;
         } else {
-            intervalSeconds = min(MAX_INTERVAL, intervalSeconds * 2);
+            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
         }
     }
 
