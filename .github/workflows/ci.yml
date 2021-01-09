@@ -9,6 +9,9 @@ on:
   pull_request:
     branches:
       - master
+  release:
+    types:
+      - published
 
 jobs:
   build:
@@ -44,12 +47,12 @@ jobs:
           path: '**/target/liberty/wlp/usr/servers/*/logs/**/*.log'
           retention-days: 5
       - name: Unittest Coverage
-        if: ${{ matrix.java == '11' }}
+        if: ${{ matrix.java == '11' && github.event_name != 'release' }}
         run: >
           mvn -B jacoco:report && 
           bash <(curl -s https://codecov.io/bash) -c -F unittests
       - name: Integrationstest Coverage
-        if: ${{ matrix.java == '11' }}
+        if: ${{ matrix.java == '11' && github.event_name != 'release' }}
         run: >
           mvn -B jacoco:report-integration && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
@@ -62,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Deploy Site
-        if: ${{ matrix.java == '1.8' }}
+        if: ${{ matrix.java == '1.8' && github.event_name != 'release' }}
         run: mvn -B -e site-deploy
         env:
           GITHUB_TOKEN: ${{ github.token }}
