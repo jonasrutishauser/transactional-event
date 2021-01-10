@@ -13,6 +13,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import oracle.jdbc.pool.OracleConnectionPoolDataSource;
 import oracle.jdbc.pool.OracleDataSource;
 
 class PendingEventStoreIT {
@@ -87,7 +88,7 @@ class PendingEventStoreIT {
 
         @Override
         protected DataSource getDataSource() throws SQLException {
-            OracleDataSource dataSource = new OracleDataSource();
+            OracleDataSource dataSource = new OracleConnectionPoolDataSource();
             dataSource.setURL(oracle.getJdbcUrl());
             dataSource.setUser(oracle.getUsername());
             dataSource.setPassword(oracle.getPassword());
