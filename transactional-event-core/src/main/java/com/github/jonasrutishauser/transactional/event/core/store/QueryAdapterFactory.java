@@ -34,11 +34,9 @@ class QueryAdapterFactory {
         queryAdapter = null;
     }
 
-    QueryAdapterFactory(DataSource dataSource) {
+    QueryAdapterFactory(DataSource dataSource) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             queryAdapter = getQueryAdapter(connection);
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
         }
     }
 

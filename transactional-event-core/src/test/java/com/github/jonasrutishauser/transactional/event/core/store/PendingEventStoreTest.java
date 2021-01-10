@@ -12,11 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -120,6 +125,26 @@ class PendingEventStoreTest {
     }
 
     @Test
+    void unblockWhenDbMalfunctionNothingUpdated() throws Exception {
+        try (Statement statement = dataSource.getConnection().createStatement()) {
+            statement.execute("INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, "
+                    + Long.MAX_VALUE + ")");
+        }
+        DataSource mockDataSource = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(mockDataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(startsWith("UPDATE"))).thenReturn(statement);
+        when(connection.prepareStatement(startsWith("SELECT")))
+                .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
+        testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
+        testee.initSqlQueries();
+
+        assertFalse(testee.unblock("foo"));
+    }
+
+    @Test
     void getBlockedEventsWhenEmpty() throws Exception {
         try (Statement statement = dataSource.getConnection().createStatement()) {
             statement.execute(
@@ -220,6 +245,42 @@ class PendingEventStoreTest {
             }
             assertFalse(resultSet.next());
         }
+    }
+
+    @Test
+    void storeDbMalfunctionNothingExecuted() throws Exception {
+        QueryAdapterFactory queryAdapterFactory = new QueryAdapterFactory(dataSource);
+        dataSource = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        when(statement.executeBatch()).thenReturn(new int[0]);
+        testee = new PendingEventStore(new MPConfiguration(), dataSource, queryAdapterFactory,
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
+        testee.initSqlQueries();
+        EventsPublished events = new EventsPublished(
+                asList(new PendingEvent("test", "type", "payload", LocalDateTime.now())));
+
+        assertThrows(IllegalStateException.class, () -> testee.store(events));
+    }
+
+    @Test
+    void storeDbMalfunctionNothingInserted() throws Exception {
+        QueryAdapterFactory queryAdapterFactory = new QueryAdapterFactory(dataSource);
+        dataSource = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        when(statement.executeBatch()).thenReturn(new int[1]);
+        testee = new PendingEventStore(new MPConfiguration(), dataSource, queryAdapterFactory,
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
+        testee.initSqlQueries();
+        EventsPublished events = new EventsPublished(
+                asList(new PendingEvent("test", "type", "payload", LocalDateTime.now())));
+
+        assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
 
     @Test
@@ -430,6 +491,52 @@ class PendingEventStoreTest {
         Set<String> result = testee.aquire();
 
         assertThat(result, hasSize(10));
+    }
+
+    @Test
+    void aquireWhenDbMalfunctionNothingExecuted() throws Exception {
+        try (Statement statement = dataSource.getConnection().createStatement()) {
+            statement.execute(
+                    "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
+        }
+        DataSource mockDataSource = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(mockDataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(startsWith("UPDATE"))).thenReturn(statement);
+        when(connection.prepareStatement(startsWith("SELECT")))
+                .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
+        when(statement.executeBatch()).thenReturn(new int[0]);
+        testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
+        testee.initSqlQueries();
+
+        Set<String> result = testee.aquire();
+
+        assertEquals(emptySet(), result);
+    }
+
+    @Test
+    void aquireWhenDbMalfunctionNothingUpdated() throws Exception {
+        try (Statement statement = dataSource.getConnection().createStatement()) {
+            statement.execute(
+                    "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
+        }
+        DataSource mockDataSource = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(mockDataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(startsWith("UPDATE"))).thenReturn(statement);
+        when(connection.prepareStatement(startsWith("SELECT")))
+                .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
+        when(statement.executeBatch()).thenReturn(new int[1]);
+        testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
+        testee.initSqlQueries();
+
+        Set<String> result = testee.aquire();
+
+        assertEquals(emptySet(), result);
     }
 
 }

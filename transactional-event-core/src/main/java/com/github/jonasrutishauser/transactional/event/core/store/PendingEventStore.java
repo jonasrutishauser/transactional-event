@@ -87,25 +87,25 @@ class PendingEventStore implements EventStore {
     @Override
     @Transactional
     public boolean unblock(String eventId) {
+        boolean result;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement readStatement = connection.prepareStatement(readBlockedForUpdateSQL);
+             ResultSet resultSet = executeQuery(readStatement, eventId);
              PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {
-            readStatement.setString(1, eventId);
-            try (ResultSet resultSet = readStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    updateStatement.setInt(1, 0);
-                    updateStatement.setNull(2, VARCHAR);
-                    updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));
-                    updateStatement.setString(4, eventId);
-                    return updateStatement.executeUpdate() > 0;
-                } else {
-                    return false;
-                }
+            if (resultSet.next()) {
+                updateStatement.setInt(1, 0);
+                updateStatement.setNull(2, VARCHAR);
+                updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));
+                updateStatement.setString(4, eventId);
+                result = updateStatement.executeUpdate() > 0;
+            } else {
+                result = false;
             }
         } catch (SQLException exception) {
             LOGGER.error("failed to unblock event '{}'", eventId, exception);
-            return false;
+            result = false;
         }
+        return result;
     }
 
     @Override
@@ -113,15 +113,13 @@ class PendingEventStore implements EventStore {
     public Collection<BlockedEvent> getBlockedEvents(int maxElements) {
         Collection<BlockedEvent> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(readBlockedSQL)) {
-            statement.setInt(1, maxElements);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    result.add(new BlockedEvent(resultSet.getString("id"), //
-                            resultSet.getString("event_type"), //
-                            resultSet.getString("payload"), //
-                            resultSet.getTimestamp("published_at").toLocalDateTime()));
-                }
+             PreparedStatement statement = connection.prepareStatement(readBlockedSQL);
+             ResultSet resultSet = executeQuery(statement, maxElements)) {
+            while (resultSet.next()) {
+                result.add(new BlockedEvent(resultSet.getString("id"), //
+                        resultSet.getString("event_type"), //
+                        resultSet.getString("payload"), //
+                        resultSet.getTimestamp("published_at").toLocalDateTime()));
             }
         } catch (SQLException exception) {
             LOGGER.error("failed to read blocked events", exception);
@@ -160,21 +158,18 @@ class PendingEventStore implements EventStore {
     public PendingEvent getAndLockEvent(String id) {
         String errorMessage = "failed to read pending event with id " + id;
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(readSQL)) {
-            statement.setString(1, id);
-            statement.setQueryTimeout(1);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (!resultSet.next()) {
-                    throw new NoSuchElementException(errorMessage);
-                }
-                String owner = resultSet.getString("lock_owner");
-                long lockedUntil = resultSet.getLong("locked_until");
-                if (!lockOwner.isOwningForProcessing(owner, lockedUntil)) {
-                    throw new ConcurrentModificationException("No longer the owner");
-                }
-                return new PendingEvent(id, resultSet.getString("event_type"), resultSet.getString("payload"),
-                        resultSet.getTimestamp("published_at").toLocalDateTime(), resultSet.getInt("tries"));
+             PreparedStatement statement = connection.prepareStatement(readSQL);
+             ResultSet resultSet = executeQueryWithTimeout(statement, id, 1)) {
+            if (!resultSet.next()) {
+                throw new NoSuchElementException(errorMessage);
             }
+            String owner = resultSet.getString("lock_owner");
+            long lockedUntil = resultSet.getLong("locked_until");
+            if (!lockOwner.isOwningForProcessing(owner, lockedUntil)) {
+                throw new ConcurrentModificationException("No longer the owner");
+            }
+            return new PendingEvent(id, resultSet.getString("event_type"), resultSet.getString("payload"),
+                    resultSet.getTimestamp("published_at").toLocalDateTime(), resultSet.getInt("tries"));
         } catch (SQLException exception) {
             LOGGER.error(errorMessage, exception);
             throw new IllegalStateException(errorMessage);
@@ -220,35 +215,56 @@ class PendingEventStore implements EventStore {
 
     @Transactional
     public Set<String> aquire() {
+        Set<String> result = new HashSet<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement aquireStatement = connection.prepareStatement(aquireSQL);
+             ResultSet resultSet = executeQuery(aquireStatement, lockOwner.getMinUntilForAquire(),
+                     configuration.getMaxAquire());
              PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {
-            aquireStatement.setLong(1, lockOwner.getMinUntilForAquire());
-            aquireStatement.setInt(2, configuration.getMaxAquire());
-            Set<String> result = new HashSet<>();
-            try (ResultSet resultSet = aquireStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    result.add(resultSet.getString("id"));
-                    updateStatement.setInt(1, resultSet.getInt("tries"));
-                    updateStatement.setString(2, lockOwner.getId());
-                    updateStatement.setLong(3, lockOwner.getUntilToProcess());
-                    updateStatement.setString(4, resultSet.getString("id"));
-                    updateStatement.addBatch();
+            while (resultSet.next()) {
+                result.add(resultSet.getString("id"));
+                updateStatement.setInt(1, resultSet.getInt("tries"));
+                updateStatement.setString(2, lockOwner.getId());
+                updateStatement.setLong(3, lockOwner.getUntilToProcess());
+                updateStatement.setString(4, resultSet.getString("id"));
+                updateStatement.addBatch();
+            }
+            if (!result.isEmpty()) {
+                int[] res = updateStatement.executeBatch();
+                if (res.length != result.size()
+                        || Arrays.stream(res).anyMatch(count -> count != 1 && count != SUCCESS_NO_INFO)) {
+                    LOGGER.warn("failed to aquire pending events (update failed; results: {})", res);
+                    result = emptySet();
                 }
-                if (!result.isEmpty()) {
-                    for (int res : updateStatement.executeBatch()) {
-                        if (res != 1 && res != SUCCESS_NO_INFO) {
-                            LOGGER.warn("failed to aquire pending events (update failed)");
-                            return emptySet();
-                        }
-                    }
-                }
-                return result;
             }
         } catch (SQLException exception) {
             LOGGER.warn("failed to aquire pending events", exception);
-            return emptySet();
+            result = emptySet();
         }
+        return result;
+    }
+
+    private ResultSet executeQuery(PreparedStatement statement, String stringParam) throws SQLException {
+        statement.setString(1, stringParam);
+        return statement.executeQuery();
+    }
+
+    private ResultSet executeQueryWithTimeout(PreparedStatement statement, String stringParam, int seconds)
+            throws SQLException {
+        statement.setString(1, stringParam);
+        statement.setQueryTimeout(seconds);
+        return statement.executeQuery();
+    }
+
+    private ResultSet executeQuery(PreparedStatement statement, int intParam) throws SQLException {
+        statement.setInt(1, intParam);
+        return statement.executeQuery();
+    }
+
+    private ResultSet executeQuery(PreparedStatement statement, long param1, int param2) throws SQLException {
+        statement.setLong(1, param1);
+        statement.setInt(2, param2);
+        return statement.executeQuery();
     }
 
 }
