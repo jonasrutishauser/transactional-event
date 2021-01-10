@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
@@ -37,6 +38,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -126,6 +128,8 @@ class PendingEventStoreTest {
 
     @Test
     void unblockWhenDbMalfunctionNothingUpdated() throws Exception {
+        assumeTrue(dataSource instanceof JDBCDataSource);
+
         try (Statement statement = dataSource.getConnection().createStatement()) {
             statement.execute("INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, "
                     + Long.MAX_VALUE + ")");
@@ -249,6 +253,8 @@ class PendingEventStoreTest {
 
     @Test
     void storeDbMalfunctionNothingExecuted() throws Exception {
+        assumeTrue(dataSource instanceof JDBCDataSource);
+
         QueryAdapterFactory queryAdapterFactory = new QueryAdapterFactory(dataSource);
         dataSource = mock(DataSource.class);
         Connection connection = mock(Connection.class);
@@ -267,6 +273,8 @@ class PendingEventStoreTest {
 
     @Test
     void storeDbMalfunctionNothingInserted() throws Exception {
+        assumeTrue(dataSource instanceof JDBCDataSource);
+
         QueryAdapterFactory queryAdapterFactory = new QueryAdapterFactory(dataSource);
         dataSource = mock(DataSource.class);
         Connection connection = mock(Connection.class);
@@ -495,6 +503,8 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenDbMalfunctionNothingExecuted() throws Exception {
+        assumeTrue(dataSource instanceof JDBCDataSource);
+
         try (Statement statement = dataSource.getConnection().createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
@@ -518,6 +528,8 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenDbMalfunctionNothingUpdated() throws Exception {
+        assumeTrue(dataSource instanceof JDBCDataSource);
+
         try (Statement statement = dataSource.getConnection().createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
