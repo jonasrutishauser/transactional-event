@@ -38,7 +38,6 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -129,7 +128,7 @@ class PendingEventStoreTest {
 
     @Test
     void unblockWhenDbMalfunctionNothingUpdated() throws Exception {
-        assumeTrue(dataSource instanceof JDBCDataSource);
+        assumeTrue(dataSource instanceof JdbcDataSource);
 
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, "
@@ -256,7 +255,7 @@ class PendingEventStoreTest {
 
     @Test
     void storeDbMalfunctionNothingExecuted() throws Exception {
-        assumeTrue(dataSource instanceof JDBCDataSource);
+        assumeTrue(dataSource instanceof JdbcDataSource);
 
         QueryAdapterFactory queryAdapterFactory = new QueryAdapterFactory(dataSource);
         dataSource = mock(DataSource.class);
@@ -276,7 +275,7 @@ class PendingEventStoreTest {
 
     @Test
     void storeDbMalfunctionNothingInserted() throws Exception {
-        assumeTrue(dataSource instanceof JDBCDataSource);
+        assumeTrue(dataSource instanceof JdbcDataSource);
 
         QueryAdapterFactory queryAdapterFactory = new QueryAdapterFactory(dataSource);
         dataSource = mock(DataSource.class);
@@ -509,7 +508,7 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenDbMalfunctionNothingExecuted() throws Exception {
-        assumeTrue(dataSource instanceof JDBCDataSource);
+        assumeTrue(dataSource instanceof JdbcDataSource);
 
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
@@ -534,7 +533,7 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenDbMalfunctionNothingUpdated() throws Exception {
-        assumeTrue(dataSource instanceof JDBCDataSource);
+        assumeTrue(dataSource instanceof JdbcDataSource);
 
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
