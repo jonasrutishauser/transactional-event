@@ -53,7 +53,7 @@ class PendingEventStoreTest {
 
     protected DataSource getDataSource() throws Exception {
         JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setURL("jdbc:h2:mem:testPendingEventStore;LOCK_TIMEOUT=10");
+        dataSource.setURL("jdbc:h2:mem:testPendingEventStore;LOCK_TIMEOUT=10;DB_CLOSE_DELAY=-1");
         dataSource.setUser("sa");
         dataSource.setPassword("sa");
         return dataSource;
