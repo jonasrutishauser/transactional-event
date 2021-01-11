@@ -98,7 +98,7 @@ class PendingEventStore implements EventStore {
 <span class="fc" id="L98">                updateStatement.setNull(2, VARCHAR);</span>
 <span class="fc" id="L99">                updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));</span>
 <span class="fc" id="L100">                updateStatement.setString(4, eventId);</span>
-<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                result = updateStatement.executeUpdate() &gt; 0;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">                result = updateStatement.executeUpdate() &gt; 0;</span>
             } else {
 <span class="fc" id="L103">                result = false;</span>
             }
@@ -144,9 +144,9 @@ class PendingEventStore implements EventStore {
 <span class="fc" id="L144">                statement.addBatch();</span>
 <span class="fc" id="L145">            }</span>
 <span class="fc" id="L146">            int[] result = statement.executeBatch();</span>
-<span class="pc bpc" id="L147" title="2 of 4 branches missed.">            if (result.length != events.getEvents().size() || Arrays.stream(result).anyMatch(updateCountIsNot(1))) {</span>
-<span class="nc" id="L148">                LOGGER.error(&quot;failed to insert pending events (results: {})&quot;, result);</span>
-<span class="nc" id="L149">                throw new IllegalStateException(errorMessage);</span>
+<span class="fc bfc" id="L147" title="All 4 branches covered.">            if (result.length != events.getEvents().size() || Arrays.stream(result).anyMatch(updateCountIsNot(1))) {</span>
+<span class="fc" id="L148">                LOGGER.error(&quot;failed to insert pending events (results: {})&quot;, result);</span>
+<span class="fc" id="L149">                throw new IllegalStateException(errorMessage);</span>
             }
 <span class="fc" id="L151">        } catch (SQLException exception) {</span>
 <span class="fc" id="L152">            LOGGER.error(errorMessage, exception);</span>
@@ -231,9 +231,9 @@ class PendingEventStore implements EventStore {
             }
 <span class="fc bfc" id="L232" title="All 2 branches covered.">            if (!result.isEmpty()) {</span>
 <span class="fc" id="L233">                int[] res = updateStatement.executeBatch();</span>
-<span class="pc bpc" id="L234" title="2 of 4 branches missed.">                if (res.length != result.size() || Arrays.stream(res).anyMatch(updateCountIsNot(1))) {</span>
-<span class="nc" id="L235">                    LOGGER.warn(&quot;failed to aquire pending events (update failed; results: {})&quot;, res);</span>
-<span class="nc" id="L236">                    result = emptySet();</span>
+<span class="fc bfc" id="L234" title="All 4 branches covered.">                if (res.length != result.size() || Arrays.stream(res).anyMatch(updateCountIsNot(1))) {</span>
+<span class="fc" id="L235">                    LOGGER.warn(&quot;failed to aquire pending events (update failed; results: {})&quot;, res);</span>
+<span class="fc" id="L236">                    result = emptySet();</span>
                 }
             }
 <span class="fc" id="L239">        } catch (SQLException exception) {</span>
@@ -244,7 +244,7 @@ class PendingEventStore implements EventStore {
     }
 
     private IntPredicate updateCountIsNot(int expected) {
-<span class="pc bpc" id="L247" title="1 of 4 branches missed.">        return count -&gt; count != expected &amp;&amp; count != SUCCESS_NO_INFO;</span>
+<span class="fc bfc" id="L247" title="All 4 branches covered.">        return count -&gt; count != expected &amp;&amp; count != SUCCESS_NO_INFO;</span>
     }
 
     private ResultSet executeQuery(PreparedStatement statement, String stringParam) throws SQLException {
