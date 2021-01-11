@@ -65,7 +65,7 @@ class PendingEventStoreTest {
         testee = new PendingEventStore(new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
                 new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id"));
         testee.initSqlQueries();
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             for (String sql : new String(Files.readAllBytes(Paths.get(getClass().getResource(ddl()).toURI())),
                     StandardCharsets.UTF_8).split(";")) {
                 if (!sql.trim().isEmpty()) {
@@ -98,14 +98,15 @@ class PendingEventStoreTest {
 
     @Test
     void unblockWhenExists() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, "
                     + Long.MAX_VALUE + ")");
         }
 
         assertTrue(testee.unblock("foo"));
 
-        try (Statement statement = dataSource.getConnection().createStatement();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store WHERE id='foo'")) {
             assertTrue(resultSet.next());
             assertEquals(42424242, resultSet.getLong("locked_until"));
@@ -130,7 +131,7 @@ class PendingEventStoreTest {
     void unblockWhenDbMalfunctionNothingUpdated() throws Exception {
         assumeTrue(dataSource instanceof JDBCDataSource);
 
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, "
                     + Long.MAX_VALUE + ")");
         }
@@ -150,7 +151,7 @@ class PendingEventStoreTest {
 
     @Test
     void getBlockedEventsWhenEmpty() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 42)");
         }
@@ -162,7 +163,7 @@ class PendingEventStoreTest {
 
     @Test
     void getBlockedEventsWhenSomeEvents() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 0, null, "
                             + Long.MAX_VALUE + ")");
@@ -180,7 +181,7 @@ class PendingEventStoreTest {
 
     @Test
     void getBlockedEventsWhenMoreEventsThanLimit() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 0, null, "
                             + Long.MAX_VALUE + ")");
@@ -196,7 +197,7 @@ class PendingEventStoreTest {
 
     @Test
     void getBlockedEventsWhenTableNotExists() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE event_store");
         }
 
@@ -209,7 +210,8 @@ class PendingEventStoreTest {
     void storeSingleEvent() throws Exception {
         testee.store(new EventsPublished(asList(new PendingEvent("test", "type", "payload", LocalDateTime.now()))));
 
-        try (Statement statement = dataSource.getConnection().createStatement();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store")) {
             assertTrue(resultSet.next());
             assertEquals("test", resultSet.getString("id"));
@@ -224,7 +226,7 @@ class PendingEventStoreTest {
 
     @Test
     void storeSingleEventDuplicateId() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('test', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
         }
@@ -240,7 +242,8 @@ class PendingEventStoreTest {
                 new PendingEvent("foo", "t", "p", LocalDateTime.now()),
                 new PendingEvent("bar", "a", "b", LocalDateTime.now()))));
 
-        try (Statement statement = dataSource.getConnection().createStatement();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store")) {
             for (int i = 0; i < 3; i++) {
                 assertTrue(resultSet.next());
@@ -298,7 +301,7 @@ class PendingEventStoreTest {
 
     @Test
     void getAndLockEventWhenOtherTheOwner() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 0, null, 999999999)");
         }
@@ -308,7 +311,7 @@ class PendingEventStoreTest {
 
     @Test
     void getAndLockEventWhenNoLongerTheOwner() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 0, 'lock_id', 12)");
         }
@@ -331,7 +334,7 @@ class PendingEventStoreTest {
 
     @Test
     void getAndLockEventWhenSuccessful() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 42, 'lock_id', 999999999)");
         }
@@ -368,7 +371,7 @@ class PendingEventStoreTest {
 
     @Test
     void deleteWhenSuccessful() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 42, 'lock_id', 999999999)");
         }
@@ -376,7 +379,8 @@ class PendingEventStoreTest {
 
         testee.delete(event);
 
-        try (Statement statement = dataSource.getConnection().createStatement();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store")) {
             assertFalse(resultSet.next());
         }
@@ -405,7 +409,7 @@ class PendingEventStoreTest {
 
     @Test
     void updateForRetryWhenSuccessful() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 1, 'lock_id', 999999999)");
         }
@@ -413,7 +417,8 @@ class PendingEventStoreTest {
 
         testee.updateForRetry(event);
 
-        try (Statement statement = dataSource.getConnection().createStatement();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store")) {
             assertTrue(resultSet.next());
             assertEquals("foo", resultSet.getString("id"));
@@ -427,7 +432,7 @@ class PendingEventStoreTest {
 
     @Test
     void updateForRetryWhenSuccessfulAfterTooManyTries() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 42, 'lock_id', 999999999)");
         }
@@ -435,7 +440,8 @@ class PendingEventStoreTest {
 
         testee.updateForRetry(event);
 
-        try (Statement statement = dataSource.getConnection().createStatement();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store")) {
             assertTrue(resultSet.next());
             assertEquals("foo", resultSet.getString("id"));
@@ -456,7 +462,7 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenTableNotExists() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE event_store");
         }
 
@@ -467,7 +473,7 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenSomeMessages() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('test', 'type', 'payload', {ts '2021-01-01 12:42:00'}, 0, null, 999999999)");
             statement.execute(
@@ -505,7 +511,7 @@ class PendingEventStoreTest {
     void aquireWhenDbMalfunctionNothingExecuted() throws Exception {
         assumeTrue(dataSource instanceof JDBCDataSource);
 
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
         }
@@ -530,7 +536,7 @@ class PendingEventStoreTest {
     void aquireWhenDbMalfunctionNothingUpdated() throws Exception {
         assumeTrue(dataSource instanceof JDBCDataSource);
 
-        try (Statement statement = dataSource.getConnection().createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(
                     "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
         }
