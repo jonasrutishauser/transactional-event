@@ -18,6 +18,7 @@ import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.IntPredicate;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -143,8 +144,7 @@ class PendingEventStore implements EventStore {
                 statement.addBatch();
             }
             int[] result = statement.executeBatch();
-            if (result.length != events.getEvents().size()
-                    || Arrays.stream(result).anyMatch(count -> count != 1 && count != SUCCESS_NO_INFO)) {
+            if (result.length != events.getEvents().size() || Arrays.stream(result).anyMatch(updateCountIsNot(1))) {
                 LOGGER.error("failed to insert pending events (results: {})", result);
                 throw new IllegalStateException(errorMessage);
             }
@@ -231,8 +231,7 @@ class PendingEventStore implements EventStore {
             }
             if (!result.isEmpty()) {
                 int[] res = updateStatement.executeBatch();
-                if (res.length != result.size()
-                        || Arrays.stream(res).anyMatch(count -> count != 1 && count != SUCCESS_NO_INFO)) {
+                if (res.length != result.size() || Arrays.stream(res).anyMatch(updateCountIsNot(1))) {
                     LOGGER.warn("failed to aquire pending events (update failed; results: {})", res);
                     result = emptySet();
                 }
@@ -242,6 +241,10 @@ class PendingEventStore implements EventStore {
             result = emptySet();
         }
         return result;
+    }
+
+    private IntPredicate updateCountIsNot(int expected) {
+        return count -> count != expected && count != SUCCESS_NO_INFO;
     }
 
     private ResultSet executeQuery(PreparedStatement statement, String stringParam) throws SQLException {
