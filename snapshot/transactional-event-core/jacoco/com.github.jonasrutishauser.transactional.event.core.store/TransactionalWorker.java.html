@@ -24,17 +24,17 @@ class TransactionalWorker {
     private final EventTypeResolver typeResolver;
 
     TransactionalWorker() {
-<span class="nc" id="L27">        this(null, null, null, null);</span>
-<span class="nc" id="L28">    }</span>
+<span class="fc" id="L27">        this(null, null, null, null);</span>
+<span class="fc" id="L28">    }</span>
 
     @Inject
     TransactionalWorker(PendingEventStore store, @Any Instance&lt;Handler&gt; handlers, EventHandlerExtension handlerExtension,
-<span class="nc" id="L32">            EventTypeResolver typeResolver) {</span>
-<span class="nc" id="L33">        this.store = store;</span>
-<span class="nc" id="L34">        this.handlers = handlers;</span>
-<span class="nc" id="L35">        this.handlerExtension = handlerExtension;</span>
-<span class="nc" id="L36">        this.typeResolver = typeResolver;</span>
-<span class="nc" id="L37">    }</span>
+<span class="fc" id="L32">            EventTypeResolver typeResolver) {</span>
+<span class="fc" id="L33">        this.store = store;</span>
+<span class="fc" id="L34">        this.handlers = handlers;</span>
+<span class="fc" id="L35">        this.handlerExtension = handlerExtension;</span>
+<span class="fc" id="L36">        this.typeResolver = typeResolver;</span>
+<span class="fc" id="L37">    }</span>
 
     @Transactional
     public void process(String eventId) {

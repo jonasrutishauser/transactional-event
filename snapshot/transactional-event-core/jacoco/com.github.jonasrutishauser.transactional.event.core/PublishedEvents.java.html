@@ -19,16 +19,16 @@ class PublishedEvents implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Event&lt;EventsPublished&gt; eventEmiter;
-<span class="nc" id="L22">    private final List&lt;PendingEvent&gt; events = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L22">    private final List&lt;PendingEvent&gt; events = new ArrayList&lt;&gt;();</span>
 
     PublishedEvents() {
-<span class="nc" id="L25">        this(null);</span>
-<span class="nc" id="L26">    }</span>
+<span class="fc" id="L25">        this(null);</span>
+<span class="fc" id="L26">    }</span>
 
     @Inject
-<span class="nc" id="L29">    PublishedEvents(@Any Event&lt;EventsPublished&gt; eventEmiter) {</span>
-<span class="nc" id="L30">        this.eventEmiter = eventEmiter;</span>
-<span class="nc" id="L31">    }</span>
+<span class="fc" id="L29">    PublishedEvents(@Any Event&lt;EventsPublished&gt; eventEmiter) {</span>
+<span class="fc" id="L30">        this.eventEmiter = eventEmiter;</span>
+<span class="fc" id="L31">    }</span>
 
     public void add(PendingEvent event) {
 <span class="nc" id="L34">        events.add(event);</span>

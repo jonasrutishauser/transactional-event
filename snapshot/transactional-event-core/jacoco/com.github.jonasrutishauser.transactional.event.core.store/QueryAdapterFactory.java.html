@@ -30,50 +30,48 @@ class QueryAdapterFactory {
 <span class="fc" id="L30">        return queryAdapter;</span>
     }
 
-<span class="nc" id="L33">    QueryAdapterFactory() {</span>
-<span class="nc" id="L34">        queryAdapter = null;</span>
-<span class="nc" id="L35">    }</span>
+<span class="fc" id="L33">    QueryAdapterFactory() {</span>
+<span class="fc" id="L34">        queryAdapter = null;</span>
+<span class="fc" id="L35">    }</span>
 
-<span class="fc" id="L37">    QueryAdapterFactory(DataSource dataSource) {</span>
+<span class="fc" id="L37">    QueryAdapterFactory(DataSource dataSource) throws SQLException {</span>
 <span class="fc" id="L38">        try (Connection connection = dataSource.getConnection()) {</span>
 <span class="fc" id="L39">            queryAdapter = getQueryAdapter(connection);</span>
-<span class="nc" id="L40">        } catch (SQLException e) {</span>
-<span class="nc" id="L41">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L42">        }</span>
-<span class="fc" id="L43">    }</span>
+        }
+<span class="fc" id="L41">    }</span>
 
     @Inject
-<span class="nc" id="L46">    QueryAdapterFactory(Instance&lt;QueryAdapter&gt; cdiInstance, @TransientReference @Events DataSource dataSource) {</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (cdiInstance.isUnsatisfied()) {</span>
-<span class="nc" id="L48">            try (Connection connection = dataSource.getConnection()) {</span>
-<span class="nc" id="L49">                queryAdapter = getQueryAdapter(connection);</span>
-<span class="nc" id="L50">            } catch (SQLException e) {</span>
-<span class="nc" id="L51">                throw new IllegalStateException(e);</span>
-<span class="nc" id="L52">            }</span>
+<span class="fc" id="L44">    QueryAdapterFactory(Instance&lt;QueryAdapter&gt; cdiInstance, @TransientReference @Events DataSource dataSource) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (cdiInstance.isUnsatisfied()) {</span>
+<span class="fc" id="L46">            try (Connection connection = dataSource.getConnection()) {</span>
+<span class="fc" id="L47">                queryAdapter = getQueryAdapter(connection);</span>
+<span class="fc" id="L48">            } catch (SQLException e) {</span>
+<span class="fc" id="L49">                throw new IllegalStateException(e);</span>
+<span class="fc" id="L50">            }</span>
         } else {
-<span class="nc" id="L54">            queryAdapter = cdiInstance.get();</span>
+<span class="fc" id="L52">            queryAdapter = cdiInstance.get();</span>
         }
-<span class="nc" id="L56">    }</span>
+<span class="fc" id="L54">    }</span>
 
     private static QueryAdapter getQueryAdapter(Connection connection) throws SQLException {
         QueryAdapter queryAdapter;
-<span class="fc" id="L60">        String productName = connection.getMetaData().getDatabaseProductName();</span>
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (productName.contains(&quot;Oracle&quot;)) {</span>
-<span class="nc" id="L62">            queryAdapter = new OracleQueryAdapter();</span>
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        } else if (productName.contains(&quot;MariaDB&quot;)) {</span>
-<span class="nc" id="L64">            queryAdapter = new MariaDBQueryAdapter();</span>
-<span class="pc bpc" id="L65" title="2 of 4 branches missed.">        } else if (productName.contains(&quot;PostgreSQL&quot;) || productName.contains(&quot;MySQL&quot;)) {</span>
-<span class="nc" id="L66">            queryAdapter = new LimitQueryAdapter();</span>
+<span class="fc" id="L58">        String productName = connection.getMetaData().getDatabaseProductName();</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (productName.contains(&quot;Oracle&quot;)) {</span>
+<span class="fc" id="L60">            queryAdapter = new OracleQueryAdapter();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        } else if (productName.contains(&quot;MariaDB&quot;)) {</span>
+<span class="fc" id="L62">            queryAdapter = new MariaDBQueryAdapter();</span>
+<span class="fc bfc" id="L63" title="All 4 branches covered.">        } else if (productName.contains(&quot;PostgreSQL&quot;) || productName.contains(&quot;MySQL&quot;)) {</span>
+<span class="fc" id="L64">            queryAdapter = new LimitQueryAdapter();</span>
         } else {
-<span class="fc" id="L68">            Set&lt;String&gt; keywords = new HashSet&lt;&gt;(asList(connection.getMetaData().getSQLKeywords().split(&quot;,&quot;)));</span>
-<span class="pc bpc" id="L69" title="3 of 4 branches missed.">            if (keywords.contains(&quot;skip&quot;) &amp;&amp; keywords.contains(&quot;locked&quot;)) {</span>
-<span class="nc" id="L70">                queryAdapter = new SkipLockedQueryAdapter();</span>
+<span class="fc" id="L66">            Set&lt;String&gt; keywords = new HashSet&lt;&gt;(asList(connection.getMetaData().getSQLKeywords().split(&quot;,&quot;)));</span>
+<span class="fc bfc" id="L67" title="All 4 branches covered.">            if (keywords.contains(&quot;skip&quot;) &amp;&amp; keywords.contains(&quot;locked&quot;)) {</span>
+<span class="fc" id="L68">                queryAdapter = new SkipLockedQueryAdapter();</span>
             } else {
-<span class="fc" id="L72">                queryAdapter = new SimpleQueryAdapter();</span>
+<span class="fc" id="L70">                queryAdapter = new SimpleQueryAdapter();</span>
             }
         }
-<span class="fc" id="L75">        LOGGER.debug(() -&gt; &quot;DB '&quot; + productName + &quot;' uses &quot; + queryAdapter.getClass().getSimpleName());</span>
-<span class="fc" id="L76">        return queryAdapter;</span>
+<span class="fc" id="L73">        LOGGER.debug(() -&gt; &quot;DB '&quot; + productName + &quot;' uses &quot; + queryAdapter.getClass().getSimpleName());</span>
+<span class="fc" id="L74">        return queryAdapter;</span>
     }
 
     private static class SimpleQueryAdapter implements QueryAdapter {
@@ -81,40 +79,40 @@ class QueryAdapterFactory {
 
         @Override
         public String fixLimits(String sql) {
-<span class="fc" id="L84">            return sql;</span>
+<span class="fc" id="L82">            return sql;</span>
         }
 
         @Override
         public String addSkipLocked(String sql) {
-<span class="fc" id="L89">            return sql;</span>
+<span class="fc" id="L87">            return sql;</span>
         }
     }
 
-<span class="nc" id="L93">    private static class SkipLockedQueryAdapter extends SimpleQueryAdapter {</span>
+<span class="fc" id="L91">    private static class SkipLockedQueryAdapter extends SimpleQueryAdapter {</span>
         @Override
         public String addSkipLocked(String sql) {
-<span class="nc" id="L96">            return sql.replace(&quot;FOR UPDATE&quot;, &quot;FOR UPDATE SKIP LOCKED&quot;);</span>
+<span class="fc" id="L94">            return sql.replace(&quot;FOR UPDATE&quot;, &quot;FOR UPDATE SKIP LOCKED&quot;);</span>
         }
     }
 
-<span class="nc" id="L100">    private static class OracleQueryAdapter extends SkipLockedQueryAdapter {</span>
+<span class="fc" id="L98">    private static class OracleQueryAdapter extends SkipLockedQueryAdapter {</span>
         @Override
         public String fixLimits(String sql) {
-<span class="nc" id="L103">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;AND rownum &lt;= $1&quot;);</span>
+<span class="fc" id="L101">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;AND rownum &lt;= $1&quot;);</span>
         }
     }
 
-<span class="nc" id="L107">    private static class MariaDBQueryAdapter extends SimpleQueryAdapter {</span>
+<span class="fc" id="L105">    private static class MariaDBQueryAdapter extends SimpleQueryAdapter {</span>
         @Override
         public String fixLimits(String sql) {
-<span class="nc" id="L110">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;LIMIT $1&quot;);</span>
+<span class="fc" id="L108">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;LIMIT $1&quot;);</span>
         }
     }
 
-<span class="nc" id="L114">    private static class LimitQueryAdapter extends SkipLockedQueryAdapter {</span>
+<span class="fc" id="L112">    private static class LimitQueryAdapter extends SkipLockedQueryAdapter {</span>
         @Override
         public String fixLimits(String sql) {
-<span class="nc" id="L117">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;LIMIT $1&quot;);</span>
+<span class="fc" id="L115">            return sql.replaceAll(LIMIT_EXPRESSION, &quot;LIMIT $1&quot;);</span>
         }
     }
 

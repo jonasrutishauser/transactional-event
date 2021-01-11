@@ -19,23 +19,23 @@ import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 @Dependent
 public class TransactionalEventPublisher implements EventPublisher {
 
-<span class="nc" id="L22">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="fc" id="L22">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     private final EventTypeResolver typeResolver;
     private final Serializer eventSerializer;
     private final PublishedEvents publishedEvents;
 
     TransactionalEventPublisher() {
-<span class="nc" id="L29">        this(null, null, null);</span>
-<span class="nc" id="L30">    }</span>
+<span class="fc" id="L29">        this(null, null, null);</span>
+<span class="fc" id="L30">    }</span>
 
     @Inject
     TransactionalEventPublisher(EventTypeResolver typeResolver, Serializer eventSerializer,
-<span class="nc" id="L34">            PublishedEvents publishedEvents) {</span>
-<span class="nc" id="L35">        this.typeResolver = typeResolver;</span>
-<span class="nc" id="L36">        this.eventSerializer = eventSerializer;</span>
-<span class="nc" id="L37">        this.publishedEvents = publishedEvents;</span>
-<span class="nc" id="L38">    }</span>
+<span class="fc" id="L34">            PublishedEvents publishedEvents) {</span>
+<span class="fc" id="L35">        this.typeResolver = typeResolver;</span>
+<span class="fc" id="L36">        this.eventSerializer = eventSerializer;</span>
+<span class="fc" id="L37">        this.publishedEvents = publishedEvents;</span>
+<span class="fc" id="L38">    }</span>
 
     @Override
     @Transactional(MANDATORY)

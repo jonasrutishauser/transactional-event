@@ -21,19 +21,19 @@ public class DefaultEventSerializer implements EventSerializer&lt;Object&gt; {
     private final List&lt;GenericSerialization&gt; serializers;
 
     DefaultEventSerializer() {
-<span class="nc" id="L24">        this(emptyList());</span>
-<span class="nc" id="L25">    }</span>
+<span class="fc" id="L24">        this(emptyList());</span>
+<span class="fc" id="L25">    }</span>
 
     @Inject
     DefaultEventSerializer(@Any Instance&lt;GenericSerialization&gt; serializers) {
 <span class="nc" id="L29">        this((Iterable&lt;GenericSerialization&gt;) serializers);</span>
 <span class="nc" id="L30">    }</span>
 
-<span class="nc" id="L32">    private DefaultEventSerializer(Iterable&lt;GenericSerialization&gt; serializers) {</span>
-<span class="nc" id="L33">        this.serializers = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L34">        serializers.forEach(this.serializers::add);</span>
-<span class="nc" id="L35">        Collections.sort(this.serializers, comparing(GenericSerialization::priority));</span>
-<span class="nc" id="L36">    }</span>
+<span class="fc" id="L32">    private DefaultEventSerializer(Iterable&lt;GenericSerialization&gt; serializers) {</span>
+<span class="fc" id="L33">        this.serializers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L34">        serializers.forEach(this.serializers::add);</span>
+<span class="fc" id="L35">        Collections.sort(this.serializers, comparing(GenericSerialization::priority));</span>
+<span class="fc" id="L36">    }</span>
 
     @Override
     public String serialize(Object event) {

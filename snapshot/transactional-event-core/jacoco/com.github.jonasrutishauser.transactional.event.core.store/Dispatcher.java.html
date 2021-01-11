@@ -33,15 +33,15 @@ class Dispatcher implements Scheduler {
     private final PendingEventStore store;
     private final Worker worker;
 
-<span class="nc" id="L36">    private volatile int intervalSeconds = 30;</span>
+<span class="pc" id="L36">    private volatile int intervalSeconds = 30;</span>
 
-<span class="nc" id="L38">    Dispatcher() {</span>
-<span class="nc" id="L39">        this.configuration = null;</span>
-<span class="nc" id="L40">        this.scheduler = null;</span>
-<span class="nc" id="L41">        this.executor = null;</span>
-<span class="nc" id="L42">        this.store = null;</span>
-<span class="nc" id="L43">        this.worker = null;</span>
-<span class="nc" id="L44">    }</span>
+<span class="fc" id="L38">    Dispatcher() {</span>
+<span class="fc" id="L39">        this.configuration = null;</span>
+<span class="fc" id="L40">        this.scheduler = null;</span>
+<span class="fc" id="L41">        this.executor = null;</span>
+<span class="fc" id="L42">        this.store = null;</span>
+<span class="fc" id="L43">        this.worker = null;</span>
+<span class="fc" id="L44">    }</span>
 
     @Inject
     Dispatcher(Configuration configuration, Scheduler scheduler, @Events ManagedScheduledExecutorService executor,

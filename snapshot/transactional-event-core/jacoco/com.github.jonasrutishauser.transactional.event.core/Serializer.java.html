@@ -13,11 +13,11 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.EventSe
 @ApplicationScoped
 class Serializer {
 
-<span class="nc" id="L16">    private final Map&lt;Class&lt;?&gt;, EventSerializer&lt;?&gt;&gt; serializers = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="pc" id="L16">    private final Map&lt;Class&lt;?&gt;, EventSerializer&lt;?&gt;&gt; serializers = new ConcurrentHashMap&lt;&gt;();</span>
 
-<span class="nc" id="L18">    Serializer() {</span>
+<span class="fc" id="L18">    Serializer() {</span>
         // proxy only
-<span class="nc" id="L20">    }</span>
+<span class="fc" id="L20">    }</span>
 
     @Inject
 <span class="nc" id="L23">    Serializer(@Any Instance&lt;EventSerializer&lt;?&gt;&gt; serializers) {</span>
