@@ -76,3 +76,9 @@ class EventsDataSource {
    private DataSource dataSource;
 }
 ```
+## Metrics (if mpMetrics is available)
+If mpMetrics is enabled on the server there will be the following metrics
+- application_com_github_jonasrutishauser_transaction_event_published_total (number of published events)
+- application_com_github_jonasrutishauser_transaction_event_failedattempts_total (these are the number of failed attempts to process an event)
+- application_com_github_jonasrutishauser_transaction_event_success_total (these are the number of successfully processed events)
+- application_com_github_jonasrutishauser_transaction_event_blocked_total (these are the number of blocked events because the maximum number of retries has been reached)

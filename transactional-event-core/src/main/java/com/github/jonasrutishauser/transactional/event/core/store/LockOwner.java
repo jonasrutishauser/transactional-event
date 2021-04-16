@@ -7,10 +7,14 @@ import java.time.Clock;
 import java.time.Instant;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingBlockedEvent;
 
 @ApplicationScoped
 class LockOwner {
@@ -19,16 +23,22 @@ class LockOwner {
 
     private final Clock clock;
     private final String id;
+	private final Event<ProcessingBlockedEvent> processingBlockedEvent;
+	
+	LockOwner() {
+		this(null);
+	}
 
     @Inject
-    public LockOwner() {
-        this(Clock.systemUTC(), randomId());
+    public LockOwner(Event<ProcessingBlockedEvent> processingBlockedEvent) {
+        this(Clock.systemUTC(), randomId(), processingBlockedEvent);
     }
     
-    LockOwner(Clock clock, String id) {
+    LockOwner(Clock clock, String id,  @Any Event<ProcessingBlockedEvent> processingBlockedEvent) {
+    	LOGGER.info("using lock id: {}", id);
         this.id = id;
-        LOGGER.info("using lock id: {}", id);
         this.clock = clock;
+        this.processingBlockedEvent = processingBlockedEvent;
     }
 
     public String getId() {
@@ -41,11 +51,16 @@ class LockOwner {
 
     public long getUntilForRetry(int tries, String eventId) {
         if (tries > 5) {
-            LOGGER.info("max attempts used, event with id '{}' will be blocked", eventId);
+            maxAttemptsReached(eventId);
             return Long.MAX_VALUE;
         }
         return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();
     }
+
+	protected void maxAttemptsReached(String eventId) {
+		LOGGER.info("max attempts used, event with id '{}' will be blocked", eventId);
+		processingBlockedEvent.fire(new ProcessingBlockedEvent(eventId));
+	}
 
     public long getMinUntilForAquire() {
         return Instant.now(clock).toEpochMilli();
