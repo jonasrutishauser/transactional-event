@@ -69,21 +69,16 @@ jobs:
         env:
           GITHUB_PULL_REQUEST: ${{ github.event.number }}
       - name: Sonar Report
-        if: ${{ matrix.java == '11' && !startsWith(github.event_name, 'pull_request') }}
+        if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
           git fetch --unshallow && 
-          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.branch.name=${GITHUB_REF#refs/heads/} -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
+          if [  "$GITHUB_PULL_REQUEST" != "" ]; then export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; fi && 
+          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.organization=jonasrutishauser-github
         env:
+          GITHUB_PULL_REQUEST: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Sonar Report (PR)
-        if: ${{ matrix.java == '11' && startsWith(github.event_name, 'pull_request') && contains(github.event.pull_request.labels.*.name, 'sonar') }}
-        run: >
-          git fetch --unshallow && 
-          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.pullrequest.provider=github -Dsonar.pullrequest.github.repository=$GITHUB_REPOSITORY -Dsonar.pullrequest.github.endpoint=https://api.github.com/ -Dsonar.pullrequest.key=${{ github.event.number }} -Dsonar.pullrequest.branch=$GITHUB_HEAD_REF -Dsonar.pullrequest.base=$GITHUB_BASE_REF -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
       - name: Deploy Site
         if: ${{ matrix.java == '1.8' && github.event_name != 'release' && !startsWith(github.event_name, 'pull_request') }}
         run: mvn -B -e site-deploy
