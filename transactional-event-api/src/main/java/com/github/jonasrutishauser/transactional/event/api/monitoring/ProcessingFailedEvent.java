@@ -4,10 +4,7 @@ public class ProcessingFailedEvent extends AbstractProcessingEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private Exception cause;
-
-    public ProcessingFailedEvent() {
-    }
+    private final Exception cause;
 
     public ProcessingFailedEvent(String eventId, Exception cause) {
         super(eventId);
@@ -16,10 +13,6 @@ public class ProcessingFailedEvent extends AbstractProcessingEvent {
 
     public Exception getCause() {
         return cause;
-    }
-
-    public void setCause(Exception cause) {
-        this.cause = cause;
     }
 
 }

@@ -4,9 +4,6 @@ public class ProcessingBlockedEvent extends AbstractProcessingEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public ProcessingBlockedEvent() {
-    }
-
     public ProcessingBlockedEvent(String eventId) {
         super(eventId);
     }

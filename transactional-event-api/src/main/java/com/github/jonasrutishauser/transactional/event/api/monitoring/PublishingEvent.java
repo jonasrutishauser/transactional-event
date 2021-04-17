@@ -6,10 +6,7 @@ public class PublishingEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String eventId;
-
-    public PublishingEvent() {
-    }
+    private final String eventId;
 
     public PublishingEvent(String id) {
         eventId = id;
@@ -17,9 +14,5 @@ public class PublishingEvent implements Serializable {
 
     public String getEventId() {
         return eventId;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
     }
 }

@@ -6,21 +6,14 @@ public abstract class AbstractProcessingEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String eventId;
+    private final String eventId;
 
-    public AbstractProcessingEvent() {
-    }
-
-    public AbstractProcessingEvent(String eventId) {
+    protected AbstractProcessingEvent(String eventId) {
         this.eventId = eventId;
     }
 
     public String getEventId() {
         return eventId;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
     }
 
     @Override
