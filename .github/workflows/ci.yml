@@ -63,10 +63,18 @@ jobs:
           mvn -B jacoco:report-integration && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
       - name: Sonar Report
-        if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
+        if: ${{ matrix.java == '11' && !startsWith(github.event_name, 'pull_request') }}
         run: >
           git fetch --unshallow && 
-          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
+          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.branch.name=${GITHUB_REF#refs/heads/} -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Sonar Report (PR)
+        if: ${{ matrix.java == '11' && startsWith(github.event_name, 'pull_request') && contains(github.event.pull_request.labels.*.name, 'sonar') }}
+        run: >
+          git fetch --unshallow && 
+          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.pullrequest.key=${{ github.event.number }} -Dsonar.pullrequest.branch=$GITHUB_HEAD_REF -Dsonar.pullrequest.base=$GITHUB_BASE_REF -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
         env:
           GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
