@@ -8,6 +8,9 @@ on:
       - master
   pull_request_target:
     types:
+      - opened
+      - synchronize
+      - reopened
       - assigned
     branches:
       - master
@@ -39,6 +42,7 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-${{ matrix.java }} ${{ runner.os }}-m2
+        if: ${{ !startsWith(github.event_name, 'pull_request') }}
       - name: Build with Maven
         run: mvn -B -V -e clean verify
       - name: Upload Openliberty logfiles
@@ -59,7 +63,7 @@ jobs:
           mvn -B jacoco:report-integration && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
       - name: Sonar Report
-        if: ${{ matrix.java == '11' }}
+        if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
           git fetch --unshallow && 
           mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
@@ -67,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Deploy Site
-        if: ${{ matrix.java == '1.8' && github.event_name != 'release' }}
+        if: ${{ matrix.java == '1.8' && github.event_name != 'release' && !startsWith(github.event_name, 'pull_request') }}
         run: mvn -B -e site-deploy
         env:
           GITHUB_TOKEN: ${{ github.token }}
