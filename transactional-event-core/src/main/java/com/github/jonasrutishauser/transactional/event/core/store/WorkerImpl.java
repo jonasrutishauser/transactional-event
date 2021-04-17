@@ -19,15 +19,16 @@ class WorkerImpl implements Worker {
 
     private final TransactionalWorker transactional;
 
-	private Event<ProcessingSuccessEvent> processingSuccessEvent;
+    private Event<ProcessingSuccessEvent> processingSuccessEvent;
 
-	private Event<ProcessingFailedEvent> processingFailedEvent;
-    
+    private Event<ProcessingFailedEvent> processingFailedEvent;
+
     @Inject
-    WorkerImpl(TransactionalWorker transactional, @Any Event<ProcessingSuccessEvent> processingSuccessEvent, @Any Event<ProcessingFailedEvent> processingFailedEvent) {
+    WorkerImpl(TransactionalWorker transactional, @Any Event<ProcessingSuccessEvent> processingSuccessEvent,
+            @Any Event<ProcessingFailedEvent> processingFailedEvent) {
         this.transactional = transactional;
-		this.processingSuccessEvent = processingSuccessEvent;
-		this.processingFailedEvent = processingFailedEvent;
+        this.processingSuccessEvent = processingSuccessEvent;
+        this.processingFailedEvent = processingFailedEvent;
     }
 
     @ActivateRequestContext
@@ -38,24 +39,24 @@ class WorkerImpl implements Worker {
             processSuccess(eventId);
             return true;
         } catch (Exception e) {
-        	processAttemptFailed(eventId, e);
+            processAttemptFailed(eventId, e);
             transactional.processFailed(eventId);
             return false;
         }
     }
 
-	private void processAttemptFailed(String eventId, Exception e) {
-		processingFailedEvent.fire(new ProcessingFailedEvent(eventId, e));
-		LOGGER.warn("Failed to process event with id '{}'", eventId, e);
-	}
+    private void processAttemptFailed(String eventId, Exception e) {
+        processingFailedEvent.fire(new ProcessingFailedEvent(eventId, e));
+        LOGGER.warn("Failed to process event with id '{}'", eventId, e);
+    }
 
-	protected void processSuccess(String eventId) {
-		processingSuccessEvent.fire(new ProcessingSuccessEvent(eventId));
-		LOGGER.debug("sucessfully processed event with id '{}'", eventId);
-	}
+    protected void processSuccess(String eventId) {
+        processingSuccessEvent.fire(new ProcessingSuccessEvent(eventId));
+        LOGGER.debug("sucessfully processed event with id '{}'", eventId);
+    }
 
-	protected void processAttempt(String eventId) {
-		LOGGER.debug("processing event with id '{}'", eventId);
-	}
+    protected void processAttempt(String eventId) {
+        LOGGER.debug("processing event with id '{}'", eventId);
+    }
 
 }

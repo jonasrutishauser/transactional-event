@@ -2,18 +2,18 @@ package com.github.jonasrutishauser.transactional.event.api.monitoring;
 
 public class ProcessingBlockedEvent extends AbstractProcessingEvent {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public ProcessingBlockedEvent() {
-	}
+    public ProcessingBlockedEvent() {
+    }
 
-	public ProcessingBlockedEvent(String eventId) {
-		super(eventId);
-	}
+    public ProcessingBlockedEvent(String eventId) {
+        super(eventId);
+    }
 
-	@Override
-	public String toString() {
-		return "ProcessingBlockedEvent [getEventId()=" + getEventId() + "]";
-	}
+    @Override
+    public String toString() {
+        return "ProcessingBlockedEvent [getEventId()=" + getEventId() + "]";
+    }
 
 }

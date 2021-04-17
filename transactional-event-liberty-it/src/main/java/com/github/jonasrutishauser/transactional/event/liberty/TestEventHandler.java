@@ -19,7 +19,7 @@ public class TestEventHandler extends AbstractHandler<TestEvent> {
             throw new IllegalStateException(event.getMessage());
         }
         if (event.getMessage().contains("blocker")) {
-        	throw new IllegalArgumentException("blocker not allowed");
+            throw new IllegalArgumentException("blocker not allowed");
         }
         messages.add(event.getMessage());
     }

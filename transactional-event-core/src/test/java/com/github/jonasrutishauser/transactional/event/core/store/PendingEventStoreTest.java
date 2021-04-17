@@ -50,7 +50,7 @@ class PendingEventStoreTest {
 
     private DataSource dataSource;
     private PendingEventStore testee;
-	private Event<ProcessingBlockedEvent> processingBlockedEvent;
+    private Event<ProcessingBlockedEvent> processingBlockedEvent;
 
     protected DataSource getDataSource() throws Exception {
         JdbcDataSource dataSource = new JdbcDataSource();
@@ -60,12 +60,13 @@ class PendingEventStoreTest {
         return dataSource;
     }
 
-	@BeforeEach
+    @BeforeEach
     void initDb() throws Exception {
         dataSource = getDataSource();
-        processingBlockedEvent = (Event<ProcessingBlockedEvent>)mock(Event.class);
-		testee = new PendingEventStore(new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
-                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent ));
+        processingBlockedEvent = (Event<ProcessingBlockedEvent>) mock(Event.class);
+        testee = new PendingEventStore(new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
+                        processingBlockedEvent));
         testee.initSqlQueries();
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             for (String sql : new String(Files.readAllBytes(Paths.get(getClass().getResource(ddl()).toURI())),
@@ -143,7 +144,8 @@ class PendingEventStoreTest {
         when(connection.prepareStatement(startsWith("SELECT")))
                 .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
         testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
-                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
+                        processingBlockedEvent));
         testee.initSqlQueries();
 
         assertFalse(testee.unblock("foo"));
@@ -263,8 +265,8 @@ class PendingEventStoreTest {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         when(statement.executeBatch()).thenReturn(new int[0]);
-        testee = new PendingEventStore(new MPConfiguration(), dataSource, queryAdapterFactory,
-                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
+        testee = new PendingEventStore(new MPConfiguration(), dataSource, queryAdapterFactory, new LockOwner(
+                Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
         testee.initSqlQueries();
         EventsPublished events = new EventsPublished(
                 asList(new PendingEvent("test", "type", "payload", LocalDateTime.now())));
@@ -281,8 +283,8 @@ class PendingEventStoreTest {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         when(statement.executeBatch()).thenReturn(new int[1]);
-        testee = new PendingEventStore(new MPConfiguration(), dataSource, queryAdapterFactory,
-                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
+        testee = new PendingEventStore(new MPConfiguration(), dataSource, queryAdapterFactory, new LockOwner(
+                Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
         testee.initSqlQueries();
         EventsPublished events = new EventsPublished(
                 asList(new PendingEvent("test", "type", "payload", LocalDateTime.now())));
@@ -518,7 +520,8 @@ class PendingEventStoreTest {
                 .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
         when(statement.executeBatch()).thenReturn(new int[0]);
         testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
-                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
+                        processingBlockedEvent));
         testee.initSqlQueries();
 
         Set<String> result = testee.aquire();
@@ -541,7 +544,8 @@ class PendingEventStoreTest {
                 .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
         when(statement.executeBatch()).thenReturn(new int[1]);
         testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
-                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id", processingBlockedEvent));
+                new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
+                        processingBlockedEvent));
         testee.initSqlQueries();
 
         Set<String> result = testee.aquire();

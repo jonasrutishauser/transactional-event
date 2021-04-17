@@ -23,19 +23,19 @@ class LockOwner {
 
     private final Clock clock;
     private final String id;
-	private final Event<ProcessingBlockedEvent> processingBlockedEvent;
-	
-	LockOwner() {
-		this(null);
-	}
+    private final Event<ProcessingBlockedEvent> processingBlockedEvent;
+
+    LockOwner() {
+        this(null);
+    }
 
     @Inject
     public LockOwner(Event<ProcessingBlockedEvent> processingBlockedEvent) {
         this(Clock.systemUTC(), randomId(), processingBlockedEvent);
     }
-    
-    LockOwner(Clock clock, String id,  @Any Event<ProcessingBlockedEvent> processingBlockedEvent) {
-    	LOGGER.info("using lock id: {}", id);
+
+    LockOwner(Clock clock, String id, @Any Event<ProcessingBlockedEvent> processingBlockedEvent) {
+        LOGGER.info("using lock id: {}", id);
         this.id = id;
         this.clock = clock;
         this.processingBlockedEvent = processingBlockedEvent;
@@ -57,10 +57,10 @@ class LockOwner {
         return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();
     }
 
-	protected void maxAttemptsReached(String eventId) {
-		LOGGER.info("max attempts used, event with id '{}' will be blocked", eventId);
-		processingBlockedEvent.fire(new ProcessingBlockedEvent(eventId));
-	}
+    protected void maxAttemptsReached(String eventId) {
+        LOGGER.info("max attempts used, event with id '{}' will be blocked", eventId);
+        processingBlockedEvent.fire(new ProcessingBlockedEvent(eventId));
+    }
 
     public long getMinUntilForAquire() {
         return Instant.now(clock).toEpochMilli();
