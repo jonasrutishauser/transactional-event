@@ -50,7 +50,8 @@ class PendingEventStoreTest {
 
     private DataSource dataSource;
     private PendingEventStore testee;
-    private Event<ProcessingBlockedEvent> processingBlockedEvent;
+    @SuppressWarnings("unchecked")
+    private Event<ProcessingBlockedEvent> processingBlockedEvent = mock(Event.class);
 
     protected DataSource getDataSource() throws Exception {
         JdbcDataSource dataSource = new JdbcDataSource();
@@ -63,7 +64,6 @@ class PendingEventStoreTest {
     @BeforeEach
     void initDb() throws Exception {
         dataSource = getDataSource();
-        processingBlockedEvent = (Event<ProcessingBlockedEvent>) mock(Event.class);
         testee = new PendingEventStore(new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
                 new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
                         processingBlockedEvent));

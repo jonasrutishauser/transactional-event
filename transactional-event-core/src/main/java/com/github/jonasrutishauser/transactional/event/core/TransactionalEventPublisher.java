@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -35,7 +34,7 @@ public class TransactionalEventPublisher implements EventPublisher {
 
     @Inject
     TransactionalEventPublisher(EventTypeResolver typeResolver, Serializer eventSerializer,
-            PublishedEvents publishedEvents, @Any Event<PublishingEvent> publishingEvent) {
+            PublishedEvents publishedEvents, Event<PublishingEvent> publishingEvent) {
         this.typeResolver = typeResolver;
         this.eventSerializer = eventSerializer;
         this.publishedEvents = publishedEvents;

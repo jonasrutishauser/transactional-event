@@ -8,7 +8,6 @@ import java.time.Instant;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +33,7 @@ class LockOwner {
         this(Clock.systemUTC(), randomId(), processingBlockedEvent);
     }
 
-    LockOwner(Clock clock, String id, @Any Event<ProcessingBlockedEvent> processingBlockedEvent) {
+    LockOwner(Clock clock, String id, Event<ProcessingBlockedEvent> processingBlockedEvent) {
         LOGGER.info("using lock id: {}", id);
         this.id = id;
         this.clock = clock;

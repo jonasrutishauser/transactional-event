@@ -17,6 +17,8 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Publishing
 @ApplicationScoped
 public class MetricsEventObserver {
 
+    private static final String EVENT_LOG_MESSAGE = "Got event {}";
+
     private static final Logger LOGGER = LogManager.getLogger();
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
@@ -26,24 +28,24 @@ public class MetricsEventObserver {
     @Counted(name = "com.github.jonasrutishauser.transaction.event.failedattempts",
             description = "counter for failed attempts of processing the events", absolute = true)
     public void processAttemptFailed(@Observes ProcessingFailedEvent e) {
-        LOGGER.debug("Got event {}", e);
+        LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }
 
     @Counted(name = "com.github.jonasrutishauser.transaction.event.success",
             description = "counter for successfully processed events", absolute = true)
     public void processSuccess(@Observes ProcessingSuccessEvent e) {
-        LOGGER.debug("Got event {}", e);
+        LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }
 
     @Counted(name = "com.github.jonasrutishauser.transaction.event.blocked",
             description = "counter for blocked events (max attempts reached)", absolute = true)
     public void processBlocked(@Observes ProcessingBlockedEvent e) {
-        LOGGER.debug("Got event {}", e);
+        LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }
 
     @Counted(name = "com.github.jonasrutishauser.transaction.event.published",
             description = "counter for published events", absolute = true)
     public void published(@Observes(during = TransactionPhase.AFTER_SUCCESS) PublishingEvent e) {
-        LOGGER.debug("Got event {}", e);
+        LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }
 }
