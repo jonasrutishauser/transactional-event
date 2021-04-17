@@ -11,5 +11,8 @@
 		<exclude name="com.github.jonasrutishauser.transactional.event.core.serialization.JsonbSerialization">
 			<if-class-not-available name="javax.json.bind.JsonbBuilder"/>
 		</exclude>
+		<exclude name="com.github.jonasrutishauser.transactional.event.core.metrics.MetricsEventObserver">
+			<if-class-not-available name="org.eclipse.microprofile.metrics.annotation.Counted"/>
+		</exclude>
 	</scan>
 </beans>
