@@ -58,7 +58,11 @@ jobs:
         if: ${{ matrix.java == '11' && github.event_name != 'release' }}
         run: >
           mvn -B jacoco:report && 
-          if [  "$GITHUB_PULL_REQUEST" != "" ]; then export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; fi && 
+          if [  "$GITHUB_PULL_REQUEST" != "" ]; 
+          then 
+            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
+            export GITHUB_SHA=$(git show --no-patch --format="%P"); 
+          fi && 
           bash <(curl -s https://codecov.io/bash) -c -F unittests
         env:
           GITHUB_PULL_REQUEST: ${{ github.event.number }}
