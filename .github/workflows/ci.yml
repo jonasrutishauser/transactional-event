@@ -74,7 +74,7 @@ jobs:
         if: ${{ matrix.java == '11' && startsWith(github.event_name, 'pull_request') && contains(github.event.pull_request.labels.*.name, 'sonar') }}
         run: >
           git fetch --unshallow && 
-          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.pullrequest.key=${{ github.event.number }} -Dsonar.pullrequest.branch=$GITHUB_HEAD_REF -Dsonar.pullrequest.base=$GITHUB_BASE_REF -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
+          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.pullrequest.provider=github -Dsonar.pullrequest.github.repository=$GITHUB_REPOSITORY -Dsonar.pullrequest.github.endpoint=https://api.github.com/ -Dsonar.pullrequest.key=${{ github.event.number }} -Dsonar.pullrequest.branch=$GITHUB_HEAD_REF -Dsonar.pullrequest.base=$GITHUB_BASE_REF -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN
         env:
           GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
