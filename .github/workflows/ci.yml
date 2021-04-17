@@ -56,12 +56,18 @@ jobs:
         if: ${{ matrix.java == '11' && github.event_name != 'release' }}
         run: >
           mvn -B jacoco:report && 
+          if [  "$GITHUB_PULL_REQUEST" != "" ]; then export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; fi && 
           bash <(curl -s https://codecov.io/bash) -c -F unittests
+        env:
+          GITHUB_PULL_REQUEST: ${{ github.event.number }}
       - name: Integrationstest Coverage
         if: ${{ matrix.java == '11' && github.event_name != 'release' }}
         run: >
           mvn -B jacoco:report-integration && 
+          if [  "$GITHUB_PULL_REQUEST" != "" ]; then export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; fi && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
+        env:
+          GITHUB_PULL_REQUEST: ${{ github.event.number }}
       - name: Sonar Report
         if: ${{ matrix.java == '11' && !startsWith(github.event_name, 'pull_request') }}
         run: >
