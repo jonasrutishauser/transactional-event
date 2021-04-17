@@ -69,6 +69,7 @@ jobs:
           if [  "$GITHUB_PULL_REQUEST" != "" ]; 
           then 
             export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
+            export GITHUB_SHA=$(git show --no-patch --format="%P"); 
           fi && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
         env:
@@ -79,8 +80,9 @@ jobs:
           git fetch --unshallow && 
           if [  "$GITHUB_PULL_REQUEST" != "" ]; 
           then 
-            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
             export GITHUB_EVENT_NAME=pull_request; 
+            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
+            export GITHUB_SHA=$(git show --no-patch --format="%P"); 
           fi && 
           mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.organization=jonasrutishauser-github
         env:
