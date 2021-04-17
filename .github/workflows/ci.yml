@@ -64,7 +64,10 @@ jobs:
         if: ${{ matrix.java == '11' && github.event_name != 'release' }}
         run: >
           mvn -B jacoco:report-integration && 
-          if [  "$GITHUB_PULL_REQUEST" != "" ]; then export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; fi && 
+          if [  "$GITHUB_PULL_REQUEST" != "" ]; 
+          then 
+            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
+          fi && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
         env:
           GITHUB_PULL_REQUEST: ${{ github.event.number }}
@@ -72,7 +75,11 @@ jobs:
         if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
           git fetch --unshallow && 
-          if [  "$GITHUB_PULL_REQUEST" != "" ]; then export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; fi && 
+          if [  "$GITHUB_PULL_REQUEST" != "" ]; 
+          then 
+            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
+            export GITHUB_EVENT_NAME=pull_request; 
+          fi && 
           mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.organization=jonasrutishauser-github
         env:
           GITHUB_PULL_REQUEST: ${{ github.event.number }}
