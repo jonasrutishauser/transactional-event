@@ -100,7 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
   update-pr:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'sonar')) }}
+    if: ${{ github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'sonar') }}
     steps:
       - name: Remove Sonar Label
         uses: peter-murray/remove-labels-action@v1
