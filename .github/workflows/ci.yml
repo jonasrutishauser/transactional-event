@@ -6,11 +6,11 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
   pull_request_target:
     types:
-      - opened
-      - synchronize
-      - reopened
       - labeled
     branches:
       - master
@@ -26,13 +26,24 @@ jobs:
         java:
           - 1.8
           - 11
+        event:
+          - ${{ github.event_name }}
+        exclude:
+          - event: pull_request_target
+            java: 1.8
     steps:
       - uses: actions/checkout@v2
+        if: ${{ github.event_name != 'pull_request_target' }}
+        with:
+          fetch-depth: 0
+          persist-credentials: ${{ !startsWith(github.event_name, 'pull_request') }}
+      - uses: actions/checkout@v2
+        if: ${{ github.event_name == 'pull_request_target' }}
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          persist-credentials: ${{ !startsWith(github.event_name, 'pull_request') }}
+          persist-credentials: false
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
@@ -59,33 +70,19 @@ jobs:
           path: '**/target/liberty/wlp/usr/servers/*/logs/**/*.log'
           retention-days: 5
       - name: Unittest Coverage
-        if: ${{ matrix.java == '11' && github.event_name != 'release' }}
+        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
           mvn -B jacoco:report && 
-          if [  "$GITHUB_PULL_REQUEST" != "" ]; 
-          then 
-            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
-            export GITHUB_SHA=$(git show --no-patch --format="%H"); 
-          fi && 
           bash <(curl -s https://codecov.io/bash) -c -F unittests
-        env:
-          GITHUB_PULL_REQUEST: ${{ github.event.number }}
       - name: Integrationstest Coverage
-        if: ${{ matrix.java == '11' && github.event_name != 'release' }}
+        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
           mvn -B jacoco:report-integration && 
-          if [  "$GITHUB_PULL_REQUEST" != "" ]; 
-          then 
-            export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
-            export GITHUB_SHA=$(git show --no-patch --format="%H"); 
-          fi && 
           bash <(curl -s https://codecov.io/bash) -c -F integration
-        env:
-          GITHUB_PULL_REQUEST: ${{ github.event.number }}
       - name: Sonar Report
-        if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
+        if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
-          if [  "$GITHUB_PULL_REQUEST" != "" ]; 
+          if [  "$GITHUB_EVENT_NAME" == "pull_request_target" ]; 
           then 
             export GITHUB_EVENT_NAME=pull_request; 
             export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
@@ -101,3 +98,11 @@ jobs:
         run: mvn -B -e site-deploy
         env:
           GITHUB_TOKEN: ${{ github.token }}
+  update-pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'sonar')) }}
+    steps:
+      - name: Remove Sonar Label
+        uses: peter-murray/remove-labels-action@v1
+        with:
+          labels: sonar
