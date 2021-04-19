@@ -7,6 +7,7 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 import java.time.LocalDateTime;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.PublishingEvent;
 
 @Dependent
 public class TransactionalEventPublisher implements EventPublisher {
@@ -24,17 +26,19 @@ public class TransactionalEventPublisher implements EventPublisher {
     private final EventTypeResolver typeResolver;
     private final Serializer eventSerializer;
     private final PublishedEvents publishedEvents;
+    private final Event<PublishingEvent> publishingEvent;
 
     TransactionalEventPublisher() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     @Inject
     TransactionalEventPublisher(EventTypeResolver typeResolver, Serializer eventSerializer,
-            PublishedEvents publishedEvents) {
+            PublishedEvents publishedEvents, Event<PublishingEvent> publishingEvent) {
         this.typeResolver = typeResolver;
         this.eventSerializer = eventSerializer;
         this.publishedEvents = publishedEvents;
+        this.publishingEvent = publishingEvent;
     }
 
     @Override
@@ -47,6 +51,7 @@ public class TransactionalEventPublisher implements EventPublisher {
 
         PendingEvent pendingEvent = new PendingEvent(id, type, payload, publishedAt);
         publishedEvents.add(pendingEvent);
+        publishingEvent.fire(new PublishingEvent(id));
 
         LOGGER.debug("enqueued event '{}' with type '{}' (payload '{}')", id, type, payload);
     }
