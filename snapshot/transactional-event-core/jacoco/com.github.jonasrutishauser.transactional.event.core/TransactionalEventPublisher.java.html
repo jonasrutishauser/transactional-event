@@ -7,6 +7,7 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 import java.time.LocalDateTime;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -15,41 +16,45 @@ import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.PublishingEvent;
 
 @Dependent
 public class TransactionalEventPublisher implements EventPublisher {
 
-<span class="fc" id="L22">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="fc" id="L24">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     private final EventTypeResolver typeResolver;
     private final Serializer eventSerializer;
     private final PublishedEvents publishedEvents;
+    private final Event&lt;PublishingEvent&gt; publishingEvent;
 
     TransactionalEventPublisher() {
-<span class="fc" id="L29">        this(null, null, null);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L32">        this(null, null, null, null);</span>
+<span class="fc" id="L33">    }</span>
 
     @Inject
     TransactionalEventPublisher(EventTypeResolver typeResolver, Serializer eventSerializer,
-<span class="fc" id="L34">            PublishedEvents publishedEvents) {</span>
-<span class="fc" id="L35">        this.typeResolver = typeResolver;</span>
-<span class="fc" id="L36">        this.eventSerializer = eventSerializer;</span>
-<span class="fc" id="L37">        this.publishedEvents = publishedEvents;</span>
-<span class="fc" id="L38">    }</span>
+<span class="fc" id="L37">            PublishedEvents publishedEvents, Event&lt;PublishingEvent&gt; publishingEvent) {</span>
+<span class="fc" id="L38">        this.typeResolver = typeResolver;</span>
+<span class="fc" id="L39">        this.eventSerializer = eventSerializer;</span>
+<span class="fc" id="L40">        this.publishedEvents = publishedEvents;</span>
+<span class="fc" id="L41">        this.publishingEvent = publishingEvent;</span>
+<span class="fc" id="L42">    }</span>
 
     @Override
     @Transactional(MANDATORY)
     public void publish(Object event) {
-<span class="nc" id="L43">        String id = randomId();</span>
-<span class="nc" id="L44">        String type = typeResolver.resolve(event.getClass());</span>
-<span class="nc" id="L45">        String payload = eventSerializer.serialize(event);</span>
-<span class="nc" id="L46">        LocalDateTime publishedAt = now();</span>
+<span class="nc" id="L47">        String id = randomId();</span>
+<span class="nc" id="L48">        String type = typeResolver.resolve(event.getClass());</span>
+<span class="nc" id="L49">        String payload = eventSerializer.serialize(event);</span>
+<span class="nc" id="L50">        LocalDateTime publishedAt = now();</span>
 
-<span class="nc" id="L48">        PendingEvent pendingEvent = new PendingEvent(id, type, payload, publishedAt);</span>
-<span class="nc" id="L49">        publishedEvents.add(pendingEvent);</span>
+<span class="nc" id="L52">        PendingEvent pendingEvent = new PendingEvent(id, type, payload, publishedAt);</span>
+<span class="nc" id="L53">        publishedEvents.add(pendingEvent);</span>
+<span class="nc" id="L54">        publishingEvent.fire(new PublishingEvent(id));</span>
 
-<span class="nc" id="L51">        LOGGER.debug(&quot;enqueued event '{}' with type '{}' (payload '{}')&quot;, id, type, payload);</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L56">        LOGGER.debug(&quot;enqueued event '{}' with type '{}' (payload '{}')&quot;, id, type, payload);</span>
+<span class="nc" id="L57">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

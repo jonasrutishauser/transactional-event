@@ -1,6 +1,7 @@
 com.github.jonasrutishauser.transactional.event.core
 com.github.jonasrutishauser.transactional.event.core.cdi
 com.github.jonasrutishauser.transactional.event.core.defaults
+com.github.jonasrutishauser.transactional.event.core.metrics
 com.github.jonasrutishauser.transactional.event.core.random
 com.github.jonasrutishauser.transactional.event.core.serialization
 com.github.jonasrutishauser.transactional.event.core.store

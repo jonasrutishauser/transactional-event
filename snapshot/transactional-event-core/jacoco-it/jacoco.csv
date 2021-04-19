@@ -8,10 +8,10 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultEventTypeResolver,0,6,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,Serializer,25,65,2,4,3,12,3,6,1,5
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,PendingEvent,0,41,0,0,0,14,0,7,0,7
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,TransactionalEventPublisher,6,49,0,0,2,14,1,3,1,3
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,TransactionalEventPublisher,7,59,0,0,2,16,1,3,1,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,PublishedEvents,4,31,0,2,2,8,1,3,1,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher,21,130,0,8,7,28,1,11,1,7
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkerImpl,0,31,0,0,0,11,0,3,0,3
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkerImpl,0,69,0,0,0,22,0,6,0,6
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,7,86,0,2,2,22,1,5,1,4
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,9,0,0,0,2,0,2,0,2
@@ -22,7 +22,8 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,9,0,0,0,4,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory,27,113,4,10,7,24,4,10,1,6
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker.new TransactionalWorker.EventHandlerLiteral() {...},0,14,0,0,0,2,0,2,0,2
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,0,74,0,6,0,16,0,11,0,8
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,4,89,0,6,2,20,1,12,1,9
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher.new Trigger() {...},0,16,0,0,0,3,0,3,0,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,72,303,7,25,9,62,7,20,0,11
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,DefaultEventDeserializer,5,20,1,1,1,6,1,2,0,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.metrics,MetricsEventObserver,0,30,0,0,0,12,0,7,0,7
