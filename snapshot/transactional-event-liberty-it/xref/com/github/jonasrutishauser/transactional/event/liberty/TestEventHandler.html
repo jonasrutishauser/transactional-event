@@ -26,10 +26,13 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>          <strong class="jxr_keyword">if</strong> (event.getMessage().contains(<span class="jxr_string">"failure"</span>) &amp;&amp; messages.addFailure(event.getMessage())) {
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(event.getMessage());
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>          }
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>          messages.add(event.getMessage());
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      }
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">if</strong> (event.getMessage().contains(<span class="jxr_string">"blocker"</span>)) {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"blocker not allowed"</span>);
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          }
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          messages.add(event.getMessage());
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      }
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2021. All rights reserved.</div>

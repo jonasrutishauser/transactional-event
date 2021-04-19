@@ -18,8 +18,11 @@ import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 <span class="fc bfc" id="L18" title="All 4 branches covered.">        if (event.getMessage().contains(&quot;failure&quot;) &amp;&amp; messages.addFailure(event.getMessage())) {</span>
 <span class="fc" id="L19">            throw new IllegalStateException(event.getMessage());</span>
         }
-<span class="fc" id="L21">        messages.add(event.getMessage());</span>
-<span class="fc" id="L22">    }</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (event.getMessage().contains(&quot;blocker&quot;)) {</span>
+<span class="nc" id="L22">            throw new IllegalArgumentException(&quot;blocker not allowed&quot;);</span>
+        }
+<span class="fc" id="L24">        messages.add(event.getMessage());</span>
+<span class="fc" id="L25">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
