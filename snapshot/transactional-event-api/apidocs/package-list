@@ -1,4 +1,5 @@
 com.github.jonasrutishauser.transactional.event.api
 com.github.jonasrutishauser.transactional.event.api.handler
+com.github.jonasrutishauser.transactional.event.api.monitoring
 com.github.jonasrutishauser.transactional.event.api.serialization
 com.github.jonasrutishauser.transactional.event.api.store
