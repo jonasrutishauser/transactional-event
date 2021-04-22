@@ -197,11 +197,15 @@ class PendingEventStoreTest {
 
     @Test
     void deleteBlockedWhenDbMalfunction() throws Exception {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+            statement.execute("INSERT INTO event_store VALUES ('foo', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, "
+                    + Long.MAX_VALUE + ")");
+        }
         DataSource mockDataSource = mock(DataSource.class);
         Connection connection = mock(Connection.class);
         when(mockDataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(startsWith("DELETE")))
-                .then(req -> dataSource.getConnection().prepareStatement(req.getArgument(0)));
+                .then(req -> dataSource.getConnection().prepareStatement("UN"+req.getArgument(0)));
         testee = new PendingEventStore(new MPConfiguration(), mockDataSource, new QueryAdapterFactory(dataSource),
                 new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
                         processingBlockedEvent),
