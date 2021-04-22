@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingBlockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingDeletedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingFailedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
@@ -47,6 +48,12 @@ public class MetricsEventObserver {
     @Counted(name = "com.github.jonasrutishauser.transaction.event.unblocked",
             description = "counter for unblocked events", absolute = true)
     public void processUnblocked(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingUnblockedEvent e) {
+        LOGGER.debug(EVENT_LOG_MESSAGE, e);
+    }
+
+    @Counted(name = "com.github.jonasrutishauser.transaction.event.deleted",
+            description = "counter for unblocked events", absolute = true)
+    public void processDeleted(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingDeletedEvent e) {
         LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }
 

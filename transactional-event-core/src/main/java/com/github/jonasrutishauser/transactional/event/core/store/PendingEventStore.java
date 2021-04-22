@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingDeletedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
@@ -52,26 +53,29 @@ class PendingEventStore implements EventStore {
     private String insertSQL;
     private String readSQL;
     private String deleteSQL;
+    private String deleteBlockedSQL;
     private String updateSQL;
     private String updateSQLwithLockOwner;
     private String aquireSQL;
     private String readBlockedSQL;
     private String readBlockedForUpdateSQL;
     private Event<ProcessingUnblockedEvent> unblockedEvent;
+    private Event<ProcessingDeletedEvent> deletedEvent;
 
 
     PendingEventStore() {
-        this(null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
     @Inject
     PendingEventStore(Configuration configuration, @Events DataSource dataSource,
-            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner, Event<ProcessingUnblockedEvent> unblockedEvent) {
+            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner, Event<ProcessingUnblockedEvent> unblockedEvent, Event<ProcessingDeletedEvent> deletedEvent) {
         this.configuration = configuration;
         this.dataSource = dataSource;
         this.queryAdapterFactory = queryAdapterFactory;
         this.lockOwner = lockOwner;
-		this.unblockedEvent = unblockedEvent;
+        this.unblockedEvent = unblockedEvent;
+        this.deletedEvent = deletedEvent;
     }
 
     @PostConstruct
@@ -81,6 +85,7 @@ class PendingEventStore implements EventStore {
                 + " (id, event_type, payload, published_at, tries, lock_owner, locked_until) VALUES (?, ?, ?, ?, ?, ?, ?)";
         readSQL = "SELECT * FROM " + configuration.getTableName() + " WHERE id=? FOR UPDATE";
         deleteSQL = "DELETE FROM " + configuration.getTableName() + " WHERE id=? AND lock_owner=?";
+        deleteBlockedSQL = "DELETE FROM " + configuration.getTableName() + " WHERE id=? AND locked_until=" + Long.MAX_VALUE;
         updateSQL = "UPDATE " + configuration.getTableName() + " SET tries=?, lock_owner=?, locked_until=? WHERE id=?";
         updateSQLwithLockOwner = updateSQL + " AND lock_owner=?";
         aquireSQL = adapter.fixLimits(adapter.addSkipLocked("SELECT id, tries FROM " + configuration.getTableName()
@@ -104,13 +109,34 @@ class PendingEventStore implements EventStore {
                 updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));
                 updateStatement.setString(4, eventId);
                 result = updateStatement.executeUpdate() > 0;
-                unblockedEvent.fire(new ProcessingUnblockedEvent(eventId));
             } else {
                 result = false;
             }
         } catch (SQLException exception) {
             LOGGER.error("failed to unblock event '{}'", eventId, exception);
             result = false;
+        }
+        if (result) {
+            unblockedEvent.fire(new ProcessingUnblockedEvent(eventId));
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public boolean delete(String eventId) {
+        boolean result;
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(deleteBlockedSQL)) {
+            statement.setString(1, eventId);
+            statement.execute();
+            result = statement.getUpdateCount() > 0;
+        } catch (SQLException exception) {
+            LOGGER.error("failed to unblock event '{}'", eventId, exception);
+            result = false;
+        }
+        if (result) {
+            deletedEvent.fire(new ProcessingDeletedEvent(eventId));
         }
         return result;
     }
