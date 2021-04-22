@@ -22,6 +22,7 @@ import java.util.function.IntPredicate;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -32,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.api.store.QueryAdapter;
@@ -55,18 +57,21 @@ class PendingEventStore implements EventStore {
     private String aquireSQL;
     private String readBlockedSQL;
     private String readBlockedForUpdateSQL;
+    private Event<ProcessingUnblockedEvent> unblockedEvent;
+
 
     PendingEventStore() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     @Inject
     PendingEventStore(Configuration configuration, @Events DataSource dataSource,
-            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner) {
+            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner, Event<ProcessingUnblockedEvent> unblockedEvent) {
         this.configuration = configuration;
         this.dataSource = dataSource;
         this.queryAdapterFactory = queryAdapterFactory;
         this.lockOwner = lockOwner;
+		this.unblockedEvent = unblockedEvent;
     }
 
     @PostConstruct
@@ -99,6 +104,7 @@ class PendingEventStore implements EventStore {
                 updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));
                 updateStatement.setString(4, eventId);
                 result = updateStatement.executeUpdate() > 0;
+                unblockedEvent.fire(new ProcessingUnblockedEvent(eventId));
             } else {
                 result = false;
             }
