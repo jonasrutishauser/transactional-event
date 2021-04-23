@@ -8,5 +8,11 @@ public class ProcessingSuccessEvent extends AbstractProcessingEvent {
 <span class="nc" id="L8">        super(eventId);</span>
 <span class="nc" id="L9">    }</span>
 
+    @Override
+    public String toString() {
+<span class="nc" id="L13">        return &quot;ProcessingSuccessEvent [getEventId()=&quot; + getEventId() + &quot;, toString()=&quot; + super.toString()</span>
+<span class="nc" id="L14">                + &quot;, hashCode()=&quot; + hashCode() + &quot;, getClass()=&quot; + getClass() + &quot;]&quot;;</span>
+    }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
