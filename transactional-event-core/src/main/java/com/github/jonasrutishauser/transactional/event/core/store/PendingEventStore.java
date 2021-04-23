@@ -59,8 +59,8 @@ class PendingEventStore implements EventStore {
     private String aquireSQL;
     private String readBlockedSQL;
     private String readBlockedForUpdateSQL;
-    private Event<ProcessingUnblockedEvent> unblockedEvent;
-    private Event<ProcessingDeletedEvent> deletedEvent;
+    private final Event<ProcessingUnblockedEvent> unblockedEvent;
+    private final Event<ProcessingDeletedEvent> deletedEvent;
 
 
     PendingEventStore() {
