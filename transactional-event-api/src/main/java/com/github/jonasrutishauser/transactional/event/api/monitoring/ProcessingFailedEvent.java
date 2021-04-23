@@ -37,8 +37,6 @@ public class ProcessingFailedEvent extends AbstractProcessingEvent {
             return true;
         if (!super.equals(obj))
             return false;
-        if (getClass() != obj.getClass())
-            return false;
         ProcessingFailedEvent other = (ProcessingFailedEvent) obj;
         return Objects.equals(cause, other.cause);
     }
