@@ -82,3 +82,5 @@ If mpMetrics is enabled on the server there will be the following metrics
 - application_com_github_jonasrutishauser_transaction_event_failedattempts_total (these are the number of failed attempts to process an event)
 - application_com_github_jonasrutishauser_transaction_event_success_total (these are the number of successfully processed events)
 - application_com_github_jonasrutishauser_transaction_event_blocked_total (these are the number of blocked events because the maximum number of retries has been reached)
+- application_com_github_jonasrutishauser_transaction_event_unblocked_total (these are the number of unblocked events)
+- application_com_github_jonasrutishauser_transaction_event_deleted_total (these are the number of deleted events)

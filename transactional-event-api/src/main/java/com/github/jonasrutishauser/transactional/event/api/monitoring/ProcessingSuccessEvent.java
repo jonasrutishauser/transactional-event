@@ -8,4 +8,10 @@ public class ProcessingSuccessEvent extends AbstractProcessingEvent {
         super(eventId);
     }
 
+    @Override
+    public String toString() {
+        return "ProcessingSuccessEvent [getEventId()=" + getEventId() + ", toString()=" + super.toString()
+                + ", hashCode()=" + hashCode() + ", getClass()=" + getClass() + "]";
+    }
+
 }
