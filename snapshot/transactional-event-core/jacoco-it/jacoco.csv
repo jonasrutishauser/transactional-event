@@ -15,7 +15,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,7,86,0,2,2,22,1,5,1,4
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,9,0,0,0,2,0,2,0,2
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,0,779,0,32,0,149,0,33,0,17
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,0,859,0,38,0,166,0,37,0,18
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.OracleQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.MariaDBQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.LimitQueryAdapter,0,9,0,0,0,2,0,2,0,2
@@ -26,4 +26,4 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher.new Trigger() {...},0,16,0,0,0,3,0,3,0,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,72,303,7,25,9,62,7,20,0,11
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,DefaultEventDeserializer,5,20,1,1,1,6,1,2,0,2
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.metrics,MetricsEventObserver,0,30,0,0,0,12,0,7,0,7
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.metrics,MetricsEventObserver,5,35,0,0,2,14,1,8,1,8

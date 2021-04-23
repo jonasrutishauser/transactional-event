@@ -10,43 +10,57 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingBlockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingDeletedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingFailedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.PublishingEvent;
 
 @ApplicationScoped
-<span class="nc" id="L18">public class MetricsEventObserver {</span>
+<span class="nc" id="L20">public class MetricsEventObserver {</span>
 
     private static final String EVENT_LOG_MESSAGE = &quot;Got event {}&quot;;
 
-<span class="nc" id="L22">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="nc" id="L24">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
-<span class="nc" id="L25">        LOGGER.debug(&quot;initialized&quot;);</span>
-<span class="nc" id="L26">    }</span>
+<span class="nc" id="L27">        LOGGER.debug(&quot;initialized&quot;);</span>
+<span class="nc" id="L28">    }</span>
 
     @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.failedattempts&quot;,
             description = &quot;counter for failed attempts of processing the events&quot;, absolute = true)
     public void processAttemptFailed(@Observes ProcessingFailedEvent e) {
-<span class="nc" id="L31">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
-<span class="nc" id="L32">    }</span>
+<span class="nc" id="L33">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L34">    }</span>
 
     @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.success&quot;,
             description = &quot;counter for successfully processed events&quot;, absolute = true)
     public void processSuccess(@Observes ProcessingSuccessEvent e) {
-<span class="nc" id="L37">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L39">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L40">    }</span>
 
     @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.blocked&quot;,
             description = &quot;counter for blocked events (max attempts reached)&quot;, absolute = true)
     public void processBlocked(@Observes ProcessingBlockedEvent e) {
-<span class="nc" id="L43">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
-<span class="nc" id="L44">    }</span>
+<span class="nc" id="L45">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L46">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.unblocked&quot;,
+            description = &quot;counter for unblocked events&quot;, absolute = true)
+    public void processUnblocked(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingUnblockedEvent e) {
+<span class="nc" id="L51">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L52">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.deleted&quot;,
+            description = &quot;counter for unblocked events&quot;, absolute = true)
+    public void processDeleted(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingDeletedEvent e) {
+<span class="nc" id="L57">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L58">    }</span>
 
     @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.published&quot;,
             description = &quot;counter for published events&quot;, absolute = true)
     public void published(@Observes(during = TransactionPhase.AFTER_SUCCESS) PublishingEvent e) {
-<span class="nc" id="L49">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
-<span class="nc" id="L50">    }</span>
+<span class="nc" id="L63">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L64">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
