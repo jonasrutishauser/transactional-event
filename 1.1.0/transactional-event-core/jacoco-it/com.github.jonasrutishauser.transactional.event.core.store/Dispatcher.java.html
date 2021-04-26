@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Dispatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">Dispatcher.java</span></div><h1>Dispatcher.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.concurrent.ContextService;
+import javax.enterprise.concurrent.LastExecution;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.enterprise.concurrent.Trigger;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.context.control.ActivateRequestContext;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.TransientReference;
+import javax.inject.Inject;
+
+import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
+
+@ApplicationScoped
+class Dispatcher implements Scheduler {
+
+    private final Configuration configuration;
+    private final Scheduler scheduler;
+    private final ManagedScheduledExecutorService executor;
+    private final PendingEventStore store;
+    private final Worker worker;
+
+<span class="pc" id="L36">    private volatile int intervalSeconds = 30;</span>
+
+<span class="nc" id="L38">    Dispatcher() {</span>
+<span class="nc" id="L39">        this.configuration = null;</span>
+<span class="nc" id="L40">        this.scheduler = null;</span>
+<span class="nc" id="L41">        this.executor = null;</span>
+<span class="nc" id="L42">        this.store = null;</span>
+<span class="nc" id="L43">        this.worker = null;</span>
+<span class="nc" id="L44">    }</span>
+
+    @Inject
+    Dispatcher(Configuration configuration, Scheduler scheduler, @Events ManagedScheduledExecutorService executor,
+<span class="fc" id="L48">            PendingEventStore store, Worker worker, @Events @TransientReference ContextService contextService) {</span>
+<span class="fc" id="L49">        this.configuration = configuration;</span>
+<span class="fc" id="L50">        this.scheduler = contextService.createContextualProxy(scheduler, Scheduler.class);</span>
+<span class="fc" id="L51">        this.executor = executor;</span>
+<span class="fc" id="L52">        this.store = store;</span>
+<span class="fc" id="L53">        this.worker = contextService.createContextualProxy(worker, Worker.class);</span>
+<span class="fc" id="L54">    }</span>
+
+    @PostConstruct
+    void initIntervalSeconds() {
+<span class="fc" id="L58">        intervalSeconds = configuration.getInitialDispatchInterval();</span>
+<span class="fc" id="L59">    }</span>
+
+    void directDispatch(@Observes(during = AFTER_SUCCESS) EventsPublished events) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (PendingEvent event : events.getEvents()) {</span>
+<span class="fc" id="L63">            executor.execute(processor(event.getId()));</span>
+<span class="fc" id="L64">        }</span>
+<span class="fc" id="L65">    }</span>
+
+    private Runnable processor(String eventId) {
+<span class="fc" id="L68">        return () -&gt; {</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (!worker.process(eventId)) {</span>
+<span class="fc" id="L70">                intervalSeconds = 1;</span>
+            }
+<span class="fc" id="L72">        };</span>
+    }
+
+    void startup(@Observes @Initialized(ApplicationScoped.class) Object event) {
+<span class="fc" id="L76">        executor.schedule(scheduler::schedule, new Trigger() {</span>
+            @Override
+            public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
+<span class="fc" id="L79">                return Date.from(Instant.now().plusSeconds(intervalSeconds));</span>
+            }
+
+            @Override
+            public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
+<span class="fc" id="L84">                return false;</span>
+            }
+        });
+<span class="fc" id="L87">    }</span>
+
+    @ActivateRequestContext
+    public synchronized void schedule() {
+<span class="fc" id="L91">        boolean processed = false;</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        for (Set&lt;String&gt; events = store.aquire(); !events.isEmpty(); events = store.aquire()) {</span>
+<span class="fc" id="L93">            processed = true;</span>
+<span class="fc" id="L94">            events.stream().map(this::processor).forEach(executor::execute);</span>
+        }
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (processed) {</span>
+<span class="fc" id="L97">            intervalSeconds = 0;</span>
+        } else {
+<span class="fc" id="L99">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
+        }
+<span class="fc" id="L101">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
