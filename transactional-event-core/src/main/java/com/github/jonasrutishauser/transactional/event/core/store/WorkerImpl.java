@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.microprofile.metrics.annotation.ConcurrentGauge;
 
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingFailedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
@@ -30,6 +31,8 @@ class WorkerImpl implements Worker {
     }
 
     @ActivateRequestContext
+    @ConcurrentGauge(name = "com.github.jonasrutishauser.transaction.event.processing",
+            description = "number of events in processing", absolute = true)
     public boolean process(String eventId) {
         try {
             processAttempt(eventId);
