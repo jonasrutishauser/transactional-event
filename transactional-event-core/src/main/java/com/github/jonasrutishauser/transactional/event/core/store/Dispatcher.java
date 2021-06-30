@@ -7,6 +7,7 @@ import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.concurrent.ContextService;
@@ -32,6 +33,7 @@ class Dispatcher implements Scheduler {
     private final ManagedScheduledExecutorService executor;
     private final PendingEventStore store;
     private final Worker worker;
+    private final AtomicInteger dispatchedRunning = new AtomicInteger();
 
     private volatile int intervalSeconds = 30;
 
@@ -89,15 +91,30 @@ class Dispatcher implements Scheduler {
     @ActivateRequestContext
     public synchronized void schedule() {
         boolean processed = false;
-        for (Set<String> events = store.aquire(); !events.isEmpty(); events = store.aquire()) {
+        for (Set<String> events = store.aquire(maxAquire()); !events.isEmpty(); events = store.aquire(maxAquire())) {
             processed = true;
-            events.stream().map(this::processor).forEach(executor::execute);
+            events.stream().map(this::processor).map(this::counting).forEach(executor::execute);
         }
         if (processed) {
             intervalSeconds = 0;
         } else {
             intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
         }
+    }
+
+    private int maxAquire() {
+        return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();
+    }
+
+    private Runnable counting(Runnable task) {
+        dispatchedRunning.incrementAndGet();
+        return () -> {
+            try {
+                task.run();
+            } finally {
+                dispatchedRunning.decrementAndGet();
+            }
+        };
     }
 
 }

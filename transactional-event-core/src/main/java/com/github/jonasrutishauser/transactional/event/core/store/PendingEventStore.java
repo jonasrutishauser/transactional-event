@@ -1,5 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static java.lang.Math.min;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 import static java.sql.Types.VARCHAR;
 import static java.util.Collections.emptySet;
@@ -246,12 +247,15 @@ class PendingEventStore implements EventStore {
     }
 
     @Transactional
-    public Set<String> aquire() {
+    public Set<String> aquire(int maxAquire) {
         Set<String> result = new HashSet<>();
+        int limit = min(maxAquire, configuration.getMaxAquire());
+        if (limit < 1) {
+            return emptySet();
+        }
         try (Connection connection = dataSource.getConnection();
              PreparedStatement aquireStatement = connection.prepareStatement(aquireSQL);
-             ResultSet resultSet = executeQuery(aquireStatement, lockOwner.getMinUntilForAquire(),
-                     configuration.getMaxAquire());
+             ResultSet resultSet = executeQuery(aquireStatement, lockOwner.getMinUntilForAquire(), limit);
              PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {
             while (resultSet.next()) {
                 result.add(resultSet.getString("id"));

@@ -522,7 +522,7 @@ class PendingEventStoreTest {
 
     @Test
     void aquireWhenEmpty() {
-        Set<String> result = testee.aquire();
+        Set<String> result = testee.aquire(100);
 
         assertEquals(emptySet(), result);
     }
@@ -533,7 +533,19 @@ class PendingEventStoreTest {
             statement.execute("DROP TABLE event_store");
         }
 
-        Set<String> result = testee.aquire();
+        Set<String> result = testee.aquire(100);
+
+        assertEquals(emptySet(), result);
+    }
+
+    @Test
+    void aquireWhenSomeMessagesAndMaxAuqireIs0() throws Exception {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+            statement.execute(
+                    "INSERT INTO event_store VALUES ('e01', 't', 'p', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
+        }
+
+        Set<String> result = testee.aquire(0);
 
         assertEquals(emptySet(), result);
     }
@@ -569,7 +581,7 @@ class PendingEventStoreTest {
                     "INSERT INTO event_store VALUES ('e12', 't', 'p', {ts '2021-01-01 13:42:00'}, 0, null, 12)");
         }
 
-        Set<String> result = testee.aquire();
+        Set<String> result = testee.aquire(100);
 
         assertThat(result, hasSize(10));
     }
@@ -594,7 +606,7 @@ class PendingEventStoreTest {
                 unblockedEvent, deletedEvent);
         testee.initSqlQueries();
 
-        Set<String> result = testee.aquire();
+        Set<String> result = testee.aquire(100);
 
         assertEquals(emptySet(), result);
     }
@@ -619,7 +631,7 @@ class PendingEventStoreTest {
                 unblockedEvent, deletedEvent);
         testee.initSqlQueries();
 
-        Set<String> result = testee.aquire();
+        Set<String> result = testee.aquire(100);
 
         assertEquals(emptySet(), result);
     }

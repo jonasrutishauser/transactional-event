@@ -16,6 +16,7 @@ class MPConfigurationTest {
         assertEquals(Configuration.DEFAULT_MAX_DISPATCHER_INTERVAL / 2, testee.getInitialDispatchInterval());
         assertEquals(Configuration.DEFAULT_TABLE_NAME, testee.getTableName());
         assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxAquire());
+        assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxConcurrentDispatching());
     }
 
     @Test
@@ -27,6 +28,7 @@ class MPConfigurationTest {
         assertEquals(6, testee.getInitialDispatchInterval());
         assertEquals(Configuration.DEFAULT_TABLE_NAME, testee.getTableName());
         assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxAquire());
+        assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxConcurrentDispatching());
     }
 
     @Test
@@ -38,6 +40,7 @@ class MPConfigurationTest {
         assertEquals(42, testee.getInitialDispatchInterval());
         assertEquals(Configuration.DEFAULT_TABLE_NAME, testee.getTableName());
         assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxAquire());
+        assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxConcurrentDispatching());
     }
 
     @Test
@@ -49,6 +52,7 @@ class MPConfigurationTest {
         assertEquals(Configuration.DEFAULT_MAX_DISPATCHER_INTERVAL / 2, testee.getInitialDispatchInterval());
         assertEquals("someTable", testee.getTableName());
         assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxAquire());
+        assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxConcurrentDispatching());
     }
 
     @Test
@@ -60,6 +64,19 @@ class MPConfigurationTest {
         assertEquals(Configuration.DEFAULT_MAX_DISPATCHER_INTERVAL / 2, testee.getInitialDispatchInterval());
         assertEquals(Configuration.DEFAULT_TABLE_NAME, testee.getTableName());
         assertEquals(7, testee.getMaxAquire());
+        assertEquals(7, testee.getMaxConcurrentDispatching());
+    }
+
+    @Test
+    void configuredMaxConcurrentDispatching() {
+        MPConfiguration testee = new MPConfiguration();
+        testee.maxConcurrentDispatching = Optional.of(Integer.valueOf(7));
+
+        assertEquals(Configuration.DEFAULT_MAX_DISPATCHER_INTERVAL, testee.getMaxDispatchInterval());
+        assertEquals(Configuration.DEFAULT_MAX_DISPATCHER_INTERVAL / 2, testee.getInitialDispatchInterval());
+        assertEquals(Configuration.DEFAULT_TABLE_NAME, testee.getTableName());
+        assertEquals(Configuration.DEFAULT_MAX_AQUIRE, testee.getMaxAquire());
+        assertEquals(7, testee.getMaxConcurrentDispatching());
     }
 
 }
