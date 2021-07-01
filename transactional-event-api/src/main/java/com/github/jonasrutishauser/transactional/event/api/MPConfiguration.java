@@ -26,6 +26,10 @@ public class MPConfiguration extends Configuration {
     @ConfigProperty(name = "transactional.event.maxAquire")
     Optional<Integer> maxAquire = Optional.empty();
 
+    @Inject
+    @ConfigProperty(name = "transactional.event.maxConcurrentDispatching")
+    Optional<Integer> maxConcurrentDispatching = Optional.empty();
+
     @Override
     public int getMaxDispatchInterval() {
         return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();
@@ -44,6 +48,11 @@ public class MPConfiguration extends Configuration {
     @Override
     public int getMaxAquire() {
         return maxAquire.orElseGet(super::getMaxAquire).intValue();
+    }
+
+    @Override
+    public int getMaxConcurrentDispatching() {
+        return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();
     }
 
 }

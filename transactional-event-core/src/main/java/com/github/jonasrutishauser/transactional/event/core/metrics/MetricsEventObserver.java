@@ -52,7 +52,7 @@ public class MetricsEventObserver {
     }
 
     @Counted(name = "com.github.jonasrutishauser.transaction.event.deleted",
-            description = "counter for unblocked events", absolute = true)
+            description = "counter for deleted events", absolute = true)
     public void processDeleted(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingDeletedEvent e) {
         LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }

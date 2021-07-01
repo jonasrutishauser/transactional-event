@@ -25,4 +25,8 @@ public class Configuration {
         return DEFAULT_MAX_AQUIRE;
     }
 
+    public int getMaxConcurrentDispatching() {
+        return getMaxAquire();
+    }
+
 }
