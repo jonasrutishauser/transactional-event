@@ -104,7 +104,7 @@ class Dispatcher implements Scheduler {
         }
     }
 
-    @Gauge(name = "com.github.jonasrutishauser.transaction.event.dispatcher.running", description = "Number of events being dispatched", unit="", absolute = true)
+    @Gauge(name = "com.github.jonasrutishauser.transaction.event.dispatched.processing", description = "Number of dispatched events being processed", unit="", absolute = true)
     public int getDispatchedRunning() {
         return dispatchedRunning.get();
     }

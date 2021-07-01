@@ -85,4 +85,4 @@ If mpMetrics is enabled on the server there will be the following metrics
 - application_com_github_jonasrutishauser_transaction_event_unblocked_total (these are the number of unblocked events)
 - application_com_github_jonasrutishauser_transaction_event_deleted_total (these are the number of deleted events)
 - application_com_github_jonasrutishauser_transaction_event_processing (the number of events being processed currently in total)
-- application_com_github_jonasrutishauser_transaction_event_dispatcher_running (the number of events being dispatched currently by timer. This metric can be used for fine-tuning transactional.event.maxConcurrentDispatching and transactional.event.maxAquire)
+- application_com_github_jonasrutishauser_transaction_event_dispatched_processing (the number of dispatched events by a timer being processed currently. This metric can be used for fine-tuning transactional.event.maxConcurrentDispatching and transactional.event.maxAquire)
