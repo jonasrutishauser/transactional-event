@@ -1,0 +1,14 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,ProcessingDeletedEvent,16,0,0,0,3,0,2,0,2,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,ProcessingSuccessEvent,31,0,0,0,4,0,2,0,2,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,ProcessingBlockedEvent,16,0,0,0,3,0,2,0,2,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,AbstractProcessingEvent,55,0,6,0,14,0,8,0,5,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,ProcessingUnblockedEvent,16,0,0,0,3,0,2,0,2,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,ProcessingFailedEvent,82,0,4,0,16,0,7,0,5,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,PublishingEvent,55,0,6,0,14,0,8,0,5,0
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.store,BlockedEvent,0,27,0,0,0,10,0,5,0,5
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.handler,AbstractHandler,0,14,0,0,0,5,0,3,0,3
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api,MPConfiguration,0,76,0,0,0,16,0,11,0,11
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api,Configuration,0,17,0,0,0,6,0,6,0,6
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.serialization,EventSerializer,0,52,0,10,0,8,0,6,0,1
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.serialization,GenericSerialization,0,13,0,2,0,2,0,2,0,1
