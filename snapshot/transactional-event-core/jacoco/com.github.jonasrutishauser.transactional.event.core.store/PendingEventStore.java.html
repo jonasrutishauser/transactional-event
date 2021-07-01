@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PendingEventStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">PendingEventStore.java</span></div><h1>PendingEventStore.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static java.lang.Math.min;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 import static java.sql.Types.VARCHAR;
 import static java.util.Collections.emptySet;
@@ -43,7 +44,7 @@ import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 @ApplicationScoped
 class PendingEventStore implements EventStore {
 
-<span class="fc" id="L46">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="fc" id="L47">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     private final Configuration configuration;
     private final DataSource dataSource;
@@ -64,242 +65,245 @@ class PendingEventStore implements EventStore {
 
 
     PendingEventStore() {
-<span class="fc" id="L67">        this(null, null, null, null, null, null);</span>
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L68">        this(null, null, null, null, null, null);</span>
+<span class="fc" id="L69">    }</span>
 
     @Inject
     PendingEventStore(Configuration configuration, @Events DataSource dataSource,
-<span class="fc" id="L72">            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner, Event&lt;ProcessingUnblockedEvent&gt; unblockedEvent, Event&lt;ProcessingDeletedEvent&gt; deletedEvent) {</span>
-<span class="fc" id="L73">        this.configuration = configuration;</span>
-<span class="fc" id="L74">        this.dataSource = dataSource;</span>
-<span class="fc" id="L75">        this.queryAdapterFactory = queryAdapterFactory;</span>
-<span class="fc" id="L76">        this.lockOwner = lockOwner;</span>
-<span class="fc" id="L77">        this.unblockedEvent = unblockedEvent;</span>
-<span class="fc" id="L78">        this.deletedEvent = deletedEvent;</span>
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L73">            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner, Event&lt;ProcessingUnblockedEvent&gt; unblockedEvent, Event&lt;ProcessingDeletedEvent&gt; deletedEvent) {</span>
+<span class="fc" id="L74">        this.configuration = configuration;</span>
+<span class="fc" id="L75">        this.dataSource = dataSource;</span>
+<span class="fc" id="L76">        this.queryAdapterFactory = queryAdapterFactory;</span>
+<span class="fc" id="L77">        this.lockOwner = lockOwner;</span>
+<span class="fc" id="L78">        this.unblockedEvent = unblockedEvent;</span>
+<span class="fc" id="L79">        this.deletedEvent = deletedEvent;</span>
+<span class="fc" id="L80">    }</span>
 
     @PostConstruct
     void initSqlQueries() {
-<span class="fc" id="L83">        QueryAdapter adapter = queryAdapterFactory.getQueryAdapter();</span>
-<span class="fc" id="L84">        insertSQL = &quot;INSERT INTO &quot; + configuration.getTableName()</span>
+<span class="fc" id="L84">        QueryAdapter adapter = queryAdapterFactory.getQueryAdapter();</span>
+<span class="fc" id="L85">        insertSQL = &quot;INSERT INTO &quot; + configuration.getTableName()</span>
                 + &quot; (id, event_type, payload, published_at, tries, lock_owner, locked_until) VALUES (?, ?, ?, ?, ?, ?, ?)&quot;;
-<span class="fc" id="L86">        readSQL = &quot;SELECT * FROM &quot; + configuration.getTableName() + &quot; WHERE id=? FOR UPDATE&quot;;</span>
-<span class="fc" id="L87">        deleteSQL = &quot;DELETE FROM &quot; + configuration.getTableName() + &quot; WHERE id=? AND lock_owner=?&quot;;</span>
-<span class="fc" id="L88">        deleteBlockedSQL = &quot;DELETE FROM &quot; + configuration.getTableName() + &quot; WHERE id=? AND locked_until=&quot; + Long.MAX_VALUE;</span>
-<span class="fc" id="L89">        updateSQL = &quot;UPDATE &quot; + configuration.getTableName() + &quot; SET tries=?, lock_owner=?, locked_until=? WHERE id=?&quot;;</span>
-<span class="fc" id="L90">        updateSQLwithLockOwner = updateSQL + &quot; AND lock_owner=?&quot;;</span>
-<span class="fc" id="L91">        aquireSQL = adapter.fixLimits(adapter.addSkipLocked(&quot;SELECT id, tries FROM &quot; + configuration.getTableName()</span>
+<span class="fc" id="L87">        readSQL = &quot;SELECT * FROM &quot; + configuration.getTableName() + &quot; WHERE id=? FOR UPDATE&quot;;</span>
+<span class="fc" id="L88">        deleteSQL = &quot;DELETE FROM &quot; + configuration.getTableName() + &quot; WHERE id=? AND lock_owner=?&quot;;</span>
+<span class="fc" id="L89">        deleteBlockedSQL = &quot;DELETE FROM &quot; + configuration.getTableName() + &quot; WHERE id=? AND locked_until=&quot; + Long.MAX_VALUE;</span>
+<span class="fc" id="L90">        updateSQL = &quot;UPDATE &quot; + configuration.getTableName() + &quot; SET tries=?, lock_owner=?, locked_until=? WHERE id=?&quot;;</span>
+<span class="fc" id="L91">        updateSQLwithLockOwner = updateSQL + &quot; AND lock_owner=?&quot;;</span>
+<span class="fc" id="L92">        aquireSQL = adapter.fixLimits(adapter.addSkipLocked(&quot;SELECT id, tries FROM &quot; + configuration.getTableName()</span>
                 + &quot; WHERE locked_until&lt;=? {LIMIT ?} FOR UPDATE&quot;));
-<span class="fc" id="L93">        String readBlocked = &quot;SELECT * FROM &quot; + configuration.getTableName() + &quot; WHERE locked_until=&quot; + Long.MAX_VALUE;</span>
-<span class="fc" id="L94">        readBlockedSQL = adapter.fixLimits(readBlocked + &quot; {LIMIT ?}&quot;);</span>
-<span class="fc" id="L95">        readBlockedForUpdateSQL = adapter.addSkipLocked(readBlocked + &quot; AND id=? FOR UPDATE&quot;);</span>
-<span class="fc" id="L96">    }</span>
+<span class="fc" id="L94">        String readBlocked = &quot;SELECT * FROM &quot; + configuration.getTableName() + &quot; WHERE locked_until=&quot; + Long.MAX_VALUE;</span>
+<span class="fc" id="L95">        readBlockedSQL = adapter.fixLimits(readBlocked + &quot; {LIMIT ?}&quot;);</span>
+<span class="fc" id="L96">        readBlockedForUpdateSQL = adapter.addSkipLocked(readBlocked + &quot; AND id=? FOR UPDATE&quot;);</span>
+<span class="fc" id="L97">    }</span>
 
     @Override
     @Transactional
     public boolean unblock(String eventId) {
         boolean result;
-<span class="fc" id="L102">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L103">             PreparedStatement readStatement = connection.prepareStatement(readBlockedForUpdateSQL);</span>
-<span class="fc" id="L104">             ResultSet resultSet = executeQuery(readStatement, eventId);</span>
-<span class="fc" id="L105">             PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {</span>
-<span class="fc bfc" id="L106" title="All 2 branches covered.">            if (resultSet.next()) {</span>
-<span class="fc" id="L107">                updateStatement.setInt(1, 0);</span>
-<span class="fc" id="L108">                updateStatement.setNull(2, VARCHAR);</span>
-<span class="fc" id="L109">                updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));</span>
-<span class="fc" id="L110">                updateStatement.setString(4, eventId);</span>
-<span class="fc bfc" id="L111" title="All 2 branches covered.">                result = updateStatement.executeUpdate() &gt; 0;</span>
+<span class="fc" id="L103">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L104">             PreparedStatement readStatement = connection.prepareStatement(readBlockedForUpdateSQL);</span>
+<span class="fc" id="L105">             ResultSet resultSet = executeQuery(readStatement, eventId);</span>
+<span class="fc" id="L106">             PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            if (resultSet.next()) {</span>
+<span class="fc" id="L108">                updateStatement.setInt(1, 0);</span>
+<span class="fc" id="L109">                updateStatement.setNull(2, VARCHAR);</span>
+<span class="fc" id="L110">                updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));</span>
+<span class="fc" id="L111">                updateStatement.setString(4, eventId);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">                result = updateStatement.executeUpdate() &gt; 0;</span>
             } else {
-<span class="fc" id="L113">                result = false;</span>
+<span class="fc" id="L114">                result = false;</span>
             }
-<span class="fc" id="L115">        } catch (SQLException exception) {</span>
-<span class="fc" id="L116">            LOGGER.error(&quot;failed to unblock event '{}'&quot;, eventId, exception);</span>
-<span class="fc" id="L117">            result = false;</span>
-<span class="fc" id="L118">        }</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (result) {</span>
-<span class="fc" id="L120">            unblockedEvent.fire(new ProcessingUnblockedEvent(eventId));</span>
+<span class="fc" id="L116">        } catch (SQLException exception) {</span>
+<span class="fc" id="L117">            LOGGER.error(&quot;failed to unblock event '{}'&quot;, eventId, exception);</span>
+<span class="fc" id="L118">            result = false;</span>
+<span class="fc" id="L119">        }</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (result) {</span>
+<span class="fc" id="L121">            unblockedEvent.fire(new ProcessingUnblockedEvent(eventId));</span>
         }
-<span class="fc" id="L122">        return result;</span>
+<span class="fc" id="L123">        return result;</span>
     }
 
     @Override
     @Transactional
     public boolean delete(String eventId) {
         boolean result;
-<span class="fc" id="L129">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L130">                PreparedStatement statement = connection.prepareStatement(deleteBlockedSQL)) {</span>
-<span class="fc" id="L131">            statement.setString(1, eventId);</span>
-<span class="fc" id="L132">            statement.execute();</span>
-<span class="fc bfc" id="L133" title="All 2 branches covered.">            result = statement.getUpdateCount() &gt; 0;</span>
-<span class="fc" id="L134">        } catch (SQLException exception) {</span>
-<span class="fc" id="L135">            LOGGER.error(&quot;failed to unblock event '{}'&quot;, eventId, exception);</span>
-<span class="fc" id="L136">            result = false;</span>
-<span class="fc" id="L137">        }</span>
-<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (result) {</span>
-<span class="fc" id="L139">            deletedEvent.fire(new ProcessingDeletedEvent(eventId));</span>
+<span class="fc" id="L130">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L131">                PreparedStatement statement = connection.prepareStatement(deleteBlockedSQL)) {</span>
+<span class="fc" id="L132">            statement.setString(1, eventId);</span>
+<span class="fc" id="L133">            statement.execute();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            result = statement.getUpdateCount() &gt; 0;</span>
+<span class="fc" id="L135">        } catch (SQLException exception) {</span>
+<span class="fc" id="L136">            LOGGER.error(&quot;failed to unblock event '{}'&quot;, eventId, exception);</span>
+<span class="fc" id="L137">            result = false;</span>
+<span class="fc" id="L138">        }</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (result) {</span>
+<span class="fc" id="L140">            deletedEvent.fire(new ProcessingDeletedEvent(eventId));</span>
         }
-<span class="fc" id="L141">        return result;</span>
+<span class="fc" id="L142">        return result;</span>
     }
 
     @Override
     @Transactional
     public Collection&lt;BlockedEvent&gt; getBlockedEvents(int maxElements) {
-<span class="fc" id="L147">        Collection&lt;BlockedEvent&gt; result = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L148">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L149">             PreparedStatement statement = connection.prepareStatement(readBlockedSQL);</span>
-<span class="fc" id="L150">             ResultSet resultSet = executeQuery(statement, maxElements)) {</span>
-<span class="fc bfc" id="L151" title="All 2 branches covered.">            while (resultSet.next()) {</span>
-<span class="fc" id="L152">                result.add(new BlockedEvent(resultSet.getString(&quot;id&quot;), //</span>
-<span class="fc" id="L153">                        resultSet.getString(&quot;event_type&quot;), //</span>
-<span class="fc" id="L154">                        resultSet.getString(&quot;payload&quot;), //</span>
-<span class="fc" id="L155">                        resultSet.getTimestamp(&quot;published_at&quot;).toLocalDateTime()));</span>
+<span class="fc" id="L148">        Collection&lt;BlockedEvent&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L149">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L150">             PreparedStatement statement = connection.prepareStatement(readBlockedSQL);</span>
+<span class="fc" id="L151">             ResultSet resultSet = executeQuery(statement, maxElements)) {</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L153">                result.add(new BlockedEvent(resultSet.getString(&quot;id&quot;), //</span>
+<span class="fc" id="L154">                        resultSet.getString(&quot;event_type&quot;), //</span>
+<span class="fc" id="L155">                        resultSet.getString(&quot;payload&quot;), //</span>
+<span class="fc" id="L156">                        resultSet.getTimestamp(&quot;published_at&quot;).toLocalDateTime()));</span>
             }
-<span class="fc" id="L157">        } catch (SQLException exception) {</span>
-<span class="fc" id="L158">            LOGGER.error(&quot;failed to read blocked events&quot;, exception);</span>
-<span class="fc" id="L159">        }</span>
-<span class="fc" id="L160">        return result;</span>
+<span class="fc" id="L158">        } catch (SQLException exception) {</span>
+<span class="fc" id="L159">            LOGGER.error(&quot;failed to read blocked events&quot;, exception);</span>
+<span class="fc" id="L160">        }</span>
+<span class="fc" id="L161">        return result;</span>
     }
 
     @Transactional(MANDATORY)
     void store(@Observes(during = BEFORE_COMPLETION) EventsPublished events) {
-<span class="fc" id="L165">        String errorMessage = &quot;failed to insert pending events&quot;;</span>
-<span class="fc" id="L166">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L167">             PreparedStatement statement = connection.prepareStatement(insertSQL)) {</span>
-<span class="fc bfc" id="L168" title="All 2 branches covered.">            for (PendingEvent event : events.getEvents()) {</span>
-<span class="fc" id="L169">                statement.setString(1, event.getId());</span>
-<span class="fc" id="L170">                statement.setString(2, event.getType());</span>
-<span class="fc" id="L171">                statement.setString(3, event.getPayload());</span>
-<span class="fc" id="L172">                statement.setTimestamp(4, Timestamp.valueOf(event.getPublishedAt()));</span>
-<span class="fc" id="L173">                statement.setInt(5, event.getTries());</span>
-<span class="fc" id="L174">                statement.setString(6, lockOwner.getId());</span>
-<span class="fc" id="L175">                statement.setLong(7, lockOwner.getUntilToProcess());</span>
-<span class="fc" id="L176">                statement.addBatch();</span>
-<span class="fc" id="L177">            }</span>
-<span class="fc" id="L178">            int[] result = statement.executeBatch();</span>
-<span class="fc bfc" id="L179" title="All 4 branches covered.">            if (result.length != events.getEvents().size() || Arrays.stream(result).anyMatch(updateCountIsNot(1))) {</span>
-<span class="fc" id="L180">                LOGGER.error(&quot;failed to insert pending events (results: {})&quot;, result);</span>
-<span class="fc" id="L181">                throw new IllegalStateException(errorMessage);</span>
+<span class="fc" id="L166">        String errorMessage = &quot;failed to insert pending events&quot;;</span>
+<span class="fc" id="L167">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L168">             PreparedStatement statement = connection.prepareStatement(insertSQL)) {</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            for (PendingEvent event : events.getEvents()) {</span>
+<span class="fc" id="L170">                statement.setString(1, event.getId());</span>
+<span class="fc" id="L171">                statement.setString(2, event.getType());</span>
+<span class="fc" id="L172">                statement.setString(3, event.getPayload());</span>
+<span class="fc" id="L173">                statement.setTimestamp(4, Timestamp.valueOf(event.getPublishedAt()));</span>
+<span class="fc" id="L174">                statement.setInt(5, event.getTries());</span>
+<span class="fc" id="L175">                statement.setString(6, lockOwner.getId());</span>
+<span class="fc" id="L176">                statement.setLong(7, lockOwner.getUntilToProcess());</span>
+<span class="fc" id="L177">                statement.addBatch();</span>
+<span class="fc" id="L178">            }</span>
+<span class="fc" id="L179">            int[] result = statement.executeBatch();</span>
+<span class="fc bfc" id="L180" title="All 4 branches covered.">            if (result.length != events.getEvents().size() || Arrays.stream(result).anyMatch(updateCountIsNot(1))) {</span>
+<span class="fc" id="L181">                LOGGER.error(&quot;failed to insert pending events (results: {})&quot;, result);</span>
+<span class="fc" id="L182">                throw new IllegalStateException(errorMessage);</span>
             }
-<span class="fc" id="L183">        } catch (SQLException exception) {</span>
-<span class="fc" id="L184">            LOGGER.error(errorMessage, exception);</span>
-<span class="fc" id="L185">            throw new IllegalStateException(errorMessage, exception);</span>
-<span class="fc" id="L186">        }</span>
-<span class="fc" id="L187">    }</span>
+<span class="fc" id="L184">        } catch (SQLException exception) {</span>
+<span class="fc" id="L185">            LOGGER.error(errorMessage, exception);</span>
+<span class="fc" id="L186">            throw new IllegalStateException(errorMessage, exception);</span>
+<span class="fc" id="L187">        }</span>
+<span class="fc" id="L188">    }</span>
 
     @Transactional(value = MANDATORY, dontRollbackOn = NoSuchElementException.class)
     public PendingEvent getAndLockEvent(String id) {
-<span class="fc" id="L191">        String errorMessage = &quot;failed to read pending event with id &quot; + id;</span>
-<span class="fc" id="L192">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L193">             PreparedStatement statement = connection.prepareStatement(readSQL);</span>
-<span class="fc" id="L194">             ResultSet resultSet = executeQueryWithTimeout(statement, id, 1)) {</span>
-<span class="fc bfc" id="L195" title="All 2 branches covered.">            if (!resultSet.next()) {</span>
-<span class="fc" id="L196">                throw new NoSuchElementException(errorMessage);</span>
+<span class="fc" id="L192">        String errorMessage = &quot;failed to read pending event with id &quot; + id;</span>
+<span class="fc" id="L193">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L194">             PreparedStatement statement = connection.prepareStatement(readSQL);</span>
+<span class="fc" id="L195">             ResultSet resultSet = executeQueryWithTimeout(statement, id, 1)) {</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">            if (!resultSet.next()) {</span>
+<span class="fc" id="L197">                throw new NoSuchElementException(errorMessage);</span>
             }
-<span class="fc" id="L198">            String owner = resultSet.getString(&quot;lock_owner&quot;);</span>
-<span class="fc" id="L199">            long lockedUntil = resultSet.getLong(&quot;locked_until&quot;);</span>
-<span class="fc bfc" id="L200" title="All 2 branches covered.">            if (!lockOwner.isOwningForProcessing(owner, lockedUntil)) {</span>
-<span class="fc" id="L201">                throw new ConcurrentModificationException(&quot;No longer the owner&quot;);</span>
+<span class="fc" id="L199">            String owner = resultSet.getString(&quot;lock_owner&quot;);</span>
+<span class="fc" id="L200">            long lockedUntil = resultSet.getLong(&quot;locked_until&quot;);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            if (!lockOwner.isOwningForProcessing(owner, lockedUntil)) {</span>
+<span class="fc" id="L202">                throw new ConcurrentModificationException(&quot;No longer the owner&quot;);</span>
             }
-<span class="fc" id="L203">            return new PendingEvent(id, resultSet.getString(&quot;event_type&quot;), resultSet.getString(&quot;payload&quot;),</span>
-<span class="fc" id="L204">                    resultSet.getTimestamp(&quot;published_at&quot;).toLocalDateTime(), resultSet.getInt(&quot;tries&quot;));</span>
-<span class="fc" id="L205">        } catch (SQLException exception) {</span>
-<span class="fc" id="L206">            LOGGER.error(errorMessage, exception);</span>
-<span class="fc" id="L207">            throw new IllegalStateException(errorMessage);</span>
+<span class="fc" id="L204">            return new PendingEvent(id, resultSet.getString(&quot;event_type&quot;), resultSet.getString(&quot;payload&quot;),</span>
+<span class="fc" id="L205">                    resultSet.getTimestamp(&quot;published_at&quot;).toLocalDateTime(), resultSet.getInt(&quot;tries&quot;));</span>
+<span class="fc" id="L206">        } catch (SQLException exception) {</span>
+<span class="fc" id="L207">            LOGGER.error(errorMessage, exception);</span>
+<span class="fc" id="L208">            throw new IllegalStateException(errorMessage);</span>
         }
     }
 
     @Transactional(MANDATORY)
     public void delete(PendingEvent event) {
-<span class="fc" id="L213">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L214">             PreparedStatement statement = connection.prepareStatement(deleteSQL)) {</span>
-<span class="fc" id="L215">            statement.setString(1, event.getId());</span>
-<span class="fc" id="L216">            statement.setString(2, lockOwner.getId());</span>
-<span class="fc" id="L217">            statement.setQueryTimeout(10);</span>
-<span class="fc bfc" id="L218" title="All 2 branches covered.">            if (statement.executeUpdate() &lt; 1) {</span>
-<span class="fc" id="L219">                throw new NoSuchElementException(&quot;failed to delete pending event with id &quot; + event.getId());</span>
+<span class="fc" id="L214">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L215">             PreparedStatement statement = connection.prepareStatement(deleteSQL)) {</span>
+<span class="fc" id="L216">            statement.setString(1, event.getId());</span>
+<span class="fc" id="L217">            statement.setString(2, lockOwner.getId());</span>
+<span class="fc" id="L218">            statement.setQueryTimeout(10);</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">            if (statement.executeUpdate() &lt; 1) {</span>
+<span class="fc" id="L220">                throw new NoSuchElementException(&quot;failed to delete pending event with id &quot; + event.getId());</span>
             }
-<span class="fc" id="L221">        } catch (SQLException exception) {</span>
-<span class="fc" id="L222">            String errorMessage = &quot;failed to delete pending event with id &quot; + event.getId();</span>
-<span class="fc" id="L223">            LOGGER.error(errorMessage, exception);</span>
-<span class="fc" id="L224">            throw new IllegalStateException(errorMessage);</span>
-<span class="fc" id="L225">        }</span>
-<span class="fc" id="L226">    }</span>
+<span class="fc" id="L222">        } catch (SQLException exception) {</span>
+<span class="fc" id="L223">            String errorMessage = &quot;failed to delete pending event with id &quot; + event.getId();</span>
+<span class="fc" id="L224">            LOGGER.error(errorMessage, exception);</span>
+<span class="fc" id="L225">            throw new IllegalStateException(errorMessage);</span>
+<span class="fc" id="L226">        }</span>
+<span class="fc" id="L227">    }</span>
 
     @Transactional(MANDATORY)
     public void updateForRetry(PendingEvent event) {
-<span class="fc" id="L230">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L231">             PreparedStatement statement = connection.prepareStatement(updateSQLwithLockOwner)) {</span>
-<span class="fc" id="L232">            statement.setInt(1, event.getTries() + 1);</span>
-<span class="fc" id="L233">            statement.setNull(2, VARCHAR);</span>
-<span class="fc" id="L234">            statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));</span>
-<span class="fc" id="L235">            statement.setString(4, event.getId());</span>
-<span class="fc" id="L236">            statement.setString(5, lockOwner.getId());</span>
-<span class="fc" id="L237">            statement.setQueryTimeout(10);</span>
-<span class="fc bfc" id="L238" title="All 2 branches covered.">            if (statement.executeUpdate() &lt; 1) {</span>
-<span class="fc" id="L239">                throw new NoSuchElementException(&quot;failed to update pending event with id &quot; + event.getId());</span>
+<span class="fc" id="L231">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L232">             PreparedStatement statement = connection.prepareStatement(updateSQLwithLockOwner)) {</span>
+<span class="fc" id="L233">            statement.setInt(1, event.getTries() + 1);</span>
+<span class="fc" id="L234">            statement.setNull(2, VARCHAR);</span>
+<span class="fc" id="L235">            statement.setLong(3, lockOwner.getUntilForRetry(event.getTries(), event.getId()));</span>
+<span class="fc" id="L236">            statement.setString(4, event.getId());</span>
+<span class="fc" id="L237">            statement.setString(5, lockOwner.getId());</span>
+<span class="fc" id="L238">            statement.setQueryTimeout(10);</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">            if (statement.executeUpdate() &lt; 1) {</span>
+<span class="fc" id="L240">                throw new NoSuchElementException(&quot;failed to update pending event with id &quot; + event.getId());</span>
             }
-<span class="fc" id="L241">        } catch (SQLException exception) {</span>
-<span class="fc" id="L242">            String errorMessage = &quot;failed to update pending event with id &quot; + event.getId();</span>
-<span class="fc" id="L243">            LOGGER.error(errorMessage, exception);</span>
-<span class="fc" id="L244">            throw new IllegalStateException(errorMessage);</span>
-<span class="fc" id="L245">        }</span>
-<span class="fc" id="L246">    }</span>
+<span class="fc" id="L242">        } catch (SQLException exception) {</span>
+<span class="fc" id="L243">            String errorMessage = &quot;failed to update pending event with id &quot; + event.getId();</span>
+<span class="fc" id="L244">            LOGGER.error(errorMessage, exception);</span>
+<span class="fc" id="L245">            throw new IllegalStateException(errorMessage);</span>
+<span class="fc" id="L246">        }</span>
+<span class="fc" id="L247">    }</span>
 
     @Transactional
-    public Set&lt;String&gt; aquire() {
-<span class="fc" id="L250">        Set&lt;String&gt; result = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L251">        try (Connection connection = dataSource.getConnection();</span>
-<span class="fc" id="L252">             PreparedStatement aquireStatement = connection.prepareStatement(aquireSQL);</span>
-<span class="fc" id="L253">             ResultSet resultSet = executeQuery(aquireStatement, lockOwner.getMinUntilForAquire(),</span>
-<span class="fc" id="L254">                     configuration.getMaxAquire());</span>
-<span class="fc" id="L255">             PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {</span>
-<span class="fc bfc" id="L256" title="All 2 branches covered.">            while (resultSet.next()) {</span>
-<span class="fc" id="L257">                result.add(resultSet.getString(&quot;id&quot;));</span>
-<span class="fc" id="L258">                updateStatement.setInt(1, resultSet.getInt(&quot;tries&quot;));</span>
-<span class="fc" id="L259">                updateStatement.setString(2, lockOwner.getId());</span>
-<span class="fc" id="L260">                updateStatement.setLong(3, lockOwner.getUntilToProcess());</span>
-<span class="fc" id="L261">                updateStatement.setString(4, resultSet.getString(&quot;id&quot;));</span>
-<span class="fc" id="L262">                updateStatement.addBatch();</span>
+    public Set&lt;String&gt; aquire(int maxAquire) {
+<span class="fc" id="L251">        Set&lt;String&gt; result = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L252">        int limit = min(maxAquire, configuration.getMaxAquire());</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        if (limit &lt; 1) {</span>
+<span class="fc" id="L254">            return emptySet();</span>
+        }
+<span class="fc" id="L256">        try (Connection connection = dataSource.getConnection();</span>
+<span class="fc" id="L257">             PreparedStatement aquireStatement = connection.prepareStatement(aquireSQL);</span>
+<span class="fc" id="L258">             ResultSet resultSet = executeQuery(aquireStatement, lockOwner.getMinUntilForAquire(), limit);</span>
+<span class="fc" id="L259">             PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L261">                result.add(resultSet.getString(&quot;id&quot;));</span>
+<span class="fc" id="L262">                updateStatement.setInt(1, resultSet.getInt(&quot;tries&quot;));</span>
+<span class="fc" id="L263">                updateStatement.setString(2, lockOwner.getId());</span>
+<span class="fc" id="L264">                updateStatement.setLong(3, lockOwner.getUntilToProcess());</span>
+<span class="fc" id="L265">                updateStatement.setString(4, resultSet.getString(&quot;id&quot;));</span>
+<span class="fc" id="L266">                updateStatement.addBatch();</span>
             }
-<span class="fc bfc" id="L264" title="All 2 branches covered.">            if (!result.isEmpty()) {</span>
-<span class="fc" id="L265">                int[] res = updateStatement.executeBatch();</span>
-<span class="fc bfc" id="L266" title="All 4 branches covered.">                if (res.length != result.size() || Arrays.stream(res).anyMatch(updateCountIsNot(1))) {</span>
-<span class="fc" id="L267">                    LOGGER.warn(&quot;failed to aquire pending events (update failed; results: {})&quot;, res);</span>
-<span class="fc" id="L268">                    result = emptySet();</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">            if (!result.isEmpty()) {</span>
+<span class="fc" id="L269">                int[] res = updateStatement.executeBatch();</span>
+<span class="fc bfc" id="L270" title="All 4 branches covered.">                if (res.length != result.size() || Arrays.stream(res).anyMatch(updateCountIsNot(1))) {</span>
+<span class="fc" id="L271">                    LOGGER.warn(&quot;failed to aquire pending events (update failed; results: {})&quot;, res);</span>
+<span class="fc" id="L272">                    result = emptySet();</span>
                 }
             }
-<span class="fc" id="L271">        } catch (SQLException exception) {</span>
-<span class="fc" id="L272">            LOGGER.warn(&quot;failed to aquire pending events&quot;, exception);</span>
-<span class="fc" id="L273">            result = emptySet();</span>
-<span class="fc" id="L274">        }</span>
-<span class="fc" id="L275">        return result;</span>
+<span class="fc" id="L275">        } catch (SQLException exception) {</span>
+<span class="fc" id="L276">            LOGGER.warn(&quot;failed to aquire pending events&quot;, exception);</span>
+<span class="fc" id="L277">            result = emptySet();</span>
+<span class="fc" id="L278">        }</span>
+<span class="fc" id="L279">        return result;</span>
     }
 
     private IntPredicate updateCountIsNot(int expected) {
-<span class="pc bpc" id="L279" title="1 of 4 branches missed.">        return count -&gt; count != expected &amp;&amp; count != SUCCESS_NO_INFO;</span>
+<span class="pc bpc" id="L283" title="1 of 4 branches missed.">        return count -&gt; count != expected &amp;&amp; count != SUCCESS_NO_INFO;</span>
     }
 
     private ResultSet executeQuery(PreparedStatement statement, String stringParam) throws SQLException {
-<span class="fc" id="L283">        statement.setString(1, stringParam);</span>
-<span class="fc" id="L284">        return statement.executeQuery();</span>
+<span class="fc" id="L287">        statement.setString(1, stringParam);</span>
+<span class="fc" id="L288">        return statement.executeQuery();</span>
     }
 
     private ResultSet executeQueryWithTimeout(PreparedStatement statement, String stringParam, int seconds)
             throws SQLException {
-<span class="fc" id="L289">        statement.setString(1, stringParam);</span>
-<span class="fc" id="L290">        statement.setQueryTimeout(seconds);</span>
-<span class="fc" id="L291">        return statement.executeQuery();</span>
+<span class="fc" id="L293">        statement.setString(1, stringParam);</span>
+<span class="fc" id="L294">        statement.setQueryTimeout(seconds);</span>
+<span class="fc" id="L295">        return statement.executeQuery();</span>
     }
 
     private ResultSet executeQuery(PreparedStatement statement, int intParam) throws SQLException {
-<span class="fc" id="L295">        statement.setInt(1, intParam);</span>
-<span class="fc" id="L296">        return statement.executeQuery();</span>
+<span class="fc" id="L299">        statement.setInt(1, intParam);</span>
+<span class="fc" id="L300">        return statement.executeQuery();</span>
     }
 
     private ResultSet executeQuery(PreparedStatement statement, long param1, int param2) throws SQLException {
-<span class="fc" id="L300">        statement.setLong(1, param1);</span>
-<span class="fc" id="L301">        statement.setInt(2, param2);</span>
-<span class="fc" id="L302">        return statement.executeQuery();</span>
+<span class="fc" id="L304">        statement.setLong(1, param1);</span>
+<span class="fc" id="L305">        statement.setInt(2, param2);</span>
+<span class="fc" id="L306">        return statement.executeQuery();</span>
     }
 
 }

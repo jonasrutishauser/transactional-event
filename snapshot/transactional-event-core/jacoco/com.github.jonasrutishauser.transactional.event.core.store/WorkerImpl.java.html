@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.microprofile.metrics.annotation.ConcurrentGauge;
 
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingFailedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
@@ -14,7 +15,7 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Processing
 @Dependent
 class WorkerImpl implements Worker {
 
-<span class="nc" id="L17">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="nc" id="L18">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     private final TransactionalWorker transactional;
 
@@ -23,39 +24,41 @@ class WorkerImpl implements Worker {
 
     @Inject
     WorkerImpl(TransactionalWorker transactional, Event&lt;ProcessingSuccessEvent&gt; processingSuccessEvent,
-<span class="nc" id="L26">            Event&lt;ProcessingFailedEvent&gt; processingFailedEvent) {</span>
-<span class="nc" id="L27">        this.transactional = transactional;</span>
-<span class="nc" id="L28">        this.processingSuccessEvent = processingSuccessEvent;</span>
-<span class="nc" id="L29">        this.processingFailedEvent = processingFailedEvent;</span>
-<span class="nc" id="L30">    }</span>
+<span class="nc" id="L27">            Event&lt;ProcessingFailedEvent&gt; processingFailedEvent) {</span>
+<span class="nc" id="L28">        this.transactional = transactional;</span>
+<span class="nc" id="L29">        this.processingSuccessEvent = processingSuccessEvent;</span>
+<span class="nc" id="L30">        this.processingFailedEvent = processingFailedEvent;</span>
+<span class="nc" id="L31">    }</span>
 
     @ActivateRequestContext
+    @ConcurrentGauge(name = &quot;com.github.jonasrutishauser.transaction.event.processing&quot;,
+            description = &quot;number of events in processing&quot;, absolute = true)
     public boolean process(String eventId) {
         try {
-<span class="nc" id="L35">            processAttempt(eventId);</span>
-<span class="nc" id="L36">            transactional.process(eventId);</span>
-<span class="nc" id="L37">            processSuccess(eventId);</span>
-<span class="nc" id="L38">            return true;</span>
-<span class="nc" id="L39">        } catch (Exception e) {</span>
-<span class="nc" id="L40">            processAttemptFailed(eventId, e);</span>
-<span class="nc" id="L41">            transactional.processFailed(eventId);</span>
-<span class="nc" id="L42">            return false;</span>
+<span class="nc" id="L38">            processAttempt(eventId);</span>
+<span class="nc" id="L39">            transactional.process(eventId);</span>
+<span class="nc" id="L40">            processSuccess(eventId);</span>
+<span class="nc" id="L41">            return true;</span>
+<span class="nc" id="L42">        } catch (Exception e) {</span>
+<span class="nc" id="L43">            processAttemptFailed(eventId, e);</span>
+<span class="nc" id="L44">            transactional.processFailed(eventId);</span>
+<span class="nc" id="L45">            return false;</span>
         }
     }
 
     private void processAttemptFailed(String eventId, Exception e) {
-<span class="nc" id="L47">        processingFailedEvent.fire(new ProcessingFailedEvent(eventId, e));</span>
-<span class="nc" id="L48">        LOGGER.warn(&quot;Failed to process event with id '{}'&quot;, eventId, e);</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L50">        processingFailedEvent.fire(new ProcessingFailedEvent(eventId, e));</span>
+<span class="nc" id="L51">        LOGGER.warn(&quot;Failed to process event with id '{}'&quot;, eventId, e);</span>
+<span class="nc" id="L52">    }</span>
 
     protected void processSuccess(String eventId) {
-<span class="nc" id="L52">        processingSuccessEvent.fire(new ProcessingSuccessEvent(eventId));</span>
-<span class="nc" id="L53">        LOGGER.debug(&quot;sucessfully processed event with id '{}'&quot;, eventId);</span>
-<span class="nc" id="L54">    }</span>
+<span class="nc" id="L55">        processingSuccessEvent.fire(new ProcessingSuccessEvent(eventId));</span>
+<span class="nc" id="L56">        LOGGER.debug(&quot;sucessfully processed event with id '{}'&quot;, eventId);</span>
+<span class="nc" id="L57">    }</span>
 
     protected void processAttempt(String eventId) {
-<span class="nc" id="L57">        LOGGER.debug(&quot;processing event with id '{}'&quot;, eventId);</span>
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L60">        LOGGER.debug(&quot;processing event with id '{}'&quot;, eventId);</span>
+<span class="nc" id="L61">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

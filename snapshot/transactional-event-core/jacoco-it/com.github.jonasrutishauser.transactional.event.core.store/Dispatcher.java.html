@@ -7,6 +7,7 @@ import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.concurrent.ContextService;
@@ -20,6 +21,8 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.TransientReference;
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
@@ -32,73 +35,94 @@ class Dispatcher implements Scheduler {
     private final ManagedScheduledExecutorService executor;
     private final PendingEventStore store;
     private final Worker worker;
+<span class="pc" id="L38">    private final AtomicInteger dispatchedRunning = new AtomicInteger();</span>
 
-<span class="pc" id="L36">    private volatile int intervalSeconds = 30;</span>
+<span class="pc" id="L40">    private volatile int intervalSeconds = 30;</span>
 
-<span class="nc" id="L38">    Dispatcher() {</span>
-<span class="nc" id="L39">        this.configuration = null;</span>
-<span class="nc" id="L40">        this.scheduler = null;</span>
-<span class="nc" id="L41">        this.executor = null;</span>
-<span class="nc" id="L42">        this.store = null;</span>
-<span class="nc" id="L43">        this.worker = null;</span>
-<span class="nc" id="L44">    }</span>
+<span class="nc" id="L42">    Dispatcher() {</span>
+<span class="nc" id="L43">        this.configuration = null;</span>
+<span class="nc" id="L44">        this.scheduler = null;</span>
+<span class="nc" id="L45">        this.executor = null;</span>
+<span class="nc" id="L46">        this.store = null;</span>
+<span class="nc" id="L47">        this.worker = null;</span>
+<span class="nc" id="L48">    }</span>
 
     @Inject
     Dispatcher(Configuration configuration, Scheduler scheduler, @Events ManagedScheduledExecutorService executor,
-<span class="fc" id="L48">            PendingEventStore store, Worker worker, @Events @TransientReference ContextService contextService) {</span>
-<span class="fc" id="L49">        this.configuration = configuration;</span>
-<span class="fc" id="L50">        this.scheduler = contextService.createContextualProxy(scheduler, Scheduler.class);</span>
-<span class="fc" id="L51">        this.executor = executor;</span>
-<span class="fc" id="L52">        this.store = store;</span>
-<span class="fc" id="L53">        this.worker = contextService.createContextualProxy(worker, Worker.class);</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L52">            PendingEventStore store, Worker worker, @Events @TransientReference ContextService contextService) {</span>
+<span class="fc" id="L53">        this.configuration = configuration;</span>
+<span class="fc" id="L54">        this.scheduler = contextService.createContextualProxy(scheduler, Scheduler.class);</span>
+<span class="fc" id="L55">        this.executor = executor;</span>
+<span class="fc" id="L56">        this.store = store;</span>
+<span class="fc" id="L57">        this.worker = contextService.createContextualProxy(worker, Worker.class);</span>
+<span class="fc" id="L58">    }</span>
 
     @PostConstruct
     void initIntervalSeconds() {
-<span class="fc" id="L58">        intervalSeconds = configuration.getInitialDispatchInterval();</span>
-<span class="fc" id="L59">    }</span>
+<span class="fc" id="L62">        intervalSeconds = configuration.getInitialDispatchInterval();</span>
+<span class="fc" id="L63">    }</span>
 
     void directDispatch(@Observes(during = AFTER_SUCCESS) EventsPublished events) {
-<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (PendingEvent event : events.getEvents()) {</span>
-<span class="fc" id="L63">            executor.execute(processor(event.getId()));</span>
-<span class="fc" id="L64">        }</span>
-<span class="fc" id="L65">    }</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        for (PendingEvent event : events.getEvents()) {</span>
+<span class="fc" id="L67">            executor.execute(processor(event.getId()));</span>
+<span class="fc" id="L68">        }</span>
+<span class="fc" id="L69">    }</span>
 
     private Runnable processor(String eventId) {
-<span class="fc" id="L68">        return () -&gt; {</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (!worker.process(eventId)) {</span>
-<span class="fc" id="L70">                intervalSeconds = 1;</span>
+<span class="fc" id="L72">        return () -&gt; {</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (!worker.process(eventId)) {</span>
+<span class="fc" id="L74">                intervalSeconds = 1;</span>
             }
-<span class="fc" id="L72">        };</span>
+<span class="fc" id="L76">        };</span>
     }
 
     void startup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-<span class="fc" id="L76">        executor.schedule(scheduler::schedule, new Trigger() {</span>
+<span class="fc" id="L80">        executor.schedule(scheduler::schedule, new Trigger() {</span>
             @Override
             public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
-<span class="fc" id="L79">                return Date.from(Instant.now().plusSeconds(intervalSeconds));</span>
+<span class="fc" id="L83">                return Date.from(Instant.now().plusSeconds(intervalSeconds));</span>
             }
 
             @Override
             public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
-<span class="fc" id="L84">                return false;</span>
+<span class="fc" id="L88">                return false;</span>
             }
         });
-<span class="fc" id="L87">    }</span>
+<span class="fc" id="L91">    }</span>
 
     @ActivateRequestContext
     public synchronized void schedule() {
-<span class="fc" id="L91">        boolean processed = false;</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">        for (Set&lt;String&gt; events = store.aquire(); !events.isEmpty(); events = store.aquire()) {</span>
-<span class="fc" id="L93">            processed = true;</span>
-<span class="fc" id="L94">            events.stream().map(this::processor).forEach(executor::execute);</span>
+<span class="fc" id="L95">        boolean processed = false;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for (Set&lt;String&gt; events = store.aquire(maxAquire()); !events.isEmpty(); events = store.aquire(maxAquire())) {</span>
+<span class="fc" id="L97">            processed = true;</span>
+<span class="fc" id="L98">            events.stream().map(this::processor).map(this::counting).forEach(executor::execute);</span>
         }
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (processed) {</span>
-<span class="fc" id="L97">            intervalSeconds = 0;</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (processed) {</span>
+<span class="fc" id="L101">            intervalSeconds = 0;</span>
         } else {
-<span class="fc" id="L99">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
+<span class="fc" id="L103">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
         }
-<span class="fc" id="L101">    }</span>
+<span class="fc" id="L105">    }</span>
+
+    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.dispatched.processing&quot;, description = &quot;Number of dispatched events being processed&quot;, unit=&quot;&quot;, absolute = true)
+    public int getDispatchedRunning() {
+<span class="nc" id="L109">        return dispatchedRunning.get();</span>
+    }
+
+    private int maxAquire() {
+<span class="fc" id="L113">        return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();</span>
+    }
+
+    private Runnable counting(Runnable task) {
+<span class="fc" id="L117">        dispatchedRunning.incrementAndGet();</span>
+<span class="fc" id="L118">        return () -&gt; {</span>
+            try {
+<span class="fc" id="L120">                task.run();</span>
+            } finally {
+<span class="fc" id="L122">                dispatchedRunning.decrementAndGet();</span>
+            }
+<span class="fc" id="L124">        };</span>
+    }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

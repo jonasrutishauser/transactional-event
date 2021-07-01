@@ -52,7 +52,7 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Publishing
 <span class="fc" id="L52">    }</span>
 
     @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.deleted&quot;,
-            description = &quot;counter for unblocked events&quot;, absolute = true)
+            description = &quot;counter for deleted events&quot;, absolute = true)
     public void processDeleted(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingDeletedEvent e) {
 <span class="nc" id="L57">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
 <span class="nc" id="L58">    }</span>
