@@ -21,6 +21,8 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.TransientReference;
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
@@ -100,6 +102,11 @@ class Dispatcher implements Scheduler {
         } else {
             intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
         }
+    }
+
+    @Gauge(name = "com.github.jonasrutishauser.transaction.event.dispatcher.running", description = "Number of events being dispatched", unit="", absolute = true)
+    public int getDispatchedRunning() {
+        return dispatchedRunning.get();
     }
 
     private int maxAquire() {
