@@ -26,24 +26,33 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
     @ConfigProperty(name = &quot;transactional.event.maxAquire&quot;)
 <span class="fc" id="L27">    Optional&lt;Integer&gt; maxAquire = Optional.empty();</span>
 
+<span class="fc" id="L29">    @Inject</span>
+    @ConfigProperty(name = &quot;transactional.event.maxConcurrentDispatching&quot;)
+<span class="fc" id="L31">    Optional&lt;Integer&gt; maxConcurrentDispatching = Optional.empty();</span>
+
     @Override
     public int getMaxDispatchInterval() {
-<span class="fc" id="L31">        return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();</span>
+<span class="fc" id="L35">        return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();</span>
     }
 
     @Override
     public int getInitialDispatchInterval() {
-<span class="fc" id="L36">        return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();</span>
+<span class="fc" id="L40">        return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();</span>
     }
 
     @Override
     public String getTableName() {
-<span class="fc" id="L41">        return tableName.orElseGet(super::getTableName);</span>
+<span class="fc" id="L45">        return tableName.orElseGet(super::getTableName);</span>
     }
 
     @Override
     public int getMaxAquire() {
-<span class="fc" id="L46">        return maxAquire.orElseGet(super::getMaxAquire).intValue();</span>
+<span class="fc" id="L50">        return maxAquire.orElseGet(super::getMaxAquire).intValue();</span>
+    }
+
+    @Override
+    public int getMaxConcurrentDispatching() {
+<span class="fc" id="L55">        return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();</span>
     }
 
 }

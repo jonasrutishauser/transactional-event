@@ -8,7 +8,7 @@ Transactional Event Library API,com.github.jonasrutishauser.transactional.event.
 Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.monitoring,PublishingEvent,55,0,6,0,14,0,8,0,5,0
 Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.store,BlockedEvent,0,27,0,0,0,10,0,5,0,5
 Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.handler,AbstractHandler,0,14,0,0,0,5,0,3,0,3
-Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api,MPConfiguration,0,61,0,0,0,13,0,9,0,9
-Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api,Configuration,0,14,0,0,0,5,0,5,0,5
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api,MPConfiguration,0,76,0,0,0,16,0,11,0,11
+Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api,Configuration,0,17,0,0,0,6,0,6,0,6
 Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.serialization,EventSerializer,0,52,0,10,0,8,0,6,0,1
 Transactional Event Library API,com.github.jonasrutishauser.transactional.event.api.serialization,GenericSerialization,0,13,0,2,0,2,0,2,0,1
