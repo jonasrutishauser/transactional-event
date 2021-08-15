@@ -17,10 +17,11 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
@@ -56,7 +57,7 @@ import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.core.openejb.ApplicationComposerExtension;
 
 @Default
-@Classes(cdi = true, value = Configuration.class)
+@Classes(cdi = true)
 @ExtendWith(ApplicationComposerExtension.class)
 @ContainerProperties({@Property(name = "testDb", value = "new://Resource?type=DataSource"),
         @Property(name = "testDb.JdbcUrl",
@@ -109,6 +110,20 @@ public class TransactionalEventPublisherIT {
     }
 
     @Test
+    void testManyDispatching() throws Exception {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+            for (int i = 10; i < 5000; i++) {
+                statement.addBatch(
+                        "INSERT INTO event_store VALUES ('event" + i + "', 'TestJsonbEvent', '{\"message\":\"slow event" + i
+                                + "\"}', {ts '2021-01-01 12:42:00'}, 0, null, 0)");
+            }
+            statement.executeBatch();
+        }
+
+        await().atMost(1, MINUTES).until(() -> messages.size() == 5000 - 10);
+    }
+
+    @Test
     void testBlocking() throws Exception {
         assertFalse(store.unblock("unknown-id"));
 
@@ -138,7 +153,7 @@ public class TransactionalEventPublisherIT {
     }
 
     @Dependent
-    static class Configuration {
+    static class DbConfiguration {
 
         @Events
         @Produces
@@ -149,7 +164,7 @@ public class TransactionalEventPublisherIT {
 
     @ApplicationScoped
     static class ReceivedMessages {
-        private Set<String> messages = new HashSet<>();
+        private Set<String> messages = new ConcurrentSkipListSet<>();
 
         private boolean block;
 
@@ -166,6 +181,10 @@ public class TransactionalEventPublisherIT {
         
         public boolean contains(String message) {
             return messages.contains(message);
+        }
+
+        public int size() {
+            return messages.size();
         }
     }
 
@@ -215,6 +234,13 @@ public class TransactionalEventPublisherIT {
         @Override
         protected void handle(TestJsonbEvent event) {
             gotMessage(event.message);
+            if (event.message != null && event.message.startsWith("slow event")) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -282,6 +308,18 @@ public class TransactionalEventPublisherIT {
         @JsonbCreator
         public TestJsonbEvent(@JsonbProperty("message") String message) {
             this.message = message;
+        }
+    }
+
+    static class TestConfiguration extends Configuration {
+        @Override
+        public int getInitialDispatchInterval() {
+            return 1;
+        }
+
+        @Override
+        public int getAllInUseInterval() {
+            return 2;
         }
     }
 
