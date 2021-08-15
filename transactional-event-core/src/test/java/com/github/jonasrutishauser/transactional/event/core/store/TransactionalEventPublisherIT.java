@@ -2,7 +2,9 @@ package com.github.jonasrutishauser.transactional.event.core.store;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.awaitility.Awaitility.await;
+import static org.eclipse.microprofile.metrics.MetricRegistry.Type.APPLICATION;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -11,6 +13,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Serializable;
@@ -37,10 +40,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.openejb.testing.CdiExtensions;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.ContainerProperties;
 import org.apache.openejb.testing.ContainerProperties.Property;
 import org.apache.openejb.testing.Default;
+import org.eclipse.microprofile.metrics.Counter;
+import org.eclipse.microprofile.metrics.Gauge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,10 +60,15 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.EventDe
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventSerializer;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
+import com.github.jonasrutishauser.transactional.event.core.cdi.EventHandlerExtension;
 import com.github.jonasrutishauser.transactional.event.core.openejb.ApplicationComposerExtension;
+
+import io.smallrye.metrics.MetricRegistries;
+import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
 
 @Default
 @Classes(cdi = true)
+@CdiExtensions({MetricCdiInjectionExtension.class, EventHandlerExtension.class})
 @ExtendWith(ApplicationComposerExtension.class)
 @ContainerProperties({@Property(name = "testDb", value = "new://Resource?type=DataSource"),
         @Property(name = "testDb.JdbcUrl",
@@ -121,6 +132,18 @@ public class TransactionalEventPublisherIT {
         }
 
         await().atMost(1, MINUTES).until(() -> messages.size() == 5000 - 10);
+    }
+
+    @Test
+    void testMetrics() {
+        assertThat(MetricRegistries.get(APPLICATION).getMetrics(), is(aMapWithSize(9)));
+        MetricRegistries.get(APPLICATION).getMetrics().forEach((id, metric) -> {
+            if (metric instanceof Counter) {
+                assertEquals(0, ((Counter) metric).getCount());
+            } else if (metric instanceof Gauge) {
+                assertNotNull(((Gauge<?>) metric).getValue());
+            }
+        });
     }
 
     @Test

@@ -172,6 +172,12 @@
 			<version>3.7.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.smallrye</groupId>
+			<artifactId>smallrye-metrics</artifactId>
+			<version>3.0.3</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
