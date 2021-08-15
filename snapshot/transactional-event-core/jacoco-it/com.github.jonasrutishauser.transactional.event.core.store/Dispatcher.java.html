@@ -91,8 +91,8 @@ class Dispatcher implements Scheduler {
 <span class="fc" id="L91">        executor.schedule(scheduler::schedule, new Trigger() {</span>
             @Override
             public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                if (maxAquire() &lt;= 0) {</span>
-<span class="nc" id="L95">                    return Date.from(Instant.now().plusMillis(configuration.getAllInUseInterval()));</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                if (maxAquire() &lt;= 0) {</span>
+<span class="fc" id="L95">                    return Date.from(Instant.now().plusMillis(configuration.getAllInUseInterval()));</span>
                 }
 <span class="fc" id="L97">                return Date.from(Instant.now().plusSeconds(intervalSeconds));</span>
             }
