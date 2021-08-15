@@ -234,13 +234,6 @@ public class TransactionalEventPublisherIT {
         @Override
         protected void handle(TestJsonbEvent event) {
             gotMessage(event.message);
-            if (event.message != null && event.message.startsWith("slow event")) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
