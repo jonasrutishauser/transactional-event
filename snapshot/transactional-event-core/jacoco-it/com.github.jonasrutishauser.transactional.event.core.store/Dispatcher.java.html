@@ -127,13 +127,13 @@ class Dispatcher implements Scheduler {
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.dispatched.processing&quot;,
             description = &quot;Number of dispatched events being processed&quot;, unit = NONE, absolute = true)
     public int getDispatchedRunning() {
-<span class="nc" id="L130">        return dispatchedRunning.get();</span>
+<span class="fc" id="L130">        return dispatchedRunning.get();</span>
     }
 
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.dispatch.interval&quot;,
             description = &quot;Interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     public int getIntervalSeconds() {
-<span class="nc" id="L136">        return intervalSeconds;</span>
+<span class="fc" id="L136">        return intervalSeconds;</span>
     }
 
     private int maxAquire() {
