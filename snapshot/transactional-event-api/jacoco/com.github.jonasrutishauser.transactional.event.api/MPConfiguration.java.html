@@ -42,7 +42,7 @@ import org.eclipse.microprofile.metrics.annotation.Gauge;
             description = &quot;Interval between lookups for events to process when maxConcurrentDispatching is reached&quot;,
             unit = MILLISECONDS, absolute = true)
     public int getAllInUseInterval() {
-<span class="nc" id="L45">        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();</span>
+<span class="fc" id="L45">        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();</span>
     }
 
     @Override
