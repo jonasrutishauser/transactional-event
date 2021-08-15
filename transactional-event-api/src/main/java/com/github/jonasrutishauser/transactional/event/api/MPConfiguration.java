@@ -11,6 +11,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class MPConfiguration extends Configuration {
 
     @Inject
+    @ConfigProperty(name = "transactional.event.allInUseInterval")
+    Optional<Integer> allInUseInterval = Optional.empty();
+
+    @Inject
     @ConfigProperty(name = "transactional.event.maxDispatchInterval")
     Optional<Integer> maxDispatchInterval = Optional.empty();
 
@@ -29,6 +33,11 @@ public class MPConfiguration extends Configuration {
     @Inject
     @ConfigProperty(name = "transactional.event.maxConcurrentDispatching")
     Optional<Integer> maxConcurrentDispatching = Optional.empty();
+
+    @Override
+    public int getAllInUseInterval() {
+        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();
+    }
 
     @Override
     public int getMaxDispatchInterval() {
