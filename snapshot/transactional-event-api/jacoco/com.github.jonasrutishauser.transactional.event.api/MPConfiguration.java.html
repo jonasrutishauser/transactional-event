@@ -4,6 +4,7 @@ import static org.eclipse.microprofile.metrics.MetricUnits.*;
 
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
 
@@ -11,64 +12,65 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 @Specializes
-<span class="fc" id="L14">public class MPConfiguration extends Configuration {</span>
+@ApplicationScoped // needed for gauges
+<span class="fc" id="L16">public class MPConfiguration extends Configuration {</span>
 
-<span class="fc" id="L16">    @Inject</span>
+<span class="fc" id="L18">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.allInUseInterval&quot;)
-<span class="fc" id="L18">    Optional&lt;Integer&gt; allInUseInterval = Optional.empty();</span>
+<span class="fc" id="L20">    Optional&lt;Integer&gt; allInUseInterval = Optional.empty();</span>
 
-<span class="fc" id="L20">    @Inject</span>
+<span class="fc" id="L22">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.maxDispatchInterval&quot;)
-<span class="fc" id="L22">    Optional&lt;Integer&gt; maxDispatchInterval = Optional.empty();</span>
+<span class="fc" id="L24">    Optional&lt;Integer&gt; maxDispatchInterval = Optional.empty();</span>
 
-<span class="fc" id="L24">    @Inject</span>
+<span class="fc" id="L26">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.initialDispatchInterval&quot;)
-<span class="fc" id="L26">    Optional&lt;Integer&gt; initialDispatchInterval = Optional.empty();</span>
+<span class="fc" id="L28">    Optional&lt;Integer&gt; initialDispatchInterval = Optional.empty();</span>
 
-<span class="fc" id="L28">    @Inject</span>
+<span class="fc" id="L30">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.table&quot;)
-<span class="fc" id="L30">    Optional&lt;String&gt; tableName = Optional.empty();</span>
+<span class="fc" id="L32">    Optional&lt;String&gt; tableName = Optional.empty();</span>
 
-<span class="fc" id="L32">    @Inject</span>
+<span class="fc" id="L34">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.maxAquire&quot;)
-<span class="fc" id="L34">    Optional&lt;Integer&gt; maxAquire = Optional.empty();</span>
+<span class="fc" id="L36">    Optional&lt;Integer&gt; maxAquire = Optional.empty();</span>
 
-<span class="fc" id="L36">    @Inject</span>
+<span class="fc" id="L38">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.maxConcurrentDispatching&quot;)
-<span class="fc" id="L38">    Optional&lt;Integer&gt; maxConcurrentDispatching = Optional.empty();</span>
+<span class="fc" id="L40">    Optional&lt;Integer&gt; maxConcurrentDispatching = Optional.empty();</span>
 
     @Override
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.all.in.use.interval&quot;,
             description = &quot;Interval between lookups for events to process when maxConcurrentDispatching is reached&quot;,
             unit = MILLISECONDS, absolute = true)
     public int getAllInUseInterval() {
-<span class="fc" id="L45">        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();</span>
+<span class="fc" id="L47">        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();</span>
     }
 
     @Override
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.dispatch.interval&quot;,
             description = &quot;Maximum interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     public int getMaxDispatchInterval() {
-<span class="fc" id="L52">        return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();</span>
+<span class="fc" id="L54">        return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();</span>
     }
 
     @Override
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.initial.dispatch.interval&quot;,
             description = &quot;Initial interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     public int getInitialDispatchInterval() {
-<span class="fc" id="L59">        return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();</span>
+<span class="fc" id="L61">        return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();</span>
     }
 
     @Override
     public String getTableName() {
-<span class="fc" id="L64">        return tableName.orElseGet(super::getTableName);</span>
+<span class="fc" id="L66">        return tableName.orElseGet(super::getTableName);</span>
     }
 
     @Override
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.aquire&quot;,
             description = &quot;Maximum number of events aquired per query&quot;, unit = NONE, absolute = true)
     public int getMaxAquire() {
-<span class="fc" id="L71">        return maxAquire.orElseGet(super::getMaxAquire).intValue();</span>
+<span class="fc" id="L73">        return maxAquire.orElseGet(super::getMaxAquire).intValue();</span>
     }
 
     @Override
@@ -76,7 +78,7 @@ import org.eclipse.microprofile.metrics.annotation.Gauge;
             description = &quot;Maximum number of dispatched events being processed concurrently&quot;, unit = NONE,
             absolute = true)
     public int getMaxConcurrentDispatching() {
-<span class="fc" id="L79">        return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();</span>
+<span class="fc" id="L81">        return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();</span>
     }
 
 }
