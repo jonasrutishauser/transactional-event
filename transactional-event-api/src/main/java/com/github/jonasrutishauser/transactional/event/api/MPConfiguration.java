@@ -4,6 +4,7 @@ import static org.eclipse.microprofile.metrics.MetricUnits.*;
 
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
 
@@ -11,6 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 @Specializes
+@ApplicationScoped // needed for gauges
 public class MPConfiguration extends Configuration {
 
     @Inject
