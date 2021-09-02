@@ -112,7 +112,7 @@ class Dispatcher implements Scheduler {
             for (Set<String> events = store.aquire(maxAquire); !events.isEmpty();
                     events = store.aquire(maxAquire = maxAquire())) {
                 processed = true;
-                events.stream().map(this::processor).map(this::counting).forEach(executor::execute);
+                events.stream().map(this::processor).forEach(this::executeCounting);
             }
         } catch (RejectedExecutionException e) {
             LOGGER.warn("Failed to dispatch events: {}", e.getMessage());
@@ -138,6 +138,15 @@ class Dispatcher implements Scheduler {
 
     private int maxAquire() {
         return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();
+    }
+
+    private void executeCounting(Runnable task) {
+        try {
+            executor.execute(counting(task));
+        } catch (RejectedExecutionException e) {
+            dispatchedRunning.decrementAndGet();
+            throw e;
+        }
     }
 
     private Runnable counting(Runnable task) {
