@@ -112,7 +112,7 @@ class Dispatcher implements Scheduler {
 <span class="nc bnc" id="L112" title="All 2 branches missed.">            for (Set&lt;String&gt; events = store.aquire(maxAquire); !events.isEmpty();</span>
 <span class="nc" id="L113">                    events = store.aquire(maxAquire = maxAquire())) {</span>
 <span class="nc" id="L114">                processed = true;</span>
-<span class="nc" id="L115">                events.stream().map(this::processor).map(this::counting).forEach(executor::execute);</span>
+<span class="nc" id="L115">                events.stream().map(this::processor).forEach(this::executeCounting);</span>
             }
 <span class="nc" id="L117">        } catch (RejectedExecutionException e) {</span>
 <span class="nc" id="L118">            LOGGER.warn(&quot;Failed to dispatch events: {}&quot;, e.getMessage());</span>
@@ -140,15 +140,24 @@ class Dispatcher implements Scheduler {
 <span class="nc" id="L140">        return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();</span>
     }
 
+    private void executeCounting(Runnable task) {
+        try {
+<span class="nc" id="L145">            executor.execute(counting(task));</span>
+<span class="nc" id="L146">        } catch (RejectedExecutionException e) {</span>
+<span class="nc" id="L147">            dispatchedRunning.decrementAndGet();</span>
+<span class="nc" id="L148">            throw e;</span>
+<span class="nc" id="L149">        }</span>
+<span class="nc" id="L150">    }</span>
+
     private Runnable counting(Runnable task) {
-<span class="nc" id="L144">        dispatchedRunning.incrementAndGet();</span>
-<span class="nc" id="L145">        return () -&gt; {</span>
+<span class="nc" id="L153">        dispatchedRunning.incrementAndGet();</span>
+<span class="nc" id="L154">        return () -&gt; {</span>
             try {
-<span class="nc" id="L147">                task.run();</span>
+<span class="nc" id="L156">                task.run();</span>
             } finally {
-<span class="nc" id="L149">                dispatchedRunning.decrementAndGet();</span>
+<span class="nc" id="L158">                dispatchedRunning.decrementAndGet();</span>
             }
-<span class="nc" id="L151">        };</span>
+<span class="nc" id="L160">        };</span>
     }
 
 }
