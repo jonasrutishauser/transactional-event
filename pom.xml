@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.github.jonasrutishauser</groupId>
 		<artifactId>parent</artifactId>
-		<version>13</version>
+		<version>14</version>
 	</parent>
 
 	<artifactId>transactional-event</artifactId>
@@ -51,7 +51,6 @@
 		<root.artifactId>transactional-event</root.artifactId>
 
 		<log4j.version>2.14.0</log4j.version>
-		<plugin.javadoc.version>3.3.1</plugin.javadoc.version>
 	</properties>
 
 	<scm>
