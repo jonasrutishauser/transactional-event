@@ -51,6 +51,7 @@
 		<root.artifactId>transactional-event</root.artifactId>
 
 		<log4j.version>2.14.0</log4j.version>
+		<plugin.javadoc.version>3.3.1</plugin.javadoc.version>
 	</properties>
 
 	<scm>
