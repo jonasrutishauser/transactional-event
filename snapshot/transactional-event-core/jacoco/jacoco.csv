@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.random,Random,18,0,0,0,5,0,2,0,2,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,SerializableSerialization,64,0,0,0,14,0,4,0,4,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JaxbSerialization,127,0,8,0,25,0,11,0,7,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,DefaultEventSerializer,38,25,4,0,7,7,4,2,2,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultConcurrencyProvider,3,0,0,0,1,0,1,0,1,0
