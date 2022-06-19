@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.random,Random,18,0,0,0,5,0,2,0,2,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,SerializableSerialization,64,0,0,0,14,0,4,0,4,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JaxbSerialization,127,0,8,0,25,0,11,0,7,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,DefaultEventSerializer,38,25,4,0,7,7,4,2,2,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultConcurrencyProvider,3,0,0,0,1,0,1,0,1,0
@@ -12,12 +12,12 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core,PublishedEvents,20,15,2,0,4,6,2,2,1,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Dispatcher,200,29,10,0,49,10,18,2,13,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkerImpl,69,0,0,0,22,0,6,0,6,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,71,22,2,0,16,8,4,2,3,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,71,22,2,0,16,8,4,2,3,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,0,868,1,39,0,168,1,37,0,18
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.OracleQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.MariaDBQueryAdapter,0,9,0,0,0,2,0,2,0,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.OracleQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.LimitQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,9,0,0,0,4,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory,0,140,0,14,0,31,0,14,0,7
