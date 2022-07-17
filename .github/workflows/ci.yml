@@ -26,11 +26,14 @@ jobs:
         java:
           - 1.8
           - 11
+          - 17
         event:
           - ${{ github.event_name }}
         exclude:
           - event: pull_request_target
             java: 1.8
+          - event: pull_request_target
+            java: 11
     steps:
       - uses: actions/checkout@v2
         if: ${{ github.event_name != 'pull_request_target' }}
@@ -70,7 +73,7 @@ jobs:
           path: '**/target/liberty/wlp/usr/servers/*/logs/**/*.log'
           retention-days: 5
       - name: Unittest Coverage
-        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
           mvn -B jacoco:report
       - name: Unittest Codecov
@@ -78,7 +81,7 @@ jobs:
         with:
           flags: unittests
       - name: Integrationstest Coverage
-        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
           mvn -B jacoco:report-integration
       - name: Integrationstest Codecov
@@ -86,7 +89,7 @@ jobs:
         with:
           flags: integration
       - name: Sonar Report
-        if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
+        if: ${{ matrix.java == '17' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
           if [  "$GITHUB_EVENT_NAME" == "pull_request_target" ]; 
           then 
