@@ -72,13 +72,19 @@ jobs:
       - name: Unittest Coverage
         if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
-          mvn -B jacoco:report && 
-          bash <(curl -s https://codecov.io/bash) -c -F unittests
+          mvn -B jacoco:report
+      - name: Unittest Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          flags: unittests
       - name: Integrationstest Coverage
         if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
-          mvn -B jacoco:report-integration && 
-          bash <(curl -s https://codecov.io/bash) -c -F integration
+          mvn -B jacoco:report-integration
+      - name: Integrationstest Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          flags: integration
       - name: Sonar Report
         if: ${{ matrix.java == '11' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
