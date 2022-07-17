@@ -2,7 +2,7 @@ name: Maven CI
 
 on:
   schedule:
-    - cron: '42 0 * * *'
+    - cron: '42 0 * * 1'
   push:
     branches:
       - master
@@ -35,18 +35,24 @@ jobs:
           - event: pull_request_target
             java: 11
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: ${{ github.event_name != 'pull_request_target' }}
         with:
           fetch-depth: 0
           persist-credentials: ${{ !startsWith(github.event_name, 'pull_request') }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: ${{ github.event_name == 'pull_request_target' }}
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           persist-credentials: false
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
@@ -88,6 +94,9 @@ jobs:
         uses: codecov/codecov-action@v3.1.0
         with:
           flags: integration
+      - name: Perform CodeQL Analysis
+        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        uses: github/codeql-action/analyze@v2
       - name: Sonar Report
         if: ${{ matrix.java == '17' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
