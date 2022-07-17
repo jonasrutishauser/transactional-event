@@ -49,7 +49,7 @@ jobs:
           persist-credentials: false
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        if: ${{ matrix.java == '8' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '1.8' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: github/codeql-action/init@v2
         with:
           languages: java
@@ -95,7 +95,7 @@ jobs:
         with:
           flags: integration
       - name: Perform CodeQL Analysis
-        if: ${{ matrix.java == '8' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '1.8' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: github/codeql-action/analyze@v2
       - name: Sonar Report
         if: ${{ matrix.java == '17' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
