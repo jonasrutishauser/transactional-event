@@ -20,7 +20,7 @@
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
-				<version>5.7.0</version>
+				<version>5.8.2</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -34,7 +34,7 @@
 			<dependency>
 				<groupId>org.eclipse.microprofile</groupId>
 				<artifactId>microprofile</artifactId>
-				<version>4.0</version>
+				<version>4.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -50,7 +50,7 @@
 	<properties>
 		<root.artifactId>transactional-event</root.artifactId>
 
-		<log4j.version>2.14.0</log4j.version>
+		<log4j.version>2.18.0</log4j.version>
 	</properties>
 
 	<scm>
@@ -66,5 +66,17 @@
 			<url>${distributionManagement.site.url}</url>
 		</site>
 	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>not-java-8</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<properties>
+				<maven.compiler.release>8</maven.compiler.release>
+			</properties>
+		</profile>
+	</profiles>
 </project>
 

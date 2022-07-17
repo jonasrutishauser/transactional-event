@@ -42,6 +42,7 @@ import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.github.jonasrutishauser.transactional.event.api.MPConfiguration;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingBlockedEvent;
@@ -387,6 +388,7 @@ class PendingEventStoreTest {
     }
 
     @Test
+    @Timeout(60)
     void getAndLockEventWhenLockedByOther() throws Exception {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             connection.setAutoCommit(false);
@@ -423,6 +425,7 @@ class PendingEventStoreTest {
     }
 
     @Test
+    @Timeout(60)
     void deleteWhenLocked() throws Exception {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             connection.setAutoCommit(false);
@@ -461,6 +464,7 @@ class PendingEventStoreTest {
     }
 
     @Test
+    @Timeout(60)
     void updateForRetryWhenLocked() throws Exception {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             connection.setAutoCommit(false);
