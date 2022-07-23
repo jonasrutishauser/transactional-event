@@ -13,14 +13,12 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.concurrent.ContextService;
 import javax.enterprise.concurrent.LastExecution;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.concurrent.Trigger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.TransientReference;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -55,12 +53,12 @@ class DispatcherImpl implements Dispatcher {
 
     @Inject
     DispatcherImpl(Configuration configuration, Dispatcher dispatcher, @Events ManagedScheduledExecutorService executor,
-            PendingEventStore store, Worker worker, @Events @TransientReference ContextService contextService) {
+            PendingEventStore store, Worker worker) {
         this.configuration = configuration;
-        this.dispatcher = contextService.createContextualProxy(dispatcher, Dispatcher.class);
+        this.dispatcher = dispatcher;
         this.executor = executor;
         this.store = store;
-        this.worker = contextService.createContextualProxy(worker, Worker.class);
+        this.worker = worker;
     }
 
     @PostConstruct
