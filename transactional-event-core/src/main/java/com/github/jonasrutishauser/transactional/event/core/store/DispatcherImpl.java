@@ -111,10 +111,10 @@ class DispatcherImpl implements Dispatcher {
         boolean processed = false;
         int maxAquire = maxAquire();
         try {
-            for (Set<String> events = store.aquire(maxAquire); !events.isEmpty();
-                    events = store.aquire(maxAquire = maxAquire())) {
+            for (Set<String> events = store.aquire(maxAquire); !events.isEmpty(); events = store.aquire(maxAquire)) {
                 processed = true;
                 events.stream().map(dispatcher::processor).forEach(this::executeCounting);
+                maxAquire = maxAquire();
             }
         } catch (RejectedExecutionException e) {
             LOGGER.warn("Failed to dispatch events: {}", e.getMessage());

@@ -10,6 +10,9 @@ import io.opentelemetry.context.propagation.TextMapPropagator;
 
 @Dependent
 class Instrumenter {
+    private Instrumenter() {
+    }
+
     @Produces
     static TextMapPropagator getPropagator(OpenTelemetry openTelemetry) {
         return openTelemetry.getPropagators().getTextMapPropagator();
