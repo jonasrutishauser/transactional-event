@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS event_store (
 	id VARCHAR(50) NOT NULL,
 	event_type VARCHAR(50) NOT NULL,
+	context VARCHAR(4000),
 	payload VARCHAR(4000) NOT NULL,
 	published_at TIMESTAMP NOT NULL,
 	tries INT NOT NULL,

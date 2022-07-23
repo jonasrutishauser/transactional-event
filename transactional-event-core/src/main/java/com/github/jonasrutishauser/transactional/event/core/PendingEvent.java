@@ -9,17 +9,19 @@ public class PendingEvent implements Serializable {
 
     private final String id;
     private final String type;
+    private final String context;
     private final String payload;
     private final LocalDateTime publishedAt;
     private final int tries;
 
-    public PendingEvent(String id, String type, String payload, LocalDateTime publishedAt) {
-        this(id, type, payload, publishedAt, 0);
+    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt) {
+        this(id, type, context, payload, publishedAt, 0);
     }
 
-    public PendingEvent(String id, String type, String payload, LocalDateTime publishedAt, int tries) {
+    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt, int tries) {
         this.id = id;
         this.type = type;
+        this.context = context;
         this.payload = payload;
         this.publishedAt = publishedAt;
         this.tries = tries;
@@ -33,6 +35,10 @@ public class PendingEvent implements Serializable {
         return type;
     }
 
+    public String getContext() {
+        return context;
+    }
+
     public String getPayload() {
         return payload;
     }
@@ -40,7 +46,7 @@ public class PendingEvent implements Serializable {
     public LocalDateTime getPublishedAt() {
         return publishedAt;
     }
-    
+
     public int getTries() {
         return tries;
     }

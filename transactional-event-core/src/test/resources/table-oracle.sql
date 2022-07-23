@@ -3,6 +3,7 @@ DROP TABLE event_store;
 CREATE TABLE event_store (
 	id VARCHAR2(50) NOT NULL,
 	event_type VARCHAR2(50) NOT NULL,
+	context VARCHAR(4000),
 	payload VARCHAR2(4000) NOT NULL,
 	published_at TIMESTAMP NOT NULL,
 	tries NUMBER NOT NULL,

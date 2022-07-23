@@ -63,14 +63,14 @@ class PendingEventStore implements EventStore {
     private final Event<ProcessingUnblockedEvent> unblockedEvent;
     private final Event<ProcessingDeletedEvent> deletedEvent;
 
-
     PendingEventStore() {
         this(null, null, null, null, null, null);
     }
 
     @Inject
     PendingEventStore(Configuration configuration, @Events DataSource dataSource,
-            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner, Event<ProcessingUnblockedEvent> unblockedEvent, Event<ProcessingDeletedEvent> deletedEvent) {
+            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner,
+            Event<ProcessingUnblockedEvent> unblockedEvent, Event<ProcessingDeletedEvent> deletedEvent) {
         this.configuration = configuration;
         this.dataSource = dataSource;
         this.queryAdapterFactory = queryAdapterFactory;
@@ -83,10 +83,11 @@ class PendingEventStore implements EventStore {
     void initSqlQueries() {
         QueryAdapter adapter = queryAdapterFactory.getQueryAdapter();
         insertSQL = "INSERT INTO " + configuration.getTableName()
-                + " (id, event_type, payload, published_at, tries, lock_owner, locked_until) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                + " (id, event_type, context, payload, published_at, tries, lock_owner, locked_until) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         readSQL = "SELECT * FROM " + configuration.getTableName() + " WHERE id=? FOR UPDATE";
         deleteSQL = "DELETE FROM " + configuration.getTableName() + " WHERE id=? AND lock_owner=?";
-        deleteBlockedSQL = "DELETE FROM " + configuration.getTableName() + " WHERE id=? AND locked_until=" + Long.MAX_VALUE;
+        deleteBlockedSQL = "DELETE FROM " + configuration.getTableName() + " WHERE id=? AND locked_until="
+                + Long.MAX_VALUE;
         updateSQL = "UPDATE " + configuration.getTableName() + " SET tries=?, lock_owner=?, locked_until=? WHERE id=?";
         updateSQLwithLockOwner = updateSQL + " AND lock_owner=?";
         aquireSQL = adapter.fixLimits(adapter.addSkipLocked("SELECT id, tries FROM " + configuration.getTableName()
@@ -128,7 +129,7 @@ class PendingEventStore implements EventStore {
     public boolean delete(String eventId) {
         boolean result;
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(deleteBlockedSQL)) {
+             PreparedStatement statement = connection.prepareStatement(deleteBlockedSQL)) {
             statement.setString(1, eventId);
             statement.execute();
             result = statement.getUpdateCount() > 0;
@@ -169,11 +170,12 @@ class PendingEventStore implements EventStore {
             for (PendingEvent event : events.getEvents()) {
                 statement.setString(1, event.getId());
                 statement.setString(2, event.getType());
-                statement.setString(3, event.getPayload());
-                statement.setTimestamp(4, Timestamp.valueOf(event.getPublishedAt()));
-                statement.setInt(5, event.getTries());
-                statement.setString(6, lockOwner.getId());
-                statement.setLong(7, lockOwner.getUntilToProcess());
+                statement.setString(3, event.getContext());
+                statement.setString(4, event.getPayload());
+                statement.setTimestamp(5, Timestamp.valueOf(event.getPublishedAt()));
+                statement.setInt(6, event.getTries());
+                statement.setString(7, lockOwner.getId());
+                statement.setLong(8, lockOwner.getUntilToProcess());
                 statement.addBatch();
             }
             int[] result = statement.executeBatch();
@@ -201,8 +203,9 @@ class PendingEventStore implements EventStore {
             if (!lockOwner.isOwningForProcessing(owner, lockedUntil)) {
                 throw new ConcurrentModificationException("No longer the owner");
             }
-            return new PendingEvent(id, resultSet.getString("event_type"), resultSet.getString("payload"),
-                    resultSet.getTimestamp("published_at").toLocalDateTime(), resultSet.getInt("tries"));
+            return new PendingEvent(id, resultSet.getString("event_type"), resultSet.getString("context"),
+                    resultSet.getString("payload"), resultSet.getTimestamp("published_at").toLocalDateTime(),
+                    resultSet.getInt("tries"));
         } catch (SQLException exception) {
             LOGGER.error(errorMessage, exception);
             throw new IllegalStateException(errorMessage);

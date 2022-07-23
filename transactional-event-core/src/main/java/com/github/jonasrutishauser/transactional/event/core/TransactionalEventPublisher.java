@@ -1,13 +1,11 @@
 package com.github.jonasrutishauser.transactional.event.core;
 
 import static com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
-import static java.time.LocalDateTime.now;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
-import java.time.LocalDateTime;
+import java.util.Properties;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -16,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
-import com.github.jonasrutishauser.transactional.event.api.monitoring.PublishingEvent;
+import com.github.jonasrutishauser.transactional.event.api.context.ContextualPublisher;
 
 @Dependent
 public class TransactionalEventPublisher implements EventPublisher {
@@ -25,20 +23,18 @@ public class TransactionalEventPublisher implements EventPublisher {
 
     private final EventTypeResolver typeResolver;
     private final Serializer eventSerializer;
-    private final PublishedEvents publishedEvents;
-    private final Event<PublishingEvent> publishingEvent;
+    private final ContextualPublisher publisher;
 
     TransactionalEventPublisher() {
-        this(null, null, null, null);
+        this(null, null, null);
     }
 
     @Inject
     TransactionalEventPublisher(EventTypeResolver typeResolver, Serializer eventSerializer,
-            PublishedEvents publishedEvents, Event<PublishingEvent> publishingEvent) {
+            ContextualPublisher publisher) {
         this.typeResolver = typeResolver;
         this.eventSerializer = eventSerializer;
-        this.publishedEvents = publishedEvents;
-        this.publishingEvent = publishingEvent;
+        this.publisher = publisher;
     }
 
     @Override
@@ -47,11 +43,8 @@ public class TransactionalEventPublisher implements EventPublisher {
         String id = randomId();
         String type = typeResolver.resolve(event.getClass());
         String payload = eventSerializer.serialize(event);
-        LocalDateTime publishedAt = now();
 
-        PendingEvent pendingEvent = new PendingEvent(id, type, payload, publishedAt);
-        publishedEvents.add(pendingEvent);
-        publishingEvent.fire(new PublishingEvent(id));
+        publisher.publish(id, type, new Properties(), payload);
 
         LOGGER.debug("enqueued event '{}' with type '{}' (payload '{}')", id, type, payload);
     }
