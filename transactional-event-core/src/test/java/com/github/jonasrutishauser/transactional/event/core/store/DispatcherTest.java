@@ -8,7 +8,7 @@ class DispatcherTest {
 
     @Test
     void proxyConstructor() {
-        assertNotNull(new Dispatcher());
+        assertNotNull(new DispatcherImpl());
     }
 
 }

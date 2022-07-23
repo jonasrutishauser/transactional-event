@@ -1,13 +1,20 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static io.opentelemetry.api.common.AttributeKey.stringKey;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.microprofile.metrics.MetricRegistry.Type.APPLICATION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
@@ -50,6 +57,7 @@ import org.eclipse.microprofile.metrics.Gauge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
@@ -63,6 +71,10 @@ import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.core.cdi.EventHandlerExtension;
 import com.github.jonasrutishauser.transactional.event.core.openejb.ApplicationComposerExtension;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.smallrye.metrics.MetricRegistries;
 import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
 
@@ -76,6 +88,9 @@ import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
         @Property(name = "testDb.JdbcDriver", value = "org.h2.Driver")})
 public class TransactionalEventPublisherIT {
 
+    @RegisterExtension
+    static final OpenTelemetryExtension otelTesting = OpenTelemetryExtension.create();
+
     @Inject
     EventPublisher publisher;
 
@@ -87,8 +102,8 @@ public class TransactionalEventPublisherIT {
     DataSource dataSource;
 
     @Inject
-    Dispatcher dispatcher;
-    
+    DispatcherImpl dispatcher;
+
     @Inject
     ReceivedMessages messages;
 
@@ -124,9 +139,9 @@ public class TransactionalEventPublisherIT {
     void testManyDispatching() throws Exception {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             for (int i = 10; i < 5000; i++) {
-                statement.addBatch(
-                        "INSERT INTO event_store VALUES ('event" + i + "', 'TestJsonbEvent', '{\"message\":\"slow event" + i
-                                + "\"}', {ts '2021-01-01 12:42:00'}, 0, null, 0)");
+                statement.addBatch("INSERT INTO event_store VALUES ('event" + i
+                        + "', 'TestJsonbEvent', null, '{\"message\":\"slow event" + i
+                        + "\"}', {ts '2021-01-01 12:42:00'}, 0, null, 0)");
             }
             statement.executeBatch();
         }
@@ -175,6 +190,53 @@ public class TransactionalEventPublisherIT {
         assertThat(store.getBlockedEvents(10), is(empty()));
     }
 
+    @Test
+    void testOpenTelemtry() throws Exception {
+        Tracer tracer = otelTesting.getOpenTelemetry().getTracer("test");
+        Span span = tracer.spanBuilder("client span").startSpan();
+        try (Scope unused = span.makeCurrent()) {
+            transaction.begin();
+            publisher.publish(new TestSerializableEvent("test"));
+            publisher.publish(new TestJaxbTypeEvent("foo"));
+            transaction.commit();
+        } finally {
+            span.end();
+        }
+
+        assertThat(otelTesting.getSpans(), hasSize(greaterThanOrEqualTo(4)));
+
+        await().until(() -> messages.contains("foo"));
+
+        assertThat(otelTesting.getSpans(), hasSize(8));
+        assertEquals("TestSerializableEvent send", otelTesting.getSpans().get(0).getName());
+        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(0).getParentSpanContext());
+        assertEquals("TestJaxbTypeEvent send", otelTesting.getSpans().get(1).getName());
+        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(1).getParentSpanContext());
+        assertEquals("transactional-event receive", otelTesting.getSpans().get(2).getName());
+        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(2).getParentSpanContext());
+        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(3).getSpanContext());
+
+        String serializableId = otelTesting.getSpans().get(0).getAttributes().get(stringKey("messaging.message_id"));
+        String jaxbId = otelTesting.getSpans().get(1).getAttributes().get(stringKey("messaging.message_id"));
+        assertThat(otelTesting.getSpans().subList(4, 8), containsInAnyOrder( //
+                hasProperty("name", equalTo("TestSerializableEvent process")), //
+                allOf(hasProperty("name", equalTo("transactional-event process")), //
+                        hasProperty("parentSpanContext", equalTo(otelTesting.getSpans().get(2).getSpanContext())), //
+                        hasProperty("attributes", hasEntry(stringKey("messaging.message_id"), serializableId))), //
+                hasProperty("name", equalTo("TestJaxbTypeEvent process")), //
+                allOf(hasProperty("name", equalTo("transactional-event process")), //
+                        hasProperty("parentSpanContext", equalTo(otelTesting.getSpans().get(2).getSpanContext())), //
+                        hasProperty("attributes", hasEntry(stringKey("messaging.message_id"), jaxbId))) //
+        ));
+
+        await().conditionEvaluationListener(condition -> dispatcher.schedule()).until(() -> messages.contains("test"));
+
+        assertThat(otelTesting.getSpans().subList(otelTesting.getSpans().size() - 3, otelTesting.getSpans().size()),
+                containsInAnyOrder(hasProperty("name", equalTo("TestSerializableEvent process")), //
+                        hasProperty("name", equalTo("transactional-event process")), //
+                        hasProperty("name", equalTo("transactional-event receive"))));
+    }
+
     @Dependent
     static class DbConfiguration {
 
@@ -194,14 +256,14 @@ public class TransactionalEventPublisherIT {
         public void setBlock(boolean block) {
             this.block = block;
         }
-        
+
         public void add(String message) {
             if (block) {
                 throw new IllegalStateException("block requested");
             }
             messages.add(message);
         }
-        
+
         public boolean contains(String message) {
             return messages.contains(message);
         }
@@ -214,9 +276,9 @@ public class TransactionalEventPublisherIT {
     static abstract class AbstractTestHandler<T> extends AbstractHandler<T> {
         @Inject
         ReceivedMessages messages;
-        
+
         protected void gotMessage(String message) {
-            this.messages.add(message);;
+            this.messages.add(message);
         }
     }
 
@@ -224,6 +286,7 @@ public class TransactionalEventPublisherIT {
     @EventHandler
     static class TestSerializableHandler extends AbstractTestHandler<TestSerializableEvent> {
         int tries = 0;
+
         @Override
         protected void handle(TestSerializableEvent event) {
             if (tries++ < 2) {
@@ -275,6 +338,7 @@ public class TransactionalEventPublisherIT {
         public String serialize(Integer event) {
             return event.toString();
         }
+
         @Override
         public Integer deserialize(String event) {
             return Integer.valueOf(event);
@@ -293,7 +357,7 @@ public class TransactionalEventPublisherIT {
     static class TestJaxbTypeEvent {
         @XmlElement
         private final String message;
-        
+
         TestJaxbTypeEvent() {
             this(null);
         }
@@ -307,7 +371,7 @@ public class TransactionalEventPublisherIT {
     static class TestJaxbElementEvent {
         @XmlElement
         private final String message;
-        
+
         TestJaxbElementEvent() {
             this(null);
         }
@@ -320,7 +384,7 @@ public class TransactionalEventPublisherIT {
     static class TestJsonbEvent {
         @JsonbProperty
         private final String message;
-        
+
         @JsonbCreator
         public TestJsonbEvent(@JsonbProperty("message") String message) {
             this.message = message;

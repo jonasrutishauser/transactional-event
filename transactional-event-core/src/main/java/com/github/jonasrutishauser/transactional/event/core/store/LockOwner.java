@@ -8,7 +8,9 @@ import java.time.Instant;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +42,8 @@ class LockOwner {
         this.processingBlockedEvent = processingBlockedEvent;
     }
 
+    @Produces
+    @Named("lockOwner.id")
     public String getId() {
         return id;
     }
