@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -30,6 +31,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -75,6 +77,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import io.opentelemetry.sdk.trace.data.SpanData;
 import io.smallrye.metrics.MetricRegistries;
 import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
 
@@ -207,32 +210,34 @@ public class TransactionalEventPublisherIT {
 
         await().until(() -> messages.contains("foo"));
 
-        assertThat(otelTesting.getSpans(), hasSize(8));
-        assertEquals("TestSerializableEvent send", otelTesting.getSpans().get(0).getName());
-        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(0).getParentSpanContext());
-        assertEquals("TestJaxbTypeEvent send", otelTesting.getSpans().get(1).getName());
-        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(1).getParentSpanContext());
-        assertEquals("transactional-event receive", otelTesting.getSpans().get(2).getName());
-        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(2).getParentSpanContext());
-        assertEquals(span.getSpanContext(), otelTesting.getSpans().get(3).getSpanContext());
+        List<SpanData> spans = otelTesting.getSpans();
+        assertThat(spans, hasSize(8));
+        assertEquals("TestSerializableEvent send", spans.get(0).getName());
+        assertEquals(span.getSpanContext(), spans.get(0).getParentSpanContext());
+        assertEquals("TestJaxbTypeEvent send", spans.get(1).getName());
+        assertEquals(span.getSpanContext(), spans.get(1).getParentSpanContext());
+        assertEquals("transactional-event receive", spans.get(2).getName());
+        assertEquals(span.getSpanContext(), spans.get(2).getParentSpanContext());
+        assertEquals(span.getSpanContext(), spans.get(3).getSpanContext());
 
-        String serializableId = otelTesting.getSpans().get(0).getAttributes().get(stringKey("messaging.message_id"));
-        String jaxbId = otelTesting.getSpans().get(1).getAttributes().get(stringKey("messaging.message_id"));
-        assertThat(otelTesting.getSpans().subList(4, 8), containsInAnyOrder( //
+        String serializableId = spans.get(0).getAttributes().get(stringKey("messaging.message_id"));
+        String jaxbId = spans.get(1).getAttributes().get(stringKey("messaging.message_id"));
+        assertThat(spans.subList(4, 8), containsInAnyOrder( //
                 hasProperty("name", equalTo("TestSerializableEvent process")), //
                 allOf(hasProperty("name", equalTo("transactional-event process")), //
-                        hasProperty("parentSpanContext", equalTo(otelTesting.getSpans().get(2).getSpanContext())), //
+                        hasProperty("parentSpanContext", equalTo(spans.get(2).getSpanContext())), //
                         hasProperty("attributes", hasEntry(stringKey("messaging.message_id"), serializableId))), //
                 hasProperty("name", equalTo("TestJaxbTypeEvent process")), //
                 allOf(hasProperty("name", equalTo("transactional-event process")), //
-                        hasProperty("parentSpanContext", equalTo(otelTesting.getSpans().get(2).getSpanContext())), //
+                        hasProperty("parentSpanContext", equalTo(spans.get(2).getSpanContext())), //
                         hasProperty("attributes", hasEntry(stringKey("messaging.message_id"), jaxbId))) //
         ));
 
-        await().conditionEvaluationListener(condition -> dispatcher.schedule()).until(() -> messages.contains("test"));
+        await().until(() -> messages.contains("test"));
 
-        assertThat(otelTesting.getSpans().subList(otelTesting.getSpans().size() - 3, otelTesting.getSpans().size()),
-                containsInAnyOrder(hasProperty("name", equalTo("TestSerializableEvent process")), //
+        spans = otelTesting.getSpans();
+        assertThat(spans.subList(8, spans.size()),
+                containsInRelativeOrder(hasProperty("name", equalTo("TestSerializableEvent process")), //
                         hasProperty("name", equalTo("transactional-event process")), //
                         hasProperty("name", equalTo("transactional-event receive"))));
     }
@@ -394,7 +399,7 @@ public class TransactionalEventPublisherIT {
     static class TestConfiguration extends Configuration {
         @Override
         public int getInitialDispatchInterval() {
-            return 1;
+            return 2;
         }
 
         @Override
