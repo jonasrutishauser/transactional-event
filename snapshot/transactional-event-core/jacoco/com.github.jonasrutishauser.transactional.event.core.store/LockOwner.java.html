@@ -8,7 +8,9 @@ import java.time.Instant;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,55 +20,57 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Processing
 @ApplicationScoped
 class LockOwner {
 
-<span class="fc" id="L21">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="fc" id="L23">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     private final Clock clock;
     private final String id;
     private final Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent;
 
     LockOwner() {
-<span class="nc" id="L28">        this(null);</span>
-<span class="nc" id="L29">    }</span>
+<span class="nc" id="L30">        this(null);</span>
+<span class="nc" id="L31">    }</span>
 
     @Inject
     public LockOwner(Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent) {
-<span class="nc" id="L33">        this(Clock.systemUTC(), randomId(), processingBlockedEvent);</span>
-<span class="nc" id="L34">    }</span>
+<span class="nc" id="L35">        this(Clock.systemUTC(), randomId(), processingBlockedEvent);</span>
+<span class="nc" id="L36">    }</span>
 
-<span class="fc" id="L36">    LockOwner(Clock clock, String id, Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent) {</span>
-<span class="fc" id="L37">        LOGGER.info(&quot;using lock id: {}&quot;, id);</span>
-<span class="fc" id="L38">        this.id = id;</span>
-<span class="fc" id="L39">        this.clock = clock;</span>
-<span class="fc" id="L40">        this.processingBlockedEvent = processingBlockedEvent;</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L38">    LockOwner(Clock clock, String id, Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent) {</span>
+<span class="fc" id="L39">        LOGGER.info(&quot;using lock id: {}&quot;, id);</span>
+<span class="fc" id="L40">        this.id = id;</span>
+<span class="fc" id="L41">        this.clock = clock;</span>
+<span class="fc" id="L42">        this.processingBlockedEvent = processingBlockedEvent;</span>
+<span class="fc" id="L43">    }</span>
 
+    @Produces
+    @Named(&quot;lockOwner.id&quot;)
     public String getId() {
-<span class="fc" id="L44">        return id;</span>
+<span class="fc" id="L48">        return id;</span>
     }
 
     public long getUntilToProcess() {
-<span class="fc" id="L48">        return Instant.now(clock).plus(5, MINUTES).toEpochMilli();</span>
+<span class="fc" id="L52">        return Instant.now(clock).plus(5, MINUTES).toEpochMilli();</span>
     }
 
     public long getUntilForRetry(int tries, String eventId) {
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (tries &gt; 5) {</span>
-<span class="fc" id="L53">            maxAttemptsReached(eventId);</span>
-<span class="fc" id="L54">            return Long.MAX_VALUE;</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (tries &gt; 5) {</span>
+<span class="fc" id="L57">            maxAttemptsReached(eventId);</span>
+<span class="fc" id="L58">            return Long.MAX_VALUE;</span>
         }
-<span class="fc" id="L56">        return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();</span>
+<span class="fc" id="L60">        return Instant.now(clock).plusSeconds(tries * tries * 2l).toEpochMilli();</span>
     }
 
     protected void maxAttemptsReached(String eventId) {
-<span class="fc" id="L60">        LOGGER.info(&quot;max attempts used, event with id '{}' will be blocked&quot;, eventId);</span>
-<span class="fc" id="L61">        processingBlockedEvent.fire(new ProcessingBlockedEvent(eventId));</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L64">        LOGGER.info(&quot;max attempts used, event with id '{}' will be blocked&quot;, eventId);</span>
+<span class="fc" id="L65">        processingBlockedEvent.fire(new ProcessingBlockedEvent(eventId));</span>
+<span class="fc" id="L66">    }</span>
 
     public long getMinUntilForAquire() {
-<span class="fc" id="L65">        return Instant.now(clock).toEpochMilli();</span>
+<span class="fc" id="L69">        return Instant.now(clock).toEpochMilli();</span>
     }
 
     public boolean isOwningForProcessing(String owner, long lockedUntil) {
-<span class="fc bfc" id="L69" title="All 4 branches covered.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
     }
 
 }

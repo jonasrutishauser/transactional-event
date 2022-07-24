@@ -9,40 +9,46 @@ public class PendingEvent implements Serializable {
 
     private final String id;
     private final String type;
+    private final String context;
     private final String payload;
     private final LocalDateTime publishedAt;
     private final int tries;
 
-    public PendingEvent(String id, String type, String payload, LocalDateTime publishedAt) {
-<span class="fc" id="L17">        this(id, type, payload, publishedAt, 0);</span>
-<span class="fc" id="L18">    }</span>
+    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt) {
+<span class="fc" id="L18">        this(id, type, context, payload, publishedAt, 0);</span>
+<span class="fc" id="L19">    }</span>
 
-<span class="fc" id="L20">    public PendingEvent(String id, String type, String payload, LocalDateTime publishedAt, int tries) {</span>
-<span class="fc" id="L21">        this.id = id;</span>
-<span class="fc" id="L22">        this.type = type;</span>
-<span class="fc" id="L23">        this.payload = payload;</span>
-<span class="fc" id="L24">        this.publishedAt = publishedAt;</span>
-<span class="fc" id="L25">        this.tries = tries;</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L21">    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt, int tries) {</span>
+<span class="fc" id="L22">        this.id = id;</span>
+<span class="fc" id="L23">        this.type = type;</span>
+<span class="fc" id="L24">        this.context = context;</span>
+<span class="fc" id="L25">        this.payload = payload;</span>
+<span class="fc" id="L26">        this.publishedAt = publishedAt;</span>
+<span class="fc" id="L27">        this.tries = tries;</span>
+<span class="fc" id="L28">    }</span>
 
     public String getId() {
-<span class="fc" id="L29">        return id;</span>
+<span class="fc" id="L31">        return id;</span>
     }
 
     public String getType() {
-<span class="fc" id="L33">        return type;</span>
+<span class="fc" id="L35">        return type;</span>
+    }
+
+    public String getContext() {
+<span class="fc" id="L39">        return context;</span>
     }
 
     public String getPayload() {
-<span class="fc" id="L37">        return payload;</span>
+<span class="fc" id="L43">        return payload;</span>
     }
 
     public LocalDateTime getPublishedAt() {
-<span class="fc" id="L41">        return publishedAt;</span>
+<span class="fc" id="L47">        return publishedAt;</span>
     }
-    
+
     public int getTries() {
-<span class="fc" id="L45">        return tries;</span>
+<span class="fc" id="L51">        return tries;</span>
     }
 
 }
