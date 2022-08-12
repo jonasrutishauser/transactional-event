@@ -50,49 +50,55 @@ class TransactionalWorker {
     @Transactional
     public void process(String eventId) {
 <span class="fc" id="L52">        PendingEvent event = store.getAndLockEvent(eventId);</span>
-<span class="fc" id="L53">        Optional&lt;Class&lt;? extends Handler&gt;&gt; handlerClassWithImplicitType = handlerExtension</span>
-<span class="fc" id="L54">                .getHandlerClassWithImplicitType(typeResolver, event.getType());</span>
-        Instance&lt;? extends Handler&gt; handlerInstance;
-<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (handlerClassWithImplicitType.isPresent()) {</span>
-<span class="fc" id="L57">            handlerInstance = handlers.select(handlerClassWithImplicitType.get());</span>
-        } else {
-<span class="fc" id="L59">            handlerInstance = handlers.select(new EventHandlerLiteral() {</span>
-                @Override
-                public String eventType() {
-<span class="fc" id="L62">                    return event.getType();</span>
-                }
-            });
-        }
-<span class="fc" id="L66">        process(event, handlerInstance);</span>
-<span class="fc" id="L67">        store.delete(event);</span>
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L53">        processor.process(event.getId(), event.getType(), getContextProperties(event.getContext()), event.getPayload(),</span>
+<span class="fc" id="L54">                getHandler(event.getType()));</span>
+<span class="fc" id="L55">        store.delete(event);</span>
+<span class="fc" id="L56">    }</span>
 
     @Transactional
     public void processFailed(String eventId) {
-<span class="fc" id="L72">        PendingEvent event = store.getAndLockEvent(eventId);</span>
-<span class="fc" id="L73">        store.updateForRetry(event);</span>
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L60">        PendingEvent event = store.getAndLockEvent(eventId);</span>
+<span class="fc" id="L61">        store.updateForRetry(event);</span>
+<span class="fc" id="L62">    }</span>
 
-    private &lt;T extends Handler&gt; void process(PendingEvent event, Instance&lt;T&gt; handlerInstance) {
-<span class="fc" id="L77">        T handler = handlerInstance.get();</span>
+    private Handler getHandler(String eventType) {
+<span class="fc" id="L65">        return payload -&gt; {</span>
+<span class="fc" id="L66">            Optional&lt;Class&lt;? extends Handler&gt;&gt; handlerClassWithImplicitType = handlerExtension</span>
+<span class="fc" id="L67">                    .getHandlerClassWithImplicitType(typeResolver, eventType);</span>
+            Instance&lt;? extends Handler&gt; handlerInstance;
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (handlerClassWithImplicitType.isPresent()) {</span>
+<span class="fc" id="L70">                handlerInstance = handlers.select(handlerClassWithImplicitType.get());</span>
+            } else {
+<span class="fc" id="L72">                handlerInstance = handlers.select(new EventHandlerLiteral() {</span>
+                    @Override
+                    public String eventType() {
+<span class="fc" id="L75">                        return eventType;</span>
+                    }
+                });
+            }
+<span class="fc" id="L79">            handle(handlerInstance, payload);</span>
+<span class="fc" id="L80">        };</span>
+    }
+
+    private &lt;T extends Handler&gt; void handle(Instance&lt;T&gt; handlerInstance, String event) {
+<span class="fc" id="L84">        T handler = handlerInstance.get();</span>
         try {
-<span class="fc" id="L79">            processor.process(event.getId(), event.getType(), getContextProperties(event.getContext()),</span>
-<span class="fc" id="L80">                    event.getPayload(), handler);</span>
+<span class="fc" id="L86">            handler.handle(event);</span>
         } finally {
-<span class="fc" id="L82">            handlerInstance.destroy(handler);</span>
+<span class="fc" id="L88">            handlerInstance.destroy(handler);</span>
         }
-<span class="fc" id="L84">    }</span>
+<span class="fc" id="L90">    }</span>
 
     private Properties getContextProperties(String context) {
-<span class="fc" id="L87">        Properties properties = new Properties();</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (context != null) {</span>
+<span class="fc" id="L93">        Properties properties = new Properties();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (context != null) {</span>
             try {
-<span class="fc" id="L90">                properties.load(new StringReader(context));</span>
-<span class="nc" id="L91">            } catch (IOException e) {</span>
-<span class="nc" id="L92">                LOGGER.warn(&quot;unexpected IOException while reading context&quot;, e);</span>
-<span class="fc" id="L93">            }</span>
+<span class="fc" id="L96">                properties.load(new StringReader(context));</span>
+<span class="nc" id="L97">            } catch (IOException e) {</span>
+<span class="nc" id="L98">                LOGGER.warn(&quot;unexpected IOException while reading context&quot;, e);</span>
+<span class="fc" id="L99">            }</span>
         }
-<span class="fc" id="L95">        return properties;</span>
+<span class="fc" id="L101">        return properties;</span>
     }
 
     @SuppressWarnings(&quot;serial&quot;)

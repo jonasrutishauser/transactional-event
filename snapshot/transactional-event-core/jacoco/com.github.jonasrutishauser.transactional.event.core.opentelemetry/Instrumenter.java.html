@@ -10,23 +10,24 @@ import io.opentelemetry.context.propagation.TextMapPropagator;
 
 @Dependent
 class Instrumenter {
+<span class="nc" id="L13">    private static final String NAME = Instrumenter.class.getPackage().getName().replace(&quot;.core.opentelemetry&quot;, &quot;&quot;);</span>
+
     private Instrumenter() {
     }
 
     @Produces
     static TextMapPropagator getPropagator(OpenTelemetry openTelemetry) {
-<span class="nc" id="L18">        return openTelemetry.getPropagators().getTextMapPropagator();</span>
+<span class="nc" id="L20">        return openTelemetry.getPropagators().getTextMapPropagator();</span>
     }
 
     @Produces
     static Tracer getTracer(OpenTelemetry openTelemetry) {
-<span class="nc" id="L23">        return openTelemetry.getTracer(&quot;transactional-event&quot;,</span>
-<span class="nc" id="L24">                Instrumenter.class.getPackage().getImplementationVersion());</span>
+<span class="nc" id="L25">        return openTelemetry.getTracer(NAME, Instrumenter.class.getPackage().getImplementationVersion());</span>
     }
 
     @Produces
     static OpenTelemetry getGlobalOpenTelemetry() {
-<span class="nc" id="L29">        return GlobalOpenTelemetry.get();</span>
+<span class="nc" id="L30">        return GlobalOpenTelemetry.get();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
