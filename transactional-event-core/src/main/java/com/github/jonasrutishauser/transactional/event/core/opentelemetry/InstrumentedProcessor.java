@@ -17,6 +17,7 @@ import javax.inject.Named;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
@@ -75,7 +76,7 @@ class InstrumentedProcessor implements ContextualProcessor {
             delegate.process(id, type, context, payload, handler);
         } catch (RuntimeException e) {
             span.setStatus(ERROR, "Processing failed");
-            span.recordException(e);
+            span.recordException(e, Attributes.builder().put("exception.escaped", true).build());
             throw e;
         } finally {
             span.end();
