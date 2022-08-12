@@ -50,20 +50,8 @@ class TransactionalWorker {
     @Transactional
     public void process(String eventId) {
         PendingEvent event = store.getAndLockEvent(eventId);
-        Optional<Class<? extends Handler>> handlerClassWithImplicitType = handlerExtension
-                .getHandlerClassWithImplicitType(typeResolver, event.getType());
-        Instance<? extends Handler> handlerInstance;
-        if (handlerClassWithImplicitType.isPresent()) {
-            handlerInstance = handlers.select(handlerClassWithImplicitType.get());
-        } else {
-            handlerInstance = handlers.select(new EventHandlerLiteral() {
-                @Override
-                public String eventType() {
-                    return event.getType();
-                }
-            });
-        }
-        process(event, handlerInstance);
+        processor.process(event.getId(), event.getType(), getContextProperties(event.getContext()), event.getPayload(),
+                getHandler(event.getType()));
         store.delete(event);
     }
 
@@ -73,11 +61,29 @@ class TransactionalWorker {
         store.updateForRetry(event);
     }
 
-    private <T extends Handler> void process(PendingEvent event, Instance<T> handlerInstance) {
+    private Handler getHandler(String eventType) {
+        return payload -> {
+            Optional<Class<? extends Handler>> handlerClassWithImplicitType = handlerExtension
+                    .getHandlerClassWithImplicitType(typeResolver, eventType);
+            Instance<? extends Handler> handlerInstance;
+            if (handlerClassWithImplicitType.isPresent()) {
+                handlerInstance = handlers.select(handlerClassWithImplicitType.get());
+            } else {
+                handlerInstance = handlers.select(new EventHandlerLiteral() {
+                    @Override
+                    public String eventType() {
+                        return eventType;
+                    }
+                });
+            }
+            handle(handlerInstance, payload);
+        };
+    }
+
+    private <T extends Handler> void handle(Instance<T> handlerInstance, String event) {
         T handler = handlerInstance.get();
         try {
-            processor.process(event.getId(), event.getType(), getContextProperties(event.getContext()),
-                    event.getPayload(), handler);
+            handler.handle(event);
         } finally {
             handlerInstance.destroy(handler);
         }

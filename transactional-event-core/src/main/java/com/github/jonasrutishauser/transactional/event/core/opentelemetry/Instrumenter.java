@@ -10,6 +10,8 @@ import io.opentelemetry.context.propagation.TextMapPropagator;
 
 @Dependent
 class Instrumenter {
+    private static final String NAME = Instrumenter.class.getPackage().getName().replace(".core.opentelemetry", "");
+
     private Instrumenter() {
     }
 
@@ -20,8 +22,7 @@ class Instrumenter {
 
     @Produces
     static Tracer getTracer(OpenTelemetry openTelemetry) {
-        return openTelemetry.getTracer("transactional-event",
-                Instrumenter.class.getPackage().getImplementationVersion());
+        return openTelemetry.getTracer(NAME, Instrumenter.class.getPackage().getImplementationVersion());
     }
 
     @Produces
