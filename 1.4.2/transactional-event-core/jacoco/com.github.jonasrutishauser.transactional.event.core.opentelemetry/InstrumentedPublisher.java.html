@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstrumentedPublisher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.opentelemetry</a> &gt; <span class="el_source">InstrumentedPublisher.java</span></div><h1>InstrumentedPublisher.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
+
+import static io.opentelemetry.api.trace.SpanKind.PRODUCER;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static javax.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+
+import java.util.Properties;
+
+import javax.annotation.Priority;
+import javax.decorator.Decorator;
+import javax.decorator.Delegate;
+import javax.enterprise.inject.Any;
+import javax.inject.Inject;
+
+import com.github.jonasrutishauser.transactional.event.api.context.ContextualPublisher;
+
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.propagation.TextMapPropagator;
+
+@Decorator
+@Priority(LIBRARY_AFTER)
+class InstrumentedPublisher implements ContextualPublisher {
+
+    private final ContextualPublisher delegate;
+
+    private final Tracer tracer;
+    private final TextMapPropagator propagator;
+
+    InstrumentedPublisher() {
+<span class="nc" id="L33">        this(null, null, null);</span>
+<span class="nc" id="L34">    }</span>
+
+    @Inject
+<span class="nc" id="L37">    InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, Tracer tracer, TextMapPropagator propagator) {</span>
+<span class="nc" id="L38">        this.delegate = delegate;</span>
+<span class="nc" id="L39">        this.tracer = tracer;</span>
+<span class="nc" id="L40">        this.propagator = propagator;</span>
+<span class="nc" id="L41">    }</span>
+
+    @Override
+    public void publish(String id, String type, Properties context, String payload) {
+<span class="nc" id="L45">        Span span = tracer.spanBuilder(type + &quot; send&quot;) //</span>
+<span class="nc" id="L46">                .setSpanKind(PRODUCER) //</span>
+<span class="nc" id="L47">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
+<span class="nc" id="L48">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
+<span class="nc" id="L49">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
+<span class="nc" id="L50">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
+<span class="nc" id="L51">                .startSpan();</span>
+<span class="nc" id="L52">        try (Scope unused = span.makeCurrent()) {</span>
+<span class="nc" id="L53">            propagator.inject(Context.current(), context, Properties::setProperty);</span>
+<span class="nc" id="L54">            delegate.publish(id, type, context, payload);</span>
+        } finally {
+<span class="nc" id="L56">            span.end();</span>
+        }
+<span class="nc" id="L58">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
