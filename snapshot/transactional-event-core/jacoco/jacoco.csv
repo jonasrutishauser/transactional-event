@@ -22,8 +22,8 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,111,29,4,0,27,10,8,3,6,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,0,876,1,39,0,170,1,37,0,18
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.MariaDBQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.OracleQueryAdapter,0,9,0,0,0,2,0,2,0,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.MariaDBQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.LimitQueryAdapter,0,9,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,9,0,0,0,4,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory,0,140,0,14,0,31,0,14,0,7
