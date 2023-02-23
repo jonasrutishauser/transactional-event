@@ -39,7 +39,7 @@ jobs:
       - name: Release
         run: >
           mvn -V -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:clean release:prepare && 
-          echo "::set-output name=RELEASED_VERSION::$(grep scm.tag= release.properties | cut -d'=' -f2 | cut -c2-)" && 
+          echo "RELEASED_VERSION=$(grep scm.tag= release.properties | cut -d'=' -f2 | cut -c2-)" >> $GITHUB_OUTPUT && 
           mvn -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:perform
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
