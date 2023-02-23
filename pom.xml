@@ -50,6 +50,8 @@
 	<properties>
 		<root.artifactId>transactional-event</root.artifactId>
 
+		<maven.compiler.release>8</maven.compiler.release>
+
 		<log4j.version>2.20.0</log4j.version>
 	</properties>
 
@@ -66,17 +68,5 @@
 			<url>${distributionManagement.site.url}</url>
 		</site>
 	</distributionManagement>
-
-	<profiles>
-		<profile>
-			<id>not-java-8</id>
-			<activation>
-				<jdk>[9,)</jdk>
-			</activation>
-			<properties>
-				<maven.compiler.release>8</maven.compiler.release>
-			</properties>
-		</profile>
-	</profiles>
 </project>
 

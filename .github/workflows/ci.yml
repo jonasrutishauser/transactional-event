@@ -24,14 +24,11 @@ jobs:
     strategy:
       matrix:
         java:
-          - 8
           - 11
           - 17
         event:
           - ${{ github.event_name }}
         exclude:
-          - event: pull_request_target
-            java: 8
           - event: pull_request_target
             java: 11
     steps:
@@ -115,7 +112,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
       - name: Deploy Site
-        if: ${{ matrix.java == '8' && github.event_name != 'release' && !startsWith(github.event_name, 'pull_request') }}
+        if: ${{ matrix.java == '11' && github.event_name != 'release' && !startsWith(github.event_name, 'pull_request') }}
         run: mvn -B -e site-deploy
         env:
           GITHUB_TOKEN: ${{ github.token }}
