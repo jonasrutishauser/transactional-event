@@ -1,8 +1,8 @@
 package com.github.jonasrutishauser.transactional.event.liberty;
 
-import javax.annotation.Resource;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
+import jakarta.annotation.Resource;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
 import javax.sql.DataSource;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;

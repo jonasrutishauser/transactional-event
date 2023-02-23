@@ -1,16 +1,16 @@
 package com.github.jonasrutishauser.transactional.event.core;
 
 import static java.time.LocalDateTime.now;
-import static javax.transaction.Transactional.TxType.MANDATORY;
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

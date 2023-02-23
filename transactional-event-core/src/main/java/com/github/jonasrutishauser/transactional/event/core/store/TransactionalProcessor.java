@@ -1,11 +1,11 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
-import static javax.transaction.Transactional.TxType.MANDATORY;
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
 import java.util.Properties;
 
-import javax.enterprise.context.Dependent;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.Dependent;
+import jakarta.transaction.Transactional;
 
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;

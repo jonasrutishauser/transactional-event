@@ -12,7 +12,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import javax.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Instance;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;

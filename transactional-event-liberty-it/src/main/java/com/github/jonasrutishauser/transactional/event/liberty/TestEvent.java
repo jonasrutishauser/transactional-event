@@ -1,7 +1,7 @@
 package com.github.jonasrutishauser.transactional.event.liberty;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class TestEvent {
 

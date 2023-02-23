@@ -3,22 +3,24 @@ package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
 import static io.opentelemetry.api.trace.SpanKind.CONSUMER;
 import static io.opentelemetry.api.trace.StatusCode.ERROR;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 
 import java.util.Properties;
 
-import javax.annotation.Priority;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.Priority;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
@@ -51,8 +53,8 @@ class InstrumentedProcessor implements ContextualProcessor {
     }
 
     @Inject
-    InstrumentedProcessor(@Delegate @Any ContextualProcessor delegate, Tracer tracer, TextMapPropagator propagator,
-            @Named("lockOwner.id") String lockOwnerId) {
+    InstrumentedProcessor(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
+            @Events TextMapPropagator propagator, @Named("lockOwner.id") String lockOwnerId) {
         this.delegate = delegate;
         this.tracer = tracer;
         this.propagator = propagator;
@@ -62,16 +64,18 @@ class InstrumentedProcessor implements ContextualProcessor {
     @Override
     public void process(String id, String type, Properties context, String payload, Handler handler) {
         Context extractedContext = propagator.extract(Context.current(), context, getter);
-        Span span = tracer.spanBuilder(type + " process") //
+        SpanBuilder spanBuilder = tracer.spanBuilder(type + " process") //
                 .setSpanKind(CONSUMER) //
                 .setAttribute("messaging.system", "transactional-event") //
                 .setAttribute("messaging.destination", type) //
                 .setAttribute("messaging.message_id", id) //
                 .setAttribute("messaging.message_payload_size_bytes", payload.getBytes(UTF_8).length) //
                 .setAttribute("messaging.operation", "process") //
-                .setAttribute("messaging.consumer_id", lockOwnerId) //
-                .addLink(Span.fromContext(extractedContext).getSpanContext()) //
-                .startSpan();
+                .setAttribute("messaging.consumer_id", lockOwnerId);
+        if (extractedContext != context) {
+            spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());
+        }
+        Span span = spanBuilder.startSpan();
         try (Scope unused = span.makeCurrent()) {
             delegate.process(id, type, context, payload, handler);
         } catch (RuntimeException e) {

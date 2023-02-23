@@ -2,15 +2,16 @@ package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
 
 import static io.opentelemetry.api.trace.SpanKind.CONSUMER;
 import static io.opentelemetry.api.trace.SpanKind.INTERNAL;
-import static javax.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 
-import javax.annotation.Priority;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.Priority;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.store.Dispatcher;
 import com.github.jonasrutishauser.transactional.event.core.store.EventsPublished;
 
@@ -33,7 +34,7 @@ public class InstrumentedScheduler implements Dispatcher {
     }
 
     @Inject
-    InstrumentedScheduler(@Delegate @Any Dispatcher delegate, Tracer tracer,
+    InstrumentedScheduler(@Delegate @Any Dispatcher delegate, @Events Tracer tracer,
             @Named("lockOwner.id") String lockOwnerId) {
         this.delegate = delegate;
         this.tracer = tracer;

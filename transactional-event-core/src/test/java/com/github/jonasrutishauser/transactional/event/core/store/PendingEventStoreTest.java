@@ -36,7 +36,7 @@ import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.enterprise.event.Event;
+import jakarta.enterprise.event.Event;
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;

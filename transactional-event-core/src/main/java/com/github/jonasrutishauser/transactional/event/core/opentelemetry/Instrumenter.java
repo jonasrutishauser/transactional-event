@@ -1,7 +1,10 @@
 package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
+
+import com.github.jonasrutishauser.transactional.event.api.Events;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -15,18 +18,25 @@ class Instrumenter {
     private Instrumenter() {
     }
 
+    @Events
     @Produces
-    static TextMapPropagator getPropagator(OpenTelemetry openTelemetry) {
+    static TextMapPropagator getPropagator(@Events OpenTelemetry openTelemetry) {
         return openTelemetry.getPropagators().getTextMapPropagator();
     }
 
+    @Events
     @Produces
-    static Tracer getTracer(OpenTelemetry openTelemetry) {
+    static Tracer getTracer(@Events OpenTelemetry openTelemetry) {
         return openTelemetry.getTracer(NAME, Instrumenter.class.getPackage().getImplementationVersion());
     }
 
+    @Events
     @Produces
-    static OpenTelemetry getGlobalOpenTelemetry() {
+    static OpenTelemetry getOpenTelemetry(Instance<OpenTelemetry> defaultOpenTelemetry) {
+        if (defaultOpenTelemetry.isResolvable()) {
+            // This should be the case if microprofile-telemetry is available
+            return defaultOpenTelemetry.get();
+        }
         return GlobalOpenTelemetry.get();
     }
 }

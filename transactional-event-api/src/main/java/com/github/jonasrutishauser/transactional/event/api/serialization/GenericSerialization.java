@@ -1,6 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.api.serialization;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 public interface GenericSerialization {
 
