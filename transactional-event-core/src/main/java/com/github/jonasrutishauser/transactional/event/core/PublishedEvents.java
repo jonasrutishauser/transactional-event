@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-import javax.transaction.TransactionScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.transaction.TransactionScoped;
 
 import com.github.jonasrutishauser.transactional.event.core.store.EventsPublished;
 

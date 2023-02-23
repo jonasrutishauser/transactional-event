@@ -2,7 +2,7 @@ package com.github.jonasrutishauser.transactional.event.api.serialization;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import org.junit.jupiter.api.Test;
 

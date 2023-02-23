@@ -2,7 +2,7 @@ package com.github.jonasrutishauser.transactional.event.core.store;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
+import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
 import static org.eclipse.microprofile.metrics.MetricUnits.SECONDS;
 
@@ -12,14 +12,14 @@ import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.concurrent.LastExecution;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.enterprise.concurrent.Trigger;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.concurrent.LastExecution;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
+import jakarta.enterprise.concurrent.Trigger;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

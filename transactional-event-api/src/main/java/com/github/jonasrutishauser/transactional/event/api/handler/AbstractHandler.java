@@ -1,6 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.api.handler;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
 

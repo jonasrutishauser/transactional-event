@@ -4,8 +4,8 @@ import static java.lang.Math.min;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 import static java.sql.Types.VARCHAR;
 import static java.util.Collections.emptySet;
-import static javax.enterprise.event.TransactionPhase.BEFORE_COMPLETION;
-import static javax.transaction.Transactional.TxType.MANDATORY;
+import static jakarta.enterprise.event.TransactionPhase.BEFORE_COMPLETION;
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,13 +21,13 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.IntPredicate;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,6 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.api;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 @Dependent
 public class Configuration {

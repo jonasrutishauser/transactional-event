@@ -2,16 +2,17 @@ package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
 
 import static io.opentelemetry.api.trace.SpanKind.PRODUCER;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 
 import java.util.Properties;
 
-import javax.annotation.Priority;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
+import jakarta.annotation.Priority;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 
+import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualPublisher;
 
 import io.opentelemetry.api.trace.Span;
@@ -34,7 +35,8 @@ class InstrumentedPublisher implements ContextualPublisher {
     }
 
     @Inject
-    InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, Tracer tracer, TextMapPropagator propagator) {
+    InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, @Events Tracer tracer,
+            @Events TextMapPropagator propagator) {
         this.delegate = delegate;
         this.tracer = tracer;
         this.propagator = propagator;

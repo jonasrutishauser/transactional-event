@@ -1,9 +1,9 @@
 package com.github.jonasrutishauser.transactional.event.core.defaults;
 
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
+import jakarta.annotation.Resource;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;
 

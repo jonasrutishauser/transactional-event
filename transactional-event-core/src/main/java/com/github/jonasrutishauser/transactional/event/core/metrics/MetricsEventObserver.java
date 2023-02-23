@@ -1,9 +1,9 @@
 package com.github.jonasrutishauser.transactional.event.core.metrics;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.TransactionPhase;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.TransactionPhase;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

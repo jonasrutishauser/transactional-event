@@ -1,13 +1,13 @@
 package com.github.jonasrutishauser.transactional.event.core;
 
 import static com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
-import static javax.transaction.Transactional.TxType.MANDATORY;
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
 import java.util.Properties;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

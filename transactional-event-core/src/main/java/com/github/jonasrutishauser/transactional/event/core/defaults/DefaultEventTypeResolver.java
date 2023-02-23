@@ -1,6 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.core.defaults;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 
