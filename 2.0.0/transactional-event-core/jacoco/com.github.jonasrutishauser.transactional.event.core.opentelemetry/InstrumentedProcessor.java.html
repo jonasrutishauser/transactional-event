@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstrumentedProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.opentelemetry</a> &gt; <span class="el_source">InstrumentedProcessor.java</span></div><h1>InstrumentedProcessor.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
+
+import static io.opentelemetry.api.trace.SpanKind.CONSUMER;
+import static io.opentelemetry.api.trace.StatusCode.ERROR;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+
+import java.util.Properties;
+
+import jakarta.annotation.Priority;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
+import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.propagation.TextMapGetter;
+import io.opentelemetry.context.propagation.TextMapPropagator;
+
+@Decorator
+@Priority(LIBRARY_BEFORE)
+class InstrumentedProcessor implements ContextualProcessor {
+
+    private final ContextualProcessor delegate;
+
+    private final Tracer tracer;
+    private final TextMapPropagator propagator;
+    private final String lockOwnerId;
+<span class="nc" id="L39">    private final TextMapGetter&lt;Properties&gt; getter = new TextMapGetter&lt;Properties&gt;() {</span>
+        @Override
+        public String get(Properties carrier, String key) {
+<span class="nc" id="L42">            return carrier.getProperty(key);</span>
+        }
+
+        @Override
+        public Iterable&lt;String&gt; keys(Properties carrier) {
+<span class="nc" id="L47">            return carrier.stringPropertyNames();</span>
+        }
+    };
+
+    InstrumentedProcessor() {
+<span class="nc" id="L52">        this(null, null, null, null);</span>
+<span class="nc" id="L53">    }</span>
+
+    @Inject
+    InstrumentedProcessor(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
+<span class="nc" id="L57">            @Events TextMapPropagator propagator, @Named(&quot;lockOwner.id&quot;) String lockOwnerId) {</span>
+<span class="nc" id="L58">        this.delegate = delegate;</span>
+<span class="nc" id="L59">        this.tracer = tracer;</span>
+<span class="nc" id="L60">        this.propagator = propagator;</span>
+<span class="nc" id="L61">        this.lockOwnerId = lockOwnerId;</span>
+<span class="nc" id="L62">    }</span>
+
+    @Override
+    public void process(String id, String type, Properties context, String payload, Handler handler) {
+<span class="nc" id="L66">        Context extractedContext = propagator.extract(Context.current(), context, getter);</span>
+<span class="nc" id="L67">        SpanBuilder spanBuilder = tracer.spanBuilder(type + &quot; process&quot;) //</span>
+<span class="nc" id="L68">                .setSpanKind(CONSUMER) //</span>
+<span class="nc" id="L69">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
+<span class="nc" id="L70">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
+<span class="nc" id="L71">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
+<span class="nc" id="L72">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
+<span class="nc" id="L73">                .setAttribute(&quot;messaging.operation&quot;, &quot;process&quot;) //</span>
+<span class="nc" id="L74">                .setAttribute(&quot;messaging.consumer_id&quot;, lockOwnerId);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (extractedContext != context) {</span>
+<span class="nc" id="L76">            spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());</span>
+        }
+<span class="nc" id="L78">        Span span = spanBuilder.startSpan();</span>
+<span class="nc" id="L79">        try (Scope unused = span.makeCurrent()) {</span>
+<span class="nc" id="L80">            delegate.process(id, type, context, payload, handler);</span>
+<span class="nc" id="L81">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L82">            span.setStatus(ERROR, &quot;Processing failed&quot;);</span>
+<span class="nc" id="L83">            span.recordException(e, Attributes.builder().put(&quot;exception.escaped&quot;, true).build());</span>
+<span class="nc" id="L84">            throw e;</span>
+        } finally {
+<span class="nc" id="L86">            span.end();</span>
+        }
+<span class="nc" id="L88">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
