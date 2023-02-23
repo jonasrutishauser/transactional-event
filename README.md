@@ -1,4 +1,4 @@
-# Transactional Event Library for Jakarta EE 8
+# Transactional Event Library for Jakarta EE 9
 
 A [Transactional Event Library](https://jonasrutishauser.github.io/transactional-event/) that implements the [outbox pattern](https://microservices.io/patterns/data/transactional-outbox.html) for Jakarta EE 9.
 
