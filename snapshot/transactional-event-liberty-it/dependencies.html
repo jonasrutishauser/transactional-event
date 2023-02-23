@@ -33,7 +33,7 @@
         <div id="breadcrumbs">
           <ul class="breadcrumb">
         <li id="publishDate" class="pull-right"><span class="divider">|</span> Last Published: 2023-02-23</li>
-          <li id="projectVersion" class="pull-right"><span class="divider">|</span>Version: 1.4.3-SNAPSHOT</li>
+          <li id="projectVersion" class="pull-right"><span class="divider">|</span>Version: 2.0.0-SNAPSHOT</li>
       <li class="pull-right"><a href="http://maven.apache.org/" class="externalLink" title="Maven">Maven</a></li>
           </ul>
         </div>
@@ -87,7 +87,7 @@
 <tr class="b">
 <td align="left">com.github.jonasrutishauser</td>
 <td><a class="externalLink" href="https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api">transactional-event-api</a></td>
-<td>1.4.3-SNAPSHOT</td>
+<td>2.0.0-SNAPSHOT</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a></td></tr></table></section><a name="Project_Dependencies_runtime"></a><section>
 <h3><a name="runtime"></a>runtime</h3>
@@ -102,13 +102,13 @@
 <tr class="b">
 <td align="left">com.github.jonasrutishauser</td>
 <td><a class="externalLink" href="https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-core">transactional-event-core</a></td>
-<td>1.4.3-SNAPSHOT</td>
+<td>2.0.0-SNAPSHOT</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a></td></tr>
 <tr class="a">
 <td align="left">org.apache.logging.log4j</td>
 <td><a class="externalLink" href="https://logging.apache.org/log4j/2.x/log4j-core/">log4j-core</a></td>
-<td>2.18.0</td>
+<td>2.20.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr></table></section><a name="Project_Dependencies_test"></a><section>
 <h3><a name="test"></a>test</h3>
@@ -133,27 +133,21 @@
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
 <tr class="b">
-<td align="left">org.glassfish.jersey.core</td>
-<td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jersey/jersey-client">jersey-client</a></td>
-<td>2.36</td>
+<td align="left">org.jboss.resteasy</td>
+<td><a class="externalLink" href="https://jboss.org/resteasy/resteasy-client">resteasy-client</a></td>
+<td>6.0.1.Final</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">EDL 1.0</a><a class="externalLink" href="https://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause</a><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, 2.0</a><a class="externalLink" href="https://creativecommons.org/publicdomain/zero/1.0/">Public Domain</a><a class="externalLink" href="https://asm.ow2.io/license.html">Modified BSD</a><a href="jquery.org/license">jQuery license</a><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a><a class="externalLink" href="https://www.w3.org/Consortium/Legal/copyright-documents-19990405">W3C license</a></td></tr>
+<td><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></td></tr>
 <tr class="a">
-<td align="left">org.glassfish.jersey.inject</td>
-<td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-hk2">jersey-hk2</a></td>
-<td>2.36</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">EDL 1.0</a><a class="externalLink" href="https://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause</a><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, 2.0</a><a class="externalLink" href="https://creativecommons.org/publicdomain/zero/1.0/">Public Domain</a><a class="externalLink" href="https://asm.ow2.io/license.html">Modified BSD</a><a href="jquery.org/license">jQuery license</a><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a><a class="externalLink" href="https://www.w3.org/Consortium/Legal/copyright-documents-19990405">W3C license</a></td></tr>
-<tr class="b">
 <td align="left">org.junit.jupiter</td>
 <td><a class="externalLink" href="https://junit.org/junit5/">junit-jupiter-api</a></td>
-<td>5.8.2</td>
+<td>5.9.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></td></tr>
-<tr class="a">
+<tr class="b">
 <td align="left">org.junit.jupiter</td>
 <td><a class="externalLink" href="https://junit.org/junit5/">junit-jupiter-engine</a></td>
-<td>5.8.2</td>
+<td>5.9.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></td></tr></table></section><a name="Project_Dependencies_provided"></a><section>
 <h3><a name="provided"></a>provided</h3>
@@ -168,33 +162,33 @@
 <tr class="b">
 <td align="left">jakarta.enterprise</td>
 <td><a class="externalLink" href="http://cdi-spec.org">jakarta.enterprise.cdi-api</a></td>
-<td>2.0.2</td>
+<td>3.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></td></tr>
 <tr class="a">
 <td align="left">jakarta.json.bind</td>
 <td><a class="externalLink" href="https://eclipse-ee4j.github.io/jsonb-api">jakarta.json.bind-api</a></td>
-<td>1.0.2</td>
+<td>2.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://projects.eclipse.org/license/epl-2.0">Eclipse Public License 2.0</a><a class="externalLink" href="https://projects.eclipse.org/license/secondary-gpl-2.0-cp">GNU General Public License, version 2 with the GNU Classpath Exception</a></td></tr>
 <tr class="b">
 <td align="left">jakarta.servlet</td>
 <td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.servlet">jakarta.servlet-api</a></td>
-<td>4.0.3</td>
+<td>5.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
 <tr class="a">
 <td align="left">jakarta.transaction</td>
 <td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jta">jakarta.transaction-api</a></td>
-<td>1.3.3</td>
+<td>2.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
 <tr class="b">
 <td align="left">jakarta.ws.rs</td>
 <td><a class="externalLink" href="https://github.com/eclipse-ee4j/jaxrs-api">jakarta.ws.rs-api</a></td>
-<td>2.1.6</td>
+<td>3.0.0</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr></table></section></section><a name="Project_Transitive_Dependencies"></a><section>
+<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL-2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL-2.0-with-classpath-exception</a></td></tr></table></section></section><a name="Project_Transitive_Dependencies"></a><section>
 <h2><a name="Project_Transitive_Dependencies"></a>Project Transitive Dependencies</h2>
 <p>The following is a list of transitive dependencies for this project. Transitive dependencies are the dependencies of the project dependencies.</p><a name="Project_Transitive_Dependencies_runtime"></a><section>
 <h3><a name="runtime"></a>runtime</h3>
@@ -209,19 +203,19 @@
 <tr class="b">
 <td align="left">io.opentelemetry</td>
 <td><a class="externalLink" href="https://github.com/open-telemetry/opentelemetry-java">opentelemetry-api</a></td>
-<td>1.16.0</td>
+<td>1.23.1</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></td></tr>
 <tr class="a">
 <td align="left">io.opentelemetry</td>
 <td><a class="externalLink" href="https://github.com/open-telemetry/opentelemetry-java">opentelemetry-context</a></td>
-<td>1.16.0</td>
+<td>1.23.1</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></td></tr>
 <tr class="b">
 <td align="left">org.apache.logging.log4j</td>
 <td><a class="externalLink" href="https://logging.apache.org/log4j/2.x/log4j-api/">log4j-api</a></td>
-<td>2.18.0</td>
+<td>2.20.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr></table></section><a name="Project_Transitive_Dependencies_test"></a><section>
 <h3><a name="test"></a>test</h3>
@@ -234,53 +228,65 @@
 <th>Type</th>
 <th>Licenses</th></tr>
 <tr class="b">
+<td align="left">com.ibm.async</td>
+<td><a class="externalLink" href="http://github.com/ibm/java-async-util">asyncutil</a></td>
+<td>0.1.0</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
+<tr class="a">
+<td align="left">commons-codec</td>
+<td><a class="externalLink" href="https://commons.apache.org/proper/commons-codec/">commons-codec</a></td>
+<td>1.15</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
+<tr class="b">
+<td align="left">commons-io</td>
+<td><a class="externalLink" href="https://commons.apache.org/proper/commons-io/">commons-io</a></td>
+<td>2.9.0</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td align="left">commons-logging</td>
+<td><a class="externalLink" href="http://commons.apache.org/proper/commons-logging/">commons-logging</a></td>
+<td>1.2</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
+<tr class="b">
+<td align="left">jakarta.activation</td>
+<td><a class="externalLink" href="https://github.com/eclipse-ee4j/jaf/jakarta.activation-api">jakarta.activation-api</a></td>
+<td>2.0.0</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">EDL 1.0</a></td></tr>
+<tr class="a">
+<td align="left">jakarta.validation</td>
+<td><a class="externalLink" href="https://beanvalidation.org">jakarta.validation-api</a></td>
+<td>3.0.0</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></td></tr>
+<tr class="b">
+<td align="left">jakarta.xml.bind</td>
+<td><a class="externalLink" href="https://github.com/eclipse-ee4j/jaxb-api/jakarta.xml.bind-api">jakarta.xml.bind-api</a></td>
+<td>3.0.0</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License - v 1.0</a></td></tr>
+<tr class="a">
+<td align="left">org.apache.httpcomponents</td>
+<td><a class="externalLink" href="http://hc.apache.org/httpcomponents-client">httpclient</a></td>
+<td>4.5.13</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
+<tr class="b">
+<td align="left">org.apache.httpcomponents</td>
+<td><a class="externalLink" href="http://hc.apache.org/httpcomponents-core-ga">httpcore</a></td>
+<td>4.4.13</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
+<tr class="a">
 <td align="left">org.apiguardian</td>
 <td><a class="externalLink" href="https://github.com/apiguardian-team/apiguardian">apiguardian-api</a></td>
 <td>1.1.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></td></tr>
-<tr class="a">
-<td align="left">org.glassfish.hk2</td>
-<td><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/hk2-api">hk2-api</a></td>
-<td>2.6.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="b">
-<td align="left">org.glassfish.hk2</td>
-<td><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/hk2-locator">hk2-locator</a></td>
-<td>2.6.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="a">
-<td align="left">org.glassfish.hk2</td>
-<td><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/hk2-utils">hk2-utils</a></td>
-<td>2.6.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="b">
-<td align="left">org.glassfish.hk2</td>
-<td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j/osgi-resource-locator">osgi-resource-locator</a></td>
-<td>1.0.3</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="a">
-<td align="left">org.glassfish.hk2.external</td>
-<td><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged">aopalliance-repackaged</a></td>
-<td>2.6.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="b">
-<td align="left">org.glassfish.hk2.external</td>
-<td><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/external/jakarta.inject">jakarta.inject</a></td>
-<td>2.6.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="a">
-<td align="left">org.glassfish.jersey.core</td>
-<td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jersey/jersey-common">jersey-common</a></td>
-<td>2.36</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">The GNU General Public License (GPL), Version 2, With Classpath Exception</a><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, 2.0</a><a class="externalLink" href="https://creativecommons.org/publicdomain/zero/1.0/">Public Domain</a></td></tr>
 <tr class="b">
 <td align="left">org.hamcrest</td>
 <td><a class="externalLink" href="http://hamcrest.org/JavaHamcrest/">hamcrest</a></td>
@@ -288,21 +294,45 @@
 <td>jar</td>
 <td><a class="externalLink" href="http://opensource.org/licenses/BSD-3-Clause">BSD Licence 3</a></td></tr>
 <tr class="a">
-<td align="left">org.javassist</td>
-<td><a class="externalLink" href="http://www.javassist.org/">javassist</a></td>
-<td>3.25.0-GA</td>
+<td align="left">org.jboss.logging</td>
+<td><a class="externalLink" href="http://www.jboss.org">jboss-logging</a></td>
+<td>3.4.2.Final</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.mozilla.org/MPL/MPL-1.1.html">MPL 1.1</a><a class="externalLink" href="http://www.gnu.org/licenses/lgpl-2.1.html">LGPL 2.1</a><a class="externalLink" href="http://www.apache.org/licenses/">Apache License 2.0</a></td></tr>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, version 2.0</a></td></tr>
+<tr class="b">
+<td align="left">org.jboss.resteasy</td>
+<td><a class="externalLink" href="https://jboss.org/resteasy/resteasy-client-api">resteasy-client-api</a></td>
+<td>6.0.1.Final</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></td></tr>
+<tr class="a">
+<td align="left">org.jboss.resteasy</td>
+<td><a class="externalLink" href="https://jboss.org/resteasy/resteasy-core">resteasy-core</a></td>
+<td>6.0.1.Final</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></td></tr>
+<tr class="b">
+<td align="left">org.jboss.resteasy</td>
+<td><a class="externalLink" href="https://jboss.org/resteasy/resteasy-core-spi">resteasy-core-spi</a></td>
+<td>6.0.1.Final</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></td></tr>
+<tr class="a">
+<td align="left">org.jboss.spec.javax.ws.rs</td>
+<td><a class="externalLink" href="http://www.jboss.org/jboss-jaxrs-api_3.0_spec">jboss-jaxrs-api_3.0_spec</a></td>
+<td>1.0.0.Final</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
 <tr class="b">
 <td align="left">org.junit.platform</td>
 <td><a class="externalLink" href="https://junit.org/junit5/">junit-platform-commons</a></td>
-<td>1.8.2</td>
+<td>1.9.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></td></tr>
 <tr class="a">
 <td align="left">org.junit.platform</td>
 <td><a class="externalLink" href="https://junit.org/junit5/">junit-platform-engine</a></td>
-<td>1.8.2</td>
+<td>1.9.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></td></tr>
 <tr class="b">
@@ -310,7 +340,13 @@
 <td><a class="externalLink" href="https://github.com/ota4j-team/opentest4j">opentest4j</a></td>
 <td>1.2.0</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></td></tr></table></section><a name="Project_Transitive_Dependencies_provided"></a><section>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td align="left">org.reactivestreams</td>
+<td><a class="externalLink" href="http://www.reactive-streams.org/">reactive-streams</a></td>
+<td>1.0.3</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://creativecommons.org/publicdomain/zero/1.0/">CC0</a></td></tr></table></section><a name="Project_Transitive_Dependencies_provided"></a><section>
 <h3><a name="provided"></a>provided</h3>
 <p>The following is a list of provided dependencies for this project. These dependencies are required to compile the application, but should be provided by default when using the library:</p>
 <table border="0" class="table table-striped">
@@ -323,31 +359,25 @@
 <tr class="b">
 <td align="left">jakarta.annotation</td>
 <td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.ca">jakarta.annotation-api</a></td>
-<td>1.3.5</td>
+<td>2.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
 <tr class="a">
-<td align="left">jakarta.ejb</td>
-<td><a class="externalLink" href="https://github.com/eclipse-ee4j/ejb-api">jakarta.ejb-api</a></td>
-<td>3.2.6</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="b">
 <td align="left">jakarta.el</td>
 <td><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.el">jakarta.el-api</a></td>
-<td>3.0.3</td>
+<td>4.0.0</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr>
-<tr class="a">
+<td><a class="externalLink" href="https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt">Eclipse Public License v. 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GNU General Public License, version 2 with the GNU Classpath Exception</a></td></tr>
+<tr class="b">
 <td align="left">jakarta.inject</td>
 <td><a class="externalLink" href="https://github.com/eclipse-ee4j/injection-api">jakarta.inject-api</a></td>
-<td>1.0</td>
+<td>2.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td align="left">jakarta.interceptor</td>
 <td><a class="externalLink" href="https://github.com/eclipse-ee4j/interceptor-api">jakarta.interceptor-api</a></td>
-<td>1.2.5</td>
+<td>2.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a><a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></td></tr></table></section></section><a name="Project_Dependency_Graph"></a><section>
 <h2><a name="Project_Dependency_Graph"></a>Project Dependency Graph</h2>
@@ -373,7 +403,7 @@
 <a name="Dependency_Tree"></a><section>
 <h3><a name="Dependency_Tree"></a>Dependency Tree</h3>
 <ul>
-<li>com.github.jonasrutishauser:transactional-event-liberty-it:war:1.4.3-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
+<li>com.github.jonasrutishauser:transactional-event-liberty-it:war:2.0.0-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Transactional Event Library Openliberty Tests</th></tr>
@@ -383,7 +413,7 @@
 <p><b>URL: </b><a class="externalLink" href="https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-liberty-it">https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-liberty-it</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a></p></td></tr></table></div>
 <ul>
-<li>com.github.jonasrutishauser:transactional-event-api:jar:1.4.3-SNAPSHOT (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
+<li>com.github.jonasrutishauser:transactional-event-api:jar:2.0.0-SNAPSHOT (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Transactional Event Library API</th></tr>
@@ -392,7 +422,7 @@
 <p><b>Description: </b>Library for transactional event publishing und listening</p>
 <p><b>URL: </b><a class="externalLink" href="https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api">https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a></p></td></tr></table></div></li>
-<li>com.github.jonasrutishauser:transactional-event-core:jar:1.4.3-SNAPSHOT (runtime) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
+<li>com.github.jonasrutishauser:transactional-event-core:jar:2.0.0-SNAPSHOT (runtime) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Transactional Event Library Core</th></tr>
@@ -402,7 +432,7 @@
 <p><b>URL: </b><a class="externalLink" href="https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-core">https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a></p></td></tr></table></div>
 <ul>
-<li>org.apache.logging.log4j:log4j-api:jar:2.18.0 (runtime) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
+<li>org.apache.logging.log4j:log4j-api:jar:2.20.0 (runtime) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Apache Log4j API</th></tr>
@@ -411,7 +441,7 @@
 <p><b>Description: </b>The Apache Log4j API</p>
 <p><b>URL: </b><a class="externalLink" href="https://logging.apache.org/log4j/2.x/log4j-api/">https://logging.apache.org/log4j/2.x/log4j-api/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>io.opentelemetry:opentelemetry-api:jar:1.16.0 (runtime) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
+<li>io.opentelemetry:opentelemetry-api:jar:1.23.1 (runtime) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>OpenTelemetry Java</th></tr>
@@ -421,7 +451,7 @@
 <p><b>URL: </b><a class="externalLink" href="https://github.com/open-telemetry/opentelemetry-java">https://github.com/open-telemetry/opentelemetry-java</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>io.opentelemetry:opentelemetry-context:jar:1.16.0 (runtime) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep10" style="display:none">
+<li>io.opentelemetry:opentelemetry-context:jar:1.23.1 (runtime) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep10" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>OpenTelemetry Java</th></tr>
@@ -430,7 +460,7 @@
 <p><b>Description: </b>OpenTelemetry Context (Incubator)</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/open-telemetry/opentelemetry-java">https://github.com/open-telemetry/opentelemetry-java</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></p></td></tr></table></div></li></ul></li></ul></li>
-<li>org.apache.logging.log4j:log4j-core:jar:2.18.0 (runtime) <img id="_img13" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep12', '_img13' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep12" style="display:none">
+<li>org.apache.logging.log4j:log4j-core:jar:2.20.0 (runtime) <img id="_img13" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep12', '_img13' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep12" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Apache Log4j Core</th></tr>
@@ -439,7 +469,7 @@
 <p><b>Description: </b>The Apache Log4j Implementation</p>
 <p><b>URL: </b><a class="externalLink" href="https://logging.apache.org/log4j/2.x/log4j-core/">https://logging.apache.org/log4j/2.x/log4j-core/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>jakarta.servlet:jakarta.servlet-api:jar:4.0.3 (provided) <img id="_img15" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep14', '_img15' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep14" style="display:none">
+<li>jakarta.servlet:jakarta.servlet-api:jar:5.0.0 (provided) <img id="_img15" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep14', '_img15' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep14" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Jakarta Servlet</th></tr>
@@ -450,35 +480,35 @@
         that enable development, deployment, and management of server-side and cloud-native applications.</p>
 <p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.servlet">https://projects.eclipse.org/projects/ee4j.servlet</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>jakarta.ws.rs:jakarta.ws.rs-api:jar:2.1.6 (provided) <img id="_img17" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep16', '_img17' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep16" style="display:none">
+<li>jakarta.ws.rs:jakarta.ws.rs-api:jar:3.0.0 (provided) <img id="_img17" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep16', '_img17' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep16" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>jakarta.ws.rs-api</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>Jakarta RESTful Web Services API</p>
+<p><b>Description: </b>Jakarta RESTful Web Services</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/jaxrs-api">https://github.com/eclipse-ee4j/jaxrs-api</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>jakarta.enterprise:jakarta.enterprise.cdi-api:jar:2.0.2 (provided) <img id="_img19" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep18', '_img19' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep18" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL-2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL-2.0-with-classpath-exception</a></p></td></tr></table></div></li>
+<li>jakarta.enterprise:jakarta.enterprise.cdi-api:jar:3.0.0 (provided) <img id="_img19" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep18', '_img19' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep18" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>Jakarta CDI</th></tr>
+<th>CDI APIs</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>APIs for Jakarta CDI (Contexts and Dependency Injection)</p>
+<p><b>Description: </b>APIs for CDI (Contexts and Dependency Injection for Java)</p>
 <p><b>URL: </b><a class="externalLink" href="http://cdi-spec.org">http://cdi-spec.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></p></td></tr></table></div>
 <ul>
-<li>jakarta.el:jakarta.el-api:jar:3.0.3 (provided) <img id="_img21" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep20', '_img21' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep20" style="display:none">
+<li>jakarta.el:jakarta.el-api:jar:4.0.0 (provided) <img id="_img21" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep20', '_img21' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep20" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>Jakarta Expression Language 3.0 API</th></tr>
+<th>Jakarta Expression Language API</th></tr>
 <tr class="b">
 <td>
 <p><b>Description: </b>Jakarta Expression Language defines an expression language for Java applications</p>
 <p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.el">https://projects.eclipse.org/projects/ee4j.el</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>jakarta.interceptor:jakarta.interceptor-api:jar:1.2.5 (provided) <img id="_img23" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep22', '_img23' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep22" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GNU General Public License, version 2 with the GNU Classpath Exception</a></p></td></tr></table></div></li>
+<li>jakarta.interceptor:jakarta.interceptor-api:jar:2.0.0 (provided) <img id="_img23" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep22', '_img23' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep22" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Jakarta Interceptors</th></tr>
@@ -490,7 +520,7 @@
 <p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/interceptor-api">https://github.com/eclipse-ee4j/interceptor-api</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div>
 <ul>
-<li>jakarta.annotation:jakarta.annotation-api:jar:1.3.5 (provided) <img id="_img25" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep24', '_img25' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep24" style="display:none">
+<li>jakarta.annotation:jakarta.annotation-api:jar:2.0.0 (provided) <img id="_img25" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep24', '_img25' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep24" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Jakarta Annotations API</th></tr>
@@ -498,17 +528,8 @@
 <td>
 <p><b>Description: </b>Jakarta Annotations API</p>
 <p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.ca">https://projects.eclipse.org/projects/ee4j.ca</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>jakarta.ejb:jakarta.ejb-api:jar:3.2.6 (provided) <img id="_img27" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep26', '_img27' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep26" style="display:none">
-<table border="0" class="table table-striped">
-<tr class="a">
-<th>Jakarta Enterprise Beans</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Jakarta Enterprise Beans</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/ejb-api">https://github.com/eclipse-ee4j/ejb-api</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li></ul></li>
-<li>jakarta.inject:jakarta.inject-api:jar:1.0 (provided) <img id="_img29" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep28', '_img29' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep28" style="display:none">
+<li>jakarta.inject:jakarta.inject-api:jar:2.0.0 (provided) <img id="_img27" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep26', '_img27' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep26" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Jakarta Dependency Injection</th></tr>
@@ -517,16 +538,16 @@
 <p><b>Description: </b>Jakarta Dependency Injection</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/injection-api">https://github.com/eclipse-ee4j/injection-api</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>jakarta.transaction:jakarta.transaction-api:jar:1.3.3 (provided) <img id="_img31" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep30', '_img31' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep30" style="display:none">
+<li>jakarta.transaction:jakarta.transaction-api:jar:2.0.0 (provided) <img id="_img29" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep28', '_img29' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep28" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>javax.transaction API</th></tr>
+<th>jakarta.transaction API</th></tr>
 <tr class="b">
 <td>
 <p><b>Description: </b>Jakarta Transactions</p>
 <p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jta">https://projects.eclipse.org/projects/ee4j.jta</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>jakarta.json.bind:jakarta.json.bind-api:jar:1.0.2 (provided) <img id="_img33" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep32', '_img33' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep32" style="display:none">
+<li>jakarta.json.bind:jakarta.json.bind-api:jar:2.0.0 (provided) <img id="_img31" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep30', '_img31' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep30" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>JSON-B API</th></tr>
@@ -535,7 +556,7 @@
 <p><b>Description: </b>Jakarta JSON Binding is a standard binding layer for converting Java objects to/from JSON documents.</p>
 <p><b>URL: </b><a class="externalLink" href="https://eclipse-ee4j.github.io/jsonb-api">https://eclipse-ee4j.github.io/jsonb-api</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://projects.eclipse.org/license/epl-2.0">Eclipse Public License 2.0</a>, <a class="externalLink" href="https://projects.eclipse.org/license/secondary-gpl-2.0-cp">GNU General Public License, version 2 with the GNU Classpath Exception</a></p></td></tr></table></div></li>
-<li>org.junit.jupiter:junit-jupiter-api:jar:5.8.2 (test) <img id="_img35" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep34', '_img35' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep34" style="display:none">
+<li>org.junit.jupiter:junit-jupiter-api:jar:5.9.2 (test) <img id="_img33" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep32', '_img33' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep32" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>JUnit Jupiter API</th></tr>
@@ -545,7 +566,7 @@
 <p><b>URL: </b><a class="externalLink" href="https://junit.org/junit5/">https://junit.org/junit5/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.opentest4j:opentest4j:jar:1.2.0 (test) <img id="_img37" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep36', '_img37' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep36" style="display:none">
+<li>org.opentest4j:opentest4j:jar:1.2.0 (test) <img id="_img35" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep34', '_img35' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep34" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>org.opentest4j:opentest4j</th></tr>
@@ -554,7 +575,7 @@
 <p><b>Description: </b>Open Test Alliance for the JVM</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/ota4j-team/opentest4j">https://github.com/ota4j-team/opentest4j</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.junit.platform:junit-platform-commons:jar:1.8.2 (test) <img id="_img39" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep38', '_img39' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep38" style="display:none">
+<li>org.junit.platform:junit-platform-commons:jar:1.9.2 (test) <img id="_img37" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep36', '_img37' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep36" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>JUnit Platform Commons</th></tr>
@@ -563,7 +584,7 @@
 <p><b>Description: </b>Module &quot;junit-platform-commons&quot; of JUnit 5.</p>
 <p><b>URL: </b><a class="externalLink" href="https://junit.org/junit5/">https://junit.org/junit5/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></p></td></tr></table></div></li>
-<li>org.apiguardian:apiguardian-api:jar:1.1.2 (test) <img id="_img41" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep40', '_img41' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep40" style="display:none">
+<li>org.apiguardian:apiguardian-api:jar:1.1.2 (test) <img id="_img39" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep38', '_img39' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep38" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>org.apiguardian:apiguardian-api</th></tr>
@@ -572,7 +593,7 @@
 <p><b>Description: </b>@API Guardian</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/apiguardian-team/apiguardian">https://github.com/apiguardian-team/apiguardian</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>org.junit.jupiter:junit-jupiter-engine:jar:5.8.2 (test) <img id="_img43" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep42', '_img43' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep42" style="display:none">
+<li>org.junit.jupiter:junit-jupiter-engine:jar:5.9.2 (test) <img id="_img41" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep40', '_img41' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep40" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>JUnit Jupiter Engine</th></tr>
@@ -582,7 +603,7 @@
 <p><b>URL: </b><a class="externalLink" href="https://junit.org/junit5/">https://junit.org/junit5/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.junit.platform:junit-platform-engine:jar:1.8.2 (test) <img id="_img45" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep44', '_img45' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep44" style="display:none">
+<li>org.junit.platform:junit-platform-engine:jar:1.9.2 (test) <img id="_img43" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep42', '_img43' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep42" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>JUnit Platform Engine API</th></tr>
@@ -591,7 +612,7 @@
 <p><b>Description: </b>Module &quot;junit-platform-engine&quot; of JUnit 5.</p>
 <p><b>URL: </b><a class="externalLink" href="https://junit.org/junit5/">https://junit.org/junit5/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v2.0</a></p></td></tr></table></div></li></ul></li>
-<li>org.awaitility:awaitility:jar:4.2.0 (test) <img id="_img47" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep46', '_img47' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep46" style="display:none">
+<li>org.awaitility:awaitility:jar:4.2.0 (test) <img id="_img45" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep44', '_img45' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep44" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Awaitility</th></tr>
@@ -601,7 +622,7 @@
 <p><b>URL: </b><a class="externalLink" href="http://awaitility.org">http://awaitility.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.hamcrest:hamcrest:jar:2.1 (test) <img id="_img49" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep48', '_img49' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep48" style="display:none">
+<li>org.hamcrest:hamcrest:jar:2.1 (test) <img id="_img47" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep46', '_img47' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep46" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Hamcrest</th></tr>
@@ -610,102 +631,160 @@
 <p><b>Description: </b>Core API and libraries of hamcrest matcher framework.</p>
 <p><b>URL: </b><a class="externalLink" href="http://hamcrest.org/JavaHamcrest/">http://hamcrest.org/JavaHamcrest/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/BSD-3-Clause">BSD Licence 3</a></p></td></tr></table></div></li></ul></li>
-<li>org.glassfish.jersey.core:jersey-client:jar:2.36 (test) <img id="_img51" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep50', '_img51' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep50" style="display:none">
+<li>org.jboss.resteasy:resteasy-client:jar:6.0.1.Final (test) <img id="_img49" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep48', '_img49' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep48" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>jersey-core-client</th></tr>
+<th>RESTEasy Client</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>Jersey core client implementation</p>
-<p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jersey/jersey-client">https://projects.eclipse.org/projects/ee4j.jersey/jersey-client</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">EDL 1.0</a>, <a class="externalLink" href="https://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause</a>, <a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, 2.0</a>, <a class="externalLink" href="https://creativecommons.org/publicdomain/zero/1.0/">Public Domain</a>, <a class="externalLink" href="https://asm.ow2.io/license.html">Modified BSD</a>, <a href="jquery.org/license">jQuery license</a>, <a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>, <a class="externalLink" href="https://www.w3.org/Consortium/Legal/copyright-documents-19990405">W3C license</a></p></td></tr></table></div>
+<p><b>Description: </b>Resteasy</p>
+<p><b>URL: </b><a class="externalLink" href="https://jboss.org/resteasy/resteasy-client">https://jboss.org/resteasy/resteasy-client</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.glassfish.jersey.core:jersey-common:jar:2.36 (test) <img id="_img53" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep52', '_img53' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep52" style="display:none">
+<li>org.jboss.resteasy:resteasy-client-api:jar:6.0.1.Final (test) <img id="_img51" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep50', '_img51' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep50" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>jersey-core-common</th></tr>
+<th>RESTEasy Client API</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>Jersey core common packages</p>
-<p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jersey/jersey-common">https://projects.eclipse.org/projects/ee4j.jersey/jersey-common</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">The GNU General Public License (GPL), Version 2, With Classpath Exception</a>, <a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, 2.0</a>, <a class="externalLink" href="https://creativecommons.org/publicdomain/zero/1.0/">Public Domain</a></p></td></tr></table></div>
+<p><b>Description: </b>Resteasy</p>
+<p><b>URL: </b><a class="externalLink" href="https://jboss.org/resteasy/resteasy-client-api">https://jboss.org/resteasy/resteasy-client-api</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></p></td></tr></table></div></li>
+<li>org.jboss.resteasy:resteasy-core-spi:jar:6.0.1.Final (test) <img id="_img53" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep52', '_img53' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep52" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>RESTEasy Core SPI</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>There is currently no description associated with this project.</p>
+<p><b>URL: </b><a class="externalLink" href="https://jboss.org/resteasy/resteasy-core-spi">https://jboss.org/resteasy/resteasy-core-spi</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.glassfish.hk2:osgi-resource-locator:jar:1.0.3 (test) <img id="_img55" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep54', '_img55' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep54" style="display:none">
+<li>jakarta.xml.bind:jakarta.xml.bind-api:jar:3.0.0 (test) <img id="_img55" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep54', '_img55' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep54" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>OSGi resource locator</th></tr>
+<th>Jakarta XML Binding API</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>Used by various API providers that rely on META-INF/services mechanism to locate providers.</p>
-<p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j/osgi-resource-locator">https://projects.eclipse.org/projects/ee4j/osgi-resource-locator</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li></ul></li>
-<li>org.glassfish.hk2.external:jakarta.inject:jar:2.6.1 (test) <img id="_img57" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep56', '_img57' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep56" style="display:none">
+<p><b>Description: </b>Jakarta XML Binding API</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/jaxb-api/jakarta.xml.bind-api">https://github.com/eclipse-ee4j/jaxb-api/jakarta.xml.bind-api</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License - v 1.0</a></p></td></tr></table></div></li>
+<li>jakarta.validation:jakarta.validation-api:jar:3.0.0 (test) <img id="_img57" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep56', '_img57' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep56" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>javax.inject:1 as OSGi bundle</th></tr>
+<th>Jakarta Bean Validation API</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>Injection API (JSR 330) version ${javax.inject.version} repackaged as OSGi bundle</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/external/jakarta.inject">https://github.com/eclipse-ee4j/glassfish-hk2/external/jakarta.inject</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li></ul></li>
-<li>org.glassfish.jersey.inject:jersey-hk2:jar:2.36 (test) <img id="_img59" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep58', '_img59' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep58" style="display:none">
+<p><b>Description: </b>Jakarta Bean Validation API</p>
+<p><b>URL: </b><a class="externalLink" href="https://beanvalidation.org">https://beanvalidation.org</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>org.jboss.resteasy:resteasy-core:jar:6.0.1.Final (test) <img id="_img59" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep58', '_img59' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep58" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>jersey-inject-hk2</th></tr>
+<th>RESTEasy Core</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>HK2 InjectionManager implementation</p>
-<p><b>URL: </b><a class="externalLink" href="https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-hk2">https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-hk2</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">EDL 1.0</a>, <a class="externalLink" href="https://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause</a>, <a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, 2.0</a>, <a class="externalLink" href="https://creativecommons.org/publicdomain/zero/1.0/">Public Domain</a>, <a class="externalLink" href="https://asm.ow2.io/license.html">Modified BSD</a>, <a href="jquery.org/license">jQuery license</a>, <a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>, <a class="externalLink" href="https://www.w3.org/Consortium/Legal/copyright-documents-19990405">W3C license</a></p></td></tr></table></div>
+<p><b>Description: </b>There is currently no description associated with this project.</p>
+<p><b>URL: </b><a class="externalLink" href="https://jboss.org/resteasy/resteasy-core">https://jboss.org/resteasy/resteasy-core</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://repository.jboss.org/licenses/apache-2.0.txt">Apache License 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.glassfish.hk2:hk2-locator:jar:2.6.1 (test) <img id="_img61" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep60', '_img61' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep60" style="display:none">
+<li>jakarta.activation:jakarta.activation-api:jar:2.0.0 (test) <img id="_img61" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep60', '_img61' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep60" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>ServiceLocator Default Implementation</th></tr>
+<th>Jakarta Activation API jar</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>ServiceLocator Default Implementation</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/hk2-locator">https://github.com/eclipse-ee4j/glassfish-hk2/hk2-locator</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div>
+<p><b>Description: </b>Jakarta Activation API jar</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/jaf/jakarta.activation-api">https://github.com/eclipse-ee4j/jaf/jakarta.activation-api</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">EDL 1.0</a></p></td></tr></table></div></li>
+<li>com.ibm.async:asyncutil:jar:0.1.0 (test) <img id="_img63" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep62', '_img63' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep62" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>asyncutil</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Utilities for working with CompletionStages</p>
+<p><b>URL: </b><a class="externalLink" href="http://github.com/ibm/java-async-util">http://github.com/ibm/java-async-util</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>org.jboss.logging:jboss-logging:jar:3.4.2.Final (test) <img id="_img65" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep64', '_img65' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep64" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>JBoss Logging 3</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>The JBoss Logging Framework</p>
+<p><b>URL: </b><a class="externalLink" href="http://www.jboss.org">http://www.jboss.org</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, version 2.0</a></p></td></tr></table></div></li>
+<li>org.apache.httpcomponents:httpclient:jar:4.5.13 (test) <img id="_img67" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep66', '_img67' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep66" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Apache HttpClient</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Apache HttpComponents Client</p>
+<p><b>URL: </b><a class="externalLink" href="http://hc.apache.org/httpcomponents-client">http://hc.apache.org/httpcomponents-client</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.glassfish.hk2.external:aopalliance-repackaged:jar:2.6.1 (test) <img id="_img63" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep62', '_img63' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep62" style="display:none">
+<li>org.apache.httpcomponents:httpcore:jar:4.4.13 (test) <img id="_img69" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep68', '_img69' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep68" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>aopalliance version 1.0 repackaged as a module</th></tr>
+<th>Apache HttpCore</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>Dependency Injection Kernel</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged">https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged</a></p>
+<p><b>Description: </b>Apache HttpComponents Core (blocking I/O)</p>
+<p><b>URL: </b><a class="externalLink" href="http://hc.apache.org/httpcomponents-core-ga">http://hc.apache.org/httpcomponents-core-ga</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>commons-logging:commons-logging:jar:1.2 (test) <img id="_img71" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep70', '_img71' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep70" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Apache Commons Logging</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Apache Commons Logging is a thin adapter allowing configurable bridging to other,
+    well known logging systems.</p>
+<p><b>URL: </b><a class="externalLink" href="http://commons.apache.org/proper/commons-logging/">http://commons.apache.org/proper/commons-logging/</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>commons-codec:commons-codec:jar:1.15 (test) <img id="_img73" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep72', '_img73' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep72" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Apache Commons Codec</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>The Apache Commons Codec package contains simple encoder and decoders for
+     various formats such as Base64 and Hexadecimal.  In addition to these
+     widely used encoders and decoders, the codec package also maintains a
+     collection of phonetic encoding utilities.</p>
+<p><b>URL: </b><a class="externalLink" href="https://commons.apache.org/proper/commons-codec/">https://commons.apache.org/proper/commons-codec/</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>commons-io:commons-io:jar:2.9.0 (test) <img id="_img75" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep74', '_img75' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep74" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Apache Commons IO</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>The Apache Commons IO library contains utility classes, stream implementations, file filters,
+file comparators, endian transformation classes, and much more.</p>
+<p><b>URL: </b><a class="externalLink" href="https://commons.apache.org/proper/commons-io/">https://commons.apache.org/proper/commons-io/</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_3.0_spec:jar:1.0.0.Final (test) <img id="_img77" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep76', '_img77' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep76" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>jboss-jakarta-jaxrs-api_spec</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Jakarta API for RESTful Web Services</p>
+<p><b>URL: </b><a class="externalLink" href="http://www.jboss.org/jboss-jaxrs-api_3.0_spec">http://www.jboss.org/jboss-jaxrs-api_3.0_spec</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>org.glassfish.hk2:hk2-api:jar:2.6.1 (test) <img id="_img65" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep64', '_img65' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep64" style="display:none">
+<li>org.reactivestreams:reactive-streams:jar:1.0.3 (test) <img id="_img79" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep78', '_img79' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep78" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>HK2 API module</th></tr>
+<th>reactive-streams</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>HK2 API module</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/hk2-api">https://github.com/eclipse-ee4j/glassfish-hk2/hk2-api</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li>
-<li>org.glassfish.hk2:hk2-utils:jar:2.6.1 (test) <img id="_img67" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep66', '_img67' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep66" style="display:none">
-<table border="0" class="table table-striped">
-<tr class="a">
-<th>HK2 Implementation Utilities</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>HK2 Implementation Utilities</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/eclipse-ee4j/glassfish-hk2/hk2-utils">https://github.com/eclipse-ee4j/glassfish-hk2/hk2-utils</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-2.0">EPL 2.0</a>, <a class="externalLink" href="https://www.gnu.org/software/classpath/license.html">GPL2 w/ CPE</a></p></td></tr></table></div></li></ul></li>
-<li>org.javassist:javassist:jar:3.25.0-GA (test) <img id="_img69" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep68', '_img69' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep68" style="display:none">
-<table border="0" class="table table-striped">
-<tr class="a">
-<th>Javassist</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Javassist (JAVA programming ASSISTant) makes Java bytecode manipulation
-    simple.  It is a class library for editing bytecodes in Java.</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.javassist.org/">http://www.javassist.org/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.mozilla.org/MPL/MPL-1.1.html">MPL 1.1</a>, <a class="externalLink" href="http://www.gnu.org/licenses/lgpl-2.1.html">LGPL 2.1</a>, <a class="externalLink" href="http://www.apache.org/licenses/">Apache License 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>javax.activation:activation:jar:1.1.1 (test) <img id="_img71" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep70', '_img71' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep70" style="display:none">
+<p><b>Description: </b>A Protocol for Asynchronous Non-Blocking Data Sequence</p>
+<p><b>URL: </b><a class="externalLink" href="http://www.reactive-streams.org/">http://www.reactive-streams.org/</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://creativecommons.org/publicdomain/zero/1.0/">CC0</a></p></td></tr></table></div></li></ul></li>
+<li>javax.activation:activation:jar:1.1.1 (test) <img id="_img81" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep80', '_img81' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep80" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>JavaBeans(TM) Activation Framework</th></tr>
@@ -715,30 +794,26 @@
 <p><b>URL: </b><a class="externalLink" href="http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp">http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://glassfish.dev.java.net/public/CDDLv1.0.html">COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</a></p></td></tr></table></div></li></ul></li></ul></section></section><a name="Licenses"></a><section>
 <h2><a name="Licenses"></a>Licenses</h2>
-<p><b>Apache License, 2.0: </b>jersey-core-client, jersey-core-common, jersey-inject-hk2</p>
+<p><b>Apache License, version 2.0: </b>JBoss Logging 3</p>
 <p><b>Eclipse Public License 2.0: </b>JSON-B API</p>
 <p><b>The Apache License, Version 2.0: </b>OpenTelemetry Java, org.apiguardian:apiguardian-api, org.opentest4j:opentest4j</p>
 <p><b>Apache 2.0: </b>Awaitility</p>
-<p><b>jQuery license: </b>jersey-core-client, jersey-inject-hk2</p>
 <p><b>Eclipse Public License v2.0: </b>JUnit Jupiter API, JUnit Jupiter Engine, JUnit Platform Commons, JUnit Platform Engine API</p>
-<p><b>GPL2 w/ CPE: </b>HK2 API module, HK2 Implementation Utilities, Jakarta Annotations API, Jakarta Enterprise Beans, Jakarta Expression Language 3.0 API, Jakarta Interceptors, Jakarta Servlet, OSGi resource locator, ServiceLocator Default Implementation, aopalliance version 1.0 repackaged as a module, jakarta.ws.rs-api, javax.inject:1 as OSGi bundle, javax.transaction API, jersey-core-client, jersey-inject-hk2</p>
-<p><b>Public Domain: </b>jersey-core-client, jersey-core-common, jersey-inject-hk2</p>
+<p><b>GPL2 w/ CPE: </b>Jakarta Annotations API, Jakarta Interceptors, Jakarta Servlet, jakarta.transaction API, jboss-jakarta-jaxrs-api_spec</p>
 <p><b>BSD Licence 3: </b>Hamcrest</p>
-<p><b>W3C license: </b>jersey-core-client, jersey-inject-hk2</p>
-<p><b>Apache License 2.0: </b>Jakarta CDI, Javassist</p>
-<p><b>GNU General Public License, version 2 with the GNU Classpath Exception: </b>JSON-B API</p>
-<p><b>EDL 1.0: </b>jersey-core-client, jersey-inject-hk2</p>
-<p><b>Modified BSD: </b>jersey-core-client, jersey-inject-hk2</p>
-<p><b>Apache License, Version 2.0: </b>Apache Log4j API, Apache Log4j Core</p>
+<p><b>CC0: </b>reactive-streams</p>
+<p><b>Eclipse Public License v. 2.0: </b>Jakarta Expression Language API</p>
+<p><b>Apache License 2.0: </b>CDI APIs, Jakarta Bean Validation API, RESTEasy Client, RESTEasy Client API, RESTEasy Core, RESTEasy Core SPI</p>
+<p><b>GNU General Public License, version 2 with the GNU Classpath Exception: </b>JSON-B API, Jakarta Expression Language API</p>
+<p><b>EDL 1.0: </b>Jakarta Activation API jar</p>
+<p><b>Apache License, Version 2.0: </b>Apache Commons Codec, Apache Commons IO, Apache HttpClient, Apache HttpCore, Apache Log4j API, Apache Log4j Core</p>
 <p><b>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0: </b>JavaBeans(TM) Activation Framework</p>
-<p><b>LGPL 2.1: </b>Javassist</p>
-<p><b>EPL 2.0: </b>HK2 API module, HK2 Implementation Utilities, Jakarta Annotations API, Jakarta Enterprise Beans, Jakarta Expression Language 3.0 API, Jakarta Interceptors, Jakarta Servlet, OSGi resource locator, ServiceLocator Default Implementation, aopalliance version 1.0 repackaged as a module, jakarta.ws.rs-api, javax.inject:1 as OSGi bundle, javax.transaction API, jersey-core-client, jersey-core-common, jersey-inject-hk2</p>
-<p><b>MIT license: </b>jersey-core-client, jersey-inject-hk2</p>
-<p><b>MPL 1.1: </b>Javassist</p>
+<p><b>Eclipse Distribution License - v 1.0: </b>Jakarta XML Binding API</p>
+<p><b>EPL 2.0: </b>Jakarta Annotations API, Jakarta Interceptors, Jakarta Servlet, jakarta.transaction API, jboss-jakarta-jaxrs-api_spec</p>
+<p><b>GPL-2.0-with-classpath-exception: </b>jakarta.ws.rs-api</p>
 <p><b>GNU LGPL 3: </b>Transactional Event Library API, Transactional Event Library Core, Transactional Event Library Openliberty Tests</p>
-<p><b>BSD 2-Clause: </b>jersey-core-client, jersey-inject-hk2</p>
-<p><b>The Apache Software License, Version 2.0: </b>Jakarta Dependency Injection</p>
-<p><b>The GNU General Public License (GPL), Version 2, With Classpath Exception: </b>jersey-core-common</p></section><a name="Dependency_File_Details"></a><section>
+<p><b>EPL-2.0: </b>jakarta.ws.rs-api</p>
+<p><b>The Apache Software License, Version 2.0: </b>Apache Commons Logging, Jakarta Dependency Injection, asyncutil</p></section><a name="Dependency_File_Details"></a><section>
 <h2><a name="Dependency_File_Details"></a>Dependency File Details</h2>
 <table border="0" class="table table-striped">
 <tr class="a">
@@ -750,7 +825,7 @@
 <th>Java Version</th>
 <th title="Indicates whether these dependencies have been compiled with debug information.">Debug Information</th></tr>
 <tr class="b">
-<td align="left">transactional-event-api-1.4.3-SNAPSHOT.jar</td>
+<td align="left">transactional-event-api-2.0.0-SNAPSHOT.jar</td>
 <td align="right">21.4 kB</td>
 <td align="right">42</td>
 <td align="right">23</td>
@@ -758,106 +833,154 @@
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">transactional-event-core-1.4.3-SNAPSHOT.jar</td>
-<td align="right">69.2 kB</td>
+<td align="left">transactional-event-core-2.0.0-SNAPSHOT.jar</td>
+<td align="right">68 kB</td>
 <td align="right">63</td>
 <td align="right">40</td>
 <td align="right">8</td>
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">opentelemetry-api-1.16.0.jar</td>
-<td align="right">127.6 kB</td>
-<td align="right">148</td>
-<td align="right">134</td>
+<td align="left">asyncutil-0.1.0.jar</td>
+<td align="right">120.4 kB</td>
+<td align="right">103</td>
+<td align="right">90</td>
+<td align="right">3</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="a">
+<td align="left">commons-codec-1.15.jar</td>
+<td align="right">353.8 kB</td>
+<td align="right">253</td>
+<td align="right">106</td>
+<td align="right">7</td>
+<td align="center">1.7</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">commons-io-2.9.0.jar</td>
+<td align="right">325.3 kB</td>
+<td align="right">223</td>
+<td align="right">200</td>
+<td align="right">11</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="a">
+<td align="left">commons-logging-1.2.jar</td>
+<td align="right">61.8 kB</td>
+<td align="right">42</td>
+<td align="right">28</td>
+<td align="right">2</td>
+<td align="center">1.2</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">opentelemetry-api-1.23.1.jar</td>
+<td align="right">131.1 kB</td>
+<td align="right">150</td>
+<td align="right">136</td>
 <td align="right">9</td>
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">opentelemetry-context-1.16.0.jar</td>
-<td align="right">45.6 kB</td>
-<td align="right">47</td>
-<td align="right">38</td>
+<td align="left">opentelemetry-context-1.23.1.jar</td>
+<td align="right">47.2 kB</td>
+<td align="right">49</td>
+<td align="right">40</td>
 <td align="right">3</td>
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">jakarta.annotation-api-1.3.5.jar</td>
-<td align="right">25.1 kB</td>
-<td align="right">28</td>
-<td align="right">15</td>
-<td align="right">3</td>
-<td align="center">1.8</td>
+<td align="left">jakarta.activation-api-2.0.0.jar</td>
+<td align="right">47.7 kB</td>
+<td align="right">43</td>
+<td align="right">32</td>
+<td align="right">2</td>
+<td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">jakarta.ejb-api-3.2.6.jar</td>
-<td align="right">63.7 kB</td>
-<td align="right">105</td>
-<td align="right">87</td>
+<td align="left">jakarta.annotation-api-2.0.0.jar</td>
+<td align="right">25.4 kB</td>
+<td align="right">29</td>
+<td align="right">16</td>
 <td align="right">4</td>
-<td align="center">1.6</td>
+<td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">jakarta.el-api-3.0.3.jar</td>
-<td align="right">79.8 kB</td>
+<td align="left">jakarta.el-api-4.0.0.jar</td>
+<td align="right">80.6 kB</td>
 <td align="right">61</td>
 <td align="right">49</td>
 <td align="right">1</td>
-<td align="center">1.7</td>
+<td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">jakarta.enterprise.cdi-api-2.0.2.jar</td>
-<td align="right">109.4 kB</td>
-<td align="right">171</td>
+<td align="left">jakarta.enterprise.cdi-api-3.0.0.jar</td>
+<td align="right">119.3 kB</td>
+<td align="right">174</td>
 <td align="right">148</td>
 <td align="right">11</td>
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">jakarta.inject-api-1.0.jar</td>
-<td align="right">4.7 kB</td>
-<td align="right">15</td>
+<td align="left">jakarta.inject-api-2.0.0.jar</td>
+<td align="right">10.1 kB</td>
+<td align="right">17</td>
 <td align="right">6</td>
 <td align="right">1</td>
 <td align="center">1.5</td>
 <td align="center">No</td></tr>
 <tr class="a">
-<td align="left">jakarta.interceptor-api-1.2.5.jar</td>
-<td align="right">25 kB</td>
+<td align="left">jakarta.interceptor-api-2.0.0.jar</td>
+<td align="right">24.6 kB</td>
 <td align="right">22</td>
 <td align="right">10</td>
 <td align="right">1</td>
-<td align="center">1.7</td>
+<td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">jakarta.json.bind-api-1.0.2.jar</td>
-<td align="right">35.3 kB</td>
+<td align="left">jakarta.json.bind-api-2.0.0.jar</td>
+<td align="right">35.7 kB</td>
 <td align="right">44</td>
 <td align="right">27</td>
 <td align="right">7</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">jakarta.servlet-api-4.0.3.jar</td>
-<td align="right">82.9 kB</td>
-<td align="right">108</td>
+<td align="left">jakarta.servlet-api-5.0.0.jar</td>
+<td align="right">307.9 kB</td>
+<td align="right">151</td>
 <td align="right">85</td>
 <td align="right">4</td>
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">jakarta.transaction-api-1.3.3.jar</td>
-<td align="right">15.4 kB</td>
-<td align="right">29</td>
+<td align="left">jakarta.transaction-api-2.0.0.jar</td>
+<td align="right">27.9 kB</td>
+<td align="right">31</td>
 <td align="right">19</td>
 <td align="right">1</td>
-<td align="center">1.7</td>
+<td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">jakarta.ws.rs-api-2.1.6.jar</td>
-<td align="right">140.4 kB</td>
-<td align="right">155</td>
-<td align="right">138</td>
+<td align="left">jakarta.validation-api-3.0.0.jar</td>
+<td align="right">92.7 kB</td>
+<td align="right">160</td>
+<td align="right">143</td>
+<td align="right">9</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">jakarta.ws.rs-api-3.0.0.jar</td>
+<td align="right">138.8 kB</td>
+<td align="right">153</td>
+<td align="right">136</td>
+<td align="right">7</td>
+<td align="center">-</td>
+<td align="center">Yes</td></tr>
+<tr class="a">
+<td align="left">jakarta.xml.bind-api-3.0.0.jar</td>
+<td align="right">129 kB</td>
+<td align="right">140</td>
+<td align="right">111</td>
 <td align="right">7</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
@@ -870,18 +993,34 @@
 <td align="center">1.4</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">log4j-api-2.18.0.jar</td>
-<td align="right">315.1 kB</td>
-<td align="right">222</td>
-<td align="right">187</td>
+<td align="left">httpclient-4.5.13.jar</td>
+<td align="right">780.3 kB</td>
+<td align="right">511</td>
+<td align="right">470</td>
+<td align="right">24</td>
+<td align="center">1.6</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">httpcore-4.4.13.jar</td>
+<td align="right">328.6 kB</td>
+<td align="right">283</td>
+<td align="right">253</td>
+<td align="right">17</td>
+<td align="center">1.6</td>
+<td align="center">Yes</td></tr>
+<tr class="a">
+<td align="left">log4j-api-2.20.0.jar</td>
+<td align="right">313.3 kB</td>
+<td align="right">223</td>
+<td align="right">189</td>
 <td align="right">9</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">log4j-core-2.18.0.jar</td>
-<td align="right">1.9 MB</td>
-<td align="right">1301</td>
-<td align="right">1206</td>
+<td align="left">log4j-core-2.20.0.jar</td>
+<td align="right">1.8 MB</td>
+<td align="right">1305</td>
+<td align="right">1210</td>
 <td align="right">54</td>
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
@@ -902,78 +1041,6 @@
 <td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">hk2-api-2.6.1.jar</td>
-<td align="right">200.2 kB</td>
-<td align="right">197</td>
-<td align="right">176</td>
-<td align="right">7</td>
-<td align="center">1.8</td>
-<td align="center">Yes</td></tr>
-<tr class="b">
-<td align="left">hk2-locator-2.6.1.jar</td>
-<td align="right">203.4 kB</td>
-<td align="right">117</td>
-<td align="right">99</td>
-<td align="right">3</td>
-<td align="center">1.8</td>
-<td align="center">Yes</td></tr>
-<tr class="a">
-<td align="left">hk2-utils-2.6.1.jar</td>
-<td align="right">131.6 kB</td>
-<td align="right">102</td>
-<td align="right">80</td>
-<td align="right">7</td>
-<td align="center">1.8</td>
-<td align="center">Yes</td></tr>
-<tr class="b">
-<td align="left">osgi-resource-locator-1.0.3.jar</td>
-<td align="right">19.5 kB</td>
-<td align="right">23</td>
-<td align="right">12</td>
-<td align="right">1</td>
-<td align="center">1.6</td>
-<td align="center">Yes</td></tr>
-<tr class="a">
-<td align="left">aopalliance-repackaged-2.6.1.jar</td>
-<td align="right">27 kB</td>
-<td align="right">41</td>
-<td align="right">26</td>
-<td align="right">4</td>
-<td align="center">1.8</td>
-<td align="center">Yes</td></tr>
-<tr class="b">
-<td align="left">jakarta.inject-2.6.1.jar</td>
-<td align="right">18.1 kB</td>
-<td align="right">17</td>
-<td align="right">6</td>
-<td align="right">1</td>
-<td align="center">1.8</td>
-<td align="center">No</td></tr>
-<tr class="a">
-<td align="left">jersey-client-2.36.jar</td>
-<td align="right">260.5 kB</td>
-<td align="right">191</td>
-<td align="right">162</td>
-<td align="right">10</td>
-<td align="center">1.8</td>
-<td align="center">Yes</td></tr>
-<tr class="b">
-<td align="left">jersey-common-2.36.jar</td>
-<td align="right">1.2 MB</td>
-<td align="right">927</td>
-<td align="right">872</td>
-<td align="right">23</td>
-<td align="center">-</td>
-<td align="center">Yes</td></tr>
-<tr class="a">
-<td align="left">jersey-hk2-2.36.jar</td>
-<td align="right">78.4 kB</td>
-<td align="right">68</td>
-<td align="right">46</td>
-<td align="right">1</td>
-<td align="center">1.8</td>
-<td align="center">Yes</td></tr>
-<tr class="b">
 <td align="left">hamcrest-2.1.jar</td>
 <td align="right">123.1 kB</td>
 <td align="right">122</td>
@@ -981,43 +1048,83 @@
 <td align="right">11</td>
 <td align="center">1.7</td>
 <td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">jboss-logging-3.4.2.Final.jar</td>
+<td align="right">60.9 kB</td>
+<td align="right">47</td>
+<td align="right">35</td>
+<td align="right">1</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">javassist-3.25.0-GA.jar</td>
-<td align="right">780.3 kB</td>
-<td align="right">449</td>
-<td align="right">425</td>
-<td align="right">17</td>
-<td align="center">1.7</td>
+<td align="left">resteasy-client-6.0.1.Final.jar</td>
+<td align="right">228.9 kB</td>
+<td align="right">164</td>
+<td align="right">133</td>
+<td align="right">11</td>
+<td align="center">1.8</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">junit-jupiter-api-5.8.2.jar</td>
-<td align="right">193.5 kB</td>
-<td align="right">183</td>
-<td align="right">168</td>
+<td align="left">resteasy-client-api-6.0.1.Final.jar</td>
+<td align="right">37.3 kB</td>
+<td align="right">45</td>
+<td align="right">28</td>
+<td align="right">3</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="a">
+<td align="left">resteasy-core-6.0.1.Final.jar</td>
+<td align="right">786.3 kB</td>
+<td align="right">436</td>
+<td align="right">395</td>
+<td align="right">23</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">resteasy-core-spi-6.0.1.Final.jar</td>
+<td align="right">197.1 kB</td>
+<td align="right">184</td>
+<td align="right">152</td>
+<td align="right">16</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="a">
+<td align="left">jboss-jaxrs-api_3.0_spec-1.0.0.Final.jar</td>
+<td align="right">149.8 kB</td>
+<td align="right">160</td>
+<td align="right">143</td>
+<td align="right">6</td>
+<td align="center">1.8</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
+<td align="left">junit-jupiter-api-5.9.2.jar</td>
+<td align="right">207.8 kB</td>
+<td align="right">194</td>
+<td align="right">179</td>
 <td align="right">8</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">junit-jupiter-engine-5.8.2.jar</td>
-<td align="right">229.7 kB</td>
-<td align="right">140</td>
-<td align="right">123</td>
+<td align="left">junit-jupiter-engine-5.9.2.jar</td>
+<td align="right">246.6 kB</td>
+<td align="right">151</td>
+<td align="right">134</td>
 <td align="right">9</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="b">
-<td align="left">junit-platform-commons-1.8.2.jar</td>
-<td align="right">100.4 kB</td>
-<td align="right">63</td>
-<td align="right">43</td>
+<td align="left">junit-platform-commons-1.9.2.jar</td>
+<td align="right">103 kB</td>
+<td align="right">64</td>
+<td align="right">44</td>
 <td align="right">7</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
-<td align="left">junit-platform-engine-1.8.2.jar</td>
-<td align="right">185.8 kB</td>
-<td align="right">142</td>
-<td align="right">126</td>
+<td align="left">junit-platform-engine-1.9.2.jar</td>
+<td align="right">189.2 kB</td>
+<td align="right">143</td>
+<td align="right">127</td>
 <td align="right">9</td>
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
@@ -1030,6 +1137,14 @@
 <td align="center">-</td>
 <td align="center">Yes</td></tr>
 <tr class="a">
+<td align="left">reactive-streams-1.0.3.jar</td>
+<td align="right">11.4 kB</td>
+<td align="right">17</td>
+<td align="right">13</td>
+<td align="right">1</td>
+<td align="center">1.6</td>
+<td align="center">Yes</td></tr>
+<tr class="b">
 <th>Total</th>
 <th>Size</th>
 <th>Entries</th>
@@ -1037,15 +1152,15 @@
 <th>Packages</th>
 <th>Java Version</th>
 <th>Debug Information</th></tr>
-<tr class="b">
-<td align="right">35</td>
-<td align="right">7 MB</td>
-<td align="right">5505</td>
-<td align="right">4808</td>
-<td align="right">262</td>
-<td align="center">1.8</td>
-<td align="right">33</td></tr>
 <tr class="a">
+<td align="right">40</td>
+<td align="right">8 MB</td>
+<td align="right">6161</td>
+<td align="right">5182</td>
+<td align="right">328</td>
+<td align="center">1.8</td>
+<td align="right">39</td></tr>
+<tr class="b">
 <td align="right">compile: 1</td>
 <td align="right">compile: 21.4 kB</td>
 <td align="right">compile: 42</td>
@@ -1053,30 +1168,30 @@
 <td align="right">compile: 6</td>
 <td align="center">-</td>
 <td align="right">compile: 1</td></tr>
-<tr class="b">
-<td align="right">test: 19</td>
-<td align="right">test: 3.9 MB</td>
-<td align="right">test: 2944</td>
-<td align="right">test: 2596</td>
-<td align="right">test: 133</td>
-<td align="center">-</td>
-<td align="right">test: 18</td></tr>
 <tr class="a">
+<td align="right">test: 25</td>
+<td align="right">test: 4.8 MB</td>
+<td align="right">test: 3647</td>
+<td align="right">test: 3048</td>
+<td align="right">test: 202</td>
+<td align="center">-</td>
+<td align="right">test: 25</td></tr>
+<tr class="b">
 <td align="right">runtime: 5</td>
 <td align="right">runtime: 2.4 MB</td>
-<td align="right">runtime: 1781</td>
-<td align="right">runtime: 1605</td>
+<td align="right">runtime: 1790</td>
+<td align="right">runtime: 1615</td>
 <td align="right">runtime: 83</td>
 <td align="center">-</td>
 <td align="right">runtime: 5</td></tr>
-<tr class="b">
-<td align="right">provided: 10</td>
-<td align="right">provided: 581.7 kB</td>
-<td align="right">provided: 738</td>
-<td align="right">provided: 584</td>
-<td align="right">provided: 40</td>
+<tr class="a">
+<td align="right">provided: 9</td>
+<td align="right">provided: 770.3 kB</td>
+<td align="right">provided: 682</td>
+<td align="right">provided: 496</td>
+<td align="right">provided: 37</td>
 <td align="center">-</td>
-<td align="right">provided: 9</td></tr></table></section>
+<td align="right">provided: 8</td></tr></table></section>
         </main>
       </div>
     </div>
