@@ -2,16 +2,17 @@
 
 import static io.opentelemetry.api.trace.SpanKind.PRODUCER;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 
 import java.util.Properties;
 
-import javax.annotation.Priority;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
+import jakarta.annotation.Priority;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 
+import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualPublisher;
 
 import io.opentelemetry.api.trace.Span;
@@ -30,32 +31,33 @@ class InstrumentedPublisher implements ContextualPublisher {
     private final TextMapPropagator propagator;
 
     InstrumentedPublisher() {
-<span class="nc" id="L33">        this(null, null, null);</span>
-<span class="nc" id="L34">    }</span>
+<span class="nc" id="L34">        this(null, null, null);</span>
+<span class="nc" id="L35">    }</span>
 
     @Inject
-<span class="nc" id="L37">    InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, Tracer tracer, TextMapPropagator propagator) {</span>
-<span class="nc" id="L38">        this.delegate = delegate;</span>
-<span class="nc" id="L39">        this.tracer = tracer;</span>
-<span class="nc" id="L40">        this.propagator = propagator;</span>
-<span class="nc" id="L41">    }</span>
+    InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, @Events Tracer tracer,
+<span class="nc" id="L39">            @Events TextMapPropagator propagator) {</span>
+<span class="nc" id="L40">        this.delegate = delegate;</span>
+<span class="nc" id="L41">        this.tracer = tracer;</span>
+<span class="nc" id="L42">        this.propagator = propagator;</span>
+<span class="nc" id="L43">    }</span>
 
     @Override
     public void publish(String id, String type, Properties context, String payload) {
-<span class="nc" id="L45">        Span span = tracer.spanBuilder(type + &quot; send&quot;) //</span>
-<span class="nc" id="L46">                .setSpanKind(PRODUCER) //</span>
-<span class="nc" id="L47">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
-<span class="nc" id="L48">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
-<span class="nc" id="L49">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
-<span class="nc" id="L50">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
-<span class="nc" id="L51">                .startSpan();</span>
-<span class="nc" id="L52">        try (Scope unused = span.makeCurrent()) {</span>
-<span class="nc" id="L53">            propagator.inject(Context.current(), context, Properties::setProperty);</span>
-<span class="nc" id="L54">            delegate.publish(id, type, context, payload);</span>
+<span class="nc" id="L47">        Span span = tracer.spanBuilder(type + &quot; send&quot;) //</span>
+<span class="nc" id="L48">                .setSpanKind(PRODUCER) //</span>
+<span class="nc" id="L49">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
+<span class="nc" id="L50">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
+<span class="nc" id="L51">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
+<span class="nc" id="L52">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
+<span class="nc" id="L53">                .startSpan();</span>
+<span class="nc" id="L54">        try (Scope unused = span.makeCurrent()) {</span>
+<span class="nc" id="L55">            propagator.inject(Context.current(), context, Properties::setProperty);</span>
+<span class="nc" id="L56">            delegate.publish(id, type, context, payload);</span>
         } finally {
-<span class="nc" id="L56">            span.end();</span>
+<span class="nc" id="L58">            span.end();</span>
         }
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L60">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

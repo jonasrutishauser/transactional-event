@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import javax.annotation.Priority;
-import javax.enterprise.context.Dependent;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.Dependent;
 
 import com.github.jonasrutishauser.transactional.event.api.serialization.GenericSerialization;
 

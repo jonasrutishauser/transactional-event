@@ -7,10 +7,10 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.TransientReference;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.TransientReference;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
 import org.apache.logging.log4j.LogManager;
