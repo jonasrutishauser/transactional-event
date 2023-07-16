@@ -21,6 +21,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     strategy:
       matrix:
         java:
@@ -83,6 +85,7 @@ jobs:
         run: >
           mvn -B jacoco:report
       - name: Unittest Codecov
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: codecov/codecov-action@v3.1.0
         with:
           flags: unittests
@@ -91,6 +94,7 @@ jobs:
         run: >
           mvn -B jacoco:report-integration
       - name: Integrationstest Codecov
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: codecov/codecov-action@v3.1.0
         with:
           flags: integration
