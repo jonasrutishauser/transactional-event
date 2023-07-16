@@ -10,9 +10,11 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.concurrent.LastExecution;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.concurrent.Trigger;
@@ -42,6 +44,8 @@ class DispatcherImpl implements Dispatcher {
     private final AtomicInteger dispatchedRunning = new AtomicInteger();
 
     private volatile int intervalSeconds = 30;
+
+    private ScheduledFuture<?> scheduled;
 
     DispatcherImpl() {
         this.configuration = null;
@@ -91,7 +95,7 @@ class DispatcherImpl implements Dispatcher {
     }
 
     void startup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-        executor.schedule(dispatcher::schedule, new Trigger() {
+        scheduled = executor.schedule(dispatcher::schedule, new Trigger() {
             @Override
             public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
                 if (maxAquire() <= 0) {
@@ -105,6 +109,14 @@ class DispatcherImpl implements Dispatcher {
                 return false;
             }
         });
+    }
+
+    @PreDestroy
+    void stop() {
+        if (scheduled != null) {
+            scheduled.cancel(false);
+            scheduled = null;
+        }
     }
 
     public synchronized void schedule() {
