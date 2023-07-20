@@ -22,6 +22,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
+      checks: write
       security-events: write
     strategy:
       matrix:
@@ -80,6 +81,11 @@ jobs:
           name: openliberty-logs
           path: '**/target/liberty/wlp/usr/servers/*/logs/**/*.log'
           retention-days: 5
+      - name: Publish Test Report
+        if: ${{ (success() || failure()) && matrix.java == '17' && github.event_name == 'pull_request' }}
+        uses: scacap/action-surefire-report@v1
+        with:
+          report_paths: "**/target/*-reports/TEST-*.xml"
       - name: Unittest Coverage
         if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
