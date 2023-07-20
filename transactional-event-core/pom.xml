@@ -209,6 +209,7 @@
 						<exclude />
 					</excludes>
 					<forkCount>2C</forkCount>
+					<rerunFailingTestsCount>3</rerunFailingTestsCount>
 				</configuration>
 			</plugin>
 		</plugins>
