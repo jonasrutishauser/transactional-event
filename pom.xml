@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.github.jonasrutishauser</groupId>
 		<artifactId>parent</artifactId>
-		<version>17</version>
+		<version>19</version>
 	</parent>
 
 	<artifactId>transactional-event</artifactId>

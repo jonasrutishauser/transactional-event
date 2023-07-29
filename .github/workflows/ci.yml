@@ -98,7 +98,7 @@ jobs:
       - name: Integrationstest Coverage
         if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
-          mvn -B jacoco:report-integration
+          mvn -B jacoco:report-integration@report-integration
       - name: Integrationstest Codecov
         if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: codecov/codecov-action@v3.1.0
@@ -115,7 +115,7 @@ jobs:
             export GITHUB_EVENT_NAME=pull_request; 
             export GITHUB_REF=refs/pull/$GITHUB_PULL_REQUEST/merge; 
           fi && 
-          mvn -B -e jacoco:report jacoco:report-integration sonar:sonar -Dsonar.organization=jonasrutishauser-github
+          mvn -B -e jacoco:report jacoco:report-integration@report-integration sonar:sonar -Dsonar.organization=jonasrutishauser-github
         env:
           GITHUB_PULL_REQUEST: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ github.token }}
