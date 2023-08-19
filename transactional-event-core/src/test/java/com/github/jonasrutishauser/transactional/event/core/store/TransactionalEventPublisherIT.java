@@ -25,9 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.time.LocalDateTime;
@@ -35,34 +32,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import jakarta.annotation.Resource;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
 import javax.sql.DataSource;
-import jakarta.transaction.UserTransaction;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.openejb.testing.CdiExtensions;
-import org.apache.openejb.testing.Classes;
-import org.apache.openejb.testing.ContainerProperties;
-import org.apache.openejb.testing.ContainerProperties.Property;
-import org.apache.openejb.testing.Default;
 import org.eclipse.microprofile.metrics.Counter;
 import org.eclipse.microprofile.metrics.Gauge;
-import org.junit.jupiter.api.BeforeEach;
+import org.h2.Driver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.cdi.test.api.context.TestScoped;
+import com.github.jonasrutishauser.cdi.test.core.junit.CdiTestJunitExtension;
+import com.github.jonasrutishauser.cdi.test.jndi.DataSourceEntry;
+import com.github.jonasrutishauser.cdi.test.microprofile.config.ConfigPropertyValue;
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
@@ -71,8 +55,6 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.EventDe
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventSerializer;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
-import com.github.jonasrutishauser.transactional.event.core.cdi.EventHandlerExtension;
-import com.github.jonasrutishauser.transactional.event.core.openejb.ApplicationComposerExtension;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
@@ -80,16 +62,23 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.smallrye.metrics.MetricRegistries;
-import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
+import jakarta.annotation.Resource;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.transaction.UserTransaction;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
-@Default
-@Classes(cdi = true)
-@CdiExtensions({MetricCdiInjectionExtension.class, EventHandlerExtension.class})
-@ExtendWith(ApplicationComposerExtension.class)
-@ContainerProperties({@Property(name = "testDb", value = "new://Resource?type=DataSource"),
-        @Property(name = "testDb.JdbcUrl",
-                value = "jdbc:h2:mem:test;LOCK_TIMEOUT=20000;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE"),
-        @Property(name = "testDb.JdbcDriver", value = "org.h2.Driver")})
+@ExtendWith(CdiTestJunitExtension.class)
+@DataSourceEntry(name = "testDb", compEnv = true,
+        url = "jdbc:h2:mem:test;LOCK_TIMEOUT=20000;INIT=RUNSCRIPT FROM 'classpath:table.sql'", driver = Driver.class,
+        user = "sa", password = "sa")
+@ConfigPropertyValue(name="transactional.event.initialDispatchInterval", value="2")
+@ConfigPropertyValue(name="transactional.event.allInUseInterval", value="2")
 public class TransactionalEventPublisherIT {
 
     @RegisterExtension
@@ -113,17 +102,6 @@ public class TransactionalEventPublisherIT {
 
     @Inject
     EventStore store;
-
-    @BeforeEach
-    void initDb() throws Exception {
-        try (Statement statement = dataSource.getConnection().createStatement()) {
-            statement.execute("SHUTDOWN IMMEDIATELY"); // make full reset
-        }
-        try (Statement statement = dataSource.getConnection().createStatement()) {
-            statement.execute(new String(Files.readAllBytes(Paths.get(getClass().getResource("/table.sql").toURI())),
-                    StandardCharsets.UTF_8));
-        }
-    }
 
     @Test
     void testPublish() throws Exception {
@@ -158,7 +136,7 @@ public class TransactionalEventPublisherIT {
 
     @Test
     void testMetrics() {
-        assertThat(MetricRegistries.get(APPLICATION).getMetrics(), is(aMapWithSize(9)));
+        assertThat(MetricRegistries.get(APPLICATION).getMetrics(), is(aMapWithSize(14)));
         MetricRegistries.get(APPLICATION).getMetrics().forEach((id, metric) -> {
             if (metric instanceof Counter) {
                 assertEquals(0, ((Counter) metric).getCount());
@@ -258,7 +236,7 @@ public class TransactionalEventPublisherIT {
 
     }
 
-    @ApplicationScoped
+    @TestScoped
     static class ReceivedMessages {
         private Set<String> messages = new ConcurrentSkipListSet<>();
 
@@ -293,7 +271,7 @@ public class TransactionalEventPublisherIT {
         }
     }
 
-    @ApplicationScoped
+    @TestScoped
     @EventHandler
     static class TestSerializableHandler extends AbstractTestHandler<TestSerializableEvent> {
         int tries = 0;
@@ -392,25 +370,16 @@ public class TransactionalEventPublisherIT {
         }
     }
 
-    static class TestJsonbEvent {
-        @JsonbProperty
+    public static class TestJsonbEvent {
         private final String message;
 
         @JsonbCreator
         public TestJsonbEvent(@JsonbProperty("message") String message) {
             this.message = message;
         }
-    }
-
-    static class TestConfiguration extends Configuration {
-        @Override
-        public int getInitialDispatchInterval() {
-            return 2;
-        }
-
-        @Override
-        public int getAllInUseInterval() {
-            return 2;
+        
+        public String getMessage() {
+            return message;
         }
     }
 

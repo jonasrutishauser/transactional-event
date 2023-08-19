@@ -7,7 +7,6 @@ import java.util.Properties;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -15,6 +14,8 @@ import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance;
+import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance.Handle;
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
@@ -28,7 +29,7 @@ class TransactionalWorker {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final PendingEventStore store;
-    private final Instance<Handler> handlers;
+    private final ExtendedInstance<Handler> handlers;
     private final EventHandlerExtension handlerExtension;
     private final EventTypeResolver typeResolver;
     private final ContextualProcessor processor;
@@ -38,7 +39,7 @@ class TransactionalWorker {
     }
 
     @Inject
-    TransactionalWorker(PendingEventStore store, @Any Instance<Handler> handlers,
+    TransactionalWorker(PendingEventStore store, @Any ExtendedInstance<Handler> handlers,
             EventHandlerExtension handlerExtension, EventTypeResolver typeResolver, ContextualProcessor processor) {
         this.store = store;
         this.handlers = handlers;
@@ -65,28 +66,16 @@ class TransactionalWorker {
         return payload -> {
             Optional<Class<? extends Handler>> handlerClassWithImplicitType = handlerExtension
                     .getHandlerClassWithImplicitType(typeResolver, eventType);
-            Instance<? extends Handler> handlerInstance;
+            ExtendedInstance<? extends Handler> handlerInstance;
             if (handlerClassWithImplicitType.isPresent()) {
                 handlerInstance = handlers.select(handlerClassWithImplicitType.get());
             } else {
-                handlerInstance = handlers.select(new EventHandlerLiteral() {
-                    @Override
-                    public String eventType() {
-                        return eventType;
-                    }
-                });
+                handlerInstance = handlers.select(new EventHandlerLiteral(eventType));
             }
-            handle(handlerInstance, payload);
+            try (Handle<? extends Handler> handle = handlerInstance.getPseudoScopeClosingHandle()) {
+                handle.get().handle(payload);
+            }
         };
-    }
-
-    private <T extends Handler> void handle(Instance<T> handlerInstance, String event) {
-        T handler = handlerInstance.get();
-        try {
-            handler.handle(event);
-        } finally {
-            handlerInstance.destroy(handler);
-        }
     }
 
     private Properties getContextProperties(String context) {
@@ -102,6 +91,17 @@ class TransactionalWorker {
     }
 
     @SuppressWarnings("serial")
-    private abstract static class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {}
+    private static class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {
+        private final String eventType;
+
+        public EventHandlerLiteral(String eventType) {
+            this.eventType = eventType;
+        }
+
+        @Override
+        public String eventType() {
+            return eventType;
+        }
+    }
 
 }
