@@ -95,6 +95,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Integrationstest Coverage
         if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
@@ -104,6 +105,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           flags: integration
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Perform CodeQL Analysis
         if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: github/codeql-action/analyze@v3
