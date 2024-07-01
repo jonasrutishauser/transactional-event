@@ -36,14 +36,16 @@ import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
 import com.github.jonasrutishauser.transactional.event.api.serialization.GenericSerialization;
+import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 
-public class EventHandlerExtension implements Extension {
+public class EventHandlerExtension implements Extension, EventHandlers {
 
     private final Set<ParameterizedType> requiredEventDeserializers = new HashSet<>();
     private final Set<Class<?>> genericSerializationEventTypes = new HashSet<>();
 
     private final Map<ParameterizedType, Class<? extends Handler>> handlerClass = new HashMap<>();
 
+    @Override
     public Optional<Class<? extends Handler>> getHandlerClassWithImplicitType(EventTypeResolver typeResolver,
             String type) {
         for (Entry<ParameterizedType, Class<? extends Handler>> handlerClassEntry : handlerClass.entrySet()) {
@@ -124,7 +126,7 @@ public class EventHandlerExtension implements Extension {
         serializations.forEach(instance::destroy);
     }
 
-    private <T> DefaultEventDeserializer<T> createDefaultEventDeserializer(Instance<GenericSerialization> instance,
+    public static <T> DefaultEventDeserializer<T> createDefaultEventDeserializer(Instance<GenericSerialization> instance,
             Class<T> type) {
         List<GenericSerialization> serializations = new ArrayList<>();
         instance.forEach(serializations::add);
@@ -136,6 +138,9 @@ public class EventHandlerExtension implements Extension {
             } else {
                 instance.destroy(serialization);
             }
+        }
+        if (result == null) {
+            throw new UnsatisfiedResolutionException("No GenericSerialization found for " + type);
         }
         return result;
     }

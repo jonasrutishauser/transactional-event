@@ -23,7 +23,7 @@ import io.opentelemetry.context.propagation.TextMapPropagator;
 
 @Decorator
 @Priority(LIBRARY_AFTER)
-class InstrumentedPublisher implements ContextualPublisher {
+public class InstrumentedPublisher implements ContextualPublisher {
 
     private final ContextualPublisher delegate;
 

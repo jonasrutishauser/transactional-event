@@ -29,7 +29,7 @@ import io.opentelemetry.context.propagation.TextMapPropagator;
 
 @Decorator
 @Priority(LIBRARY_BEFORE)
-class InstrumentedProcessor implements ContextualProcessor {
+public class InstrumentedProcessor implements ContextualProcessor {
 
     private final ContextualProcessor delegate;
 
