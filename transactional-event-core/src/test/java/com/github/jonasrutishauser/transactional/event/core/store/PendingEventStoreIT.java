@@ -88,7 +88,7 @@ class PendingEventStoreIT {
     @Testcontainers
     static class OracleIT extends PendingEventStoreTest {
         @Container
-        static OracleContainer oracle = new OracleContainer("gvenzl/oracle-xe:18");
+        static OracleContainer oracle = new OracleContainer("gvenzl/oracle-xe:slim-faststart");
 
         @Override
         protected DataSource getDataSource() throws SQLException {

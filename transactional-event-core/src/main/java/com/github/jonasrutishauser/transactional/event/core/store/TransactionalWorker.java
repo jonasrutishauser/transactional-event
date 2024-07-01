@@ -21,7 +21,7 @@ import com.github.jonasrutishauser.transactional.event.api.context.ContextualPro
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
-import com.github.jonasrutishauser.transactional.event.core.cdi.EventHandlerExtension;
+import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 
 @Dependent
 class TransactionalWorker {
@@ -30,7 +30,7 @@ class TransactionalWorker {
 
     private final PendingEventStore store;
     private final ExtendedInstance<Handler> handlers;
-    private final EventHandlerExtension handlerExtension;
+    private final EventHandlers handlerExtension;
     private final EventTypeResolver typeResolver;
     private final ContextualProcessor processor;
 
@@ -40,7 +40,7 @@ class TransactionalWorker {
 
     @Inject
     TransactionalWorker(PendingEventStore store, @Any ExtendedInstance<Handler> handlers,
-            EventHandlerExtension handlerExtension, EventTypeResolver typeResolver, ContextualProcessor processor) {
+            EventHandlers handlerExtension, EventTypeResolver typeResolver, ContextualProcessor processor) {
         this.store = store;
         this.handlers = handlers;
         this.handlerExtension = handlerExtension;

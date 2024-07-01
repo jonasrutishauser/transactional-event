@@ -1,35 +1,30 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
 import static org.eclipse.microprofile.metrics.MetricUnits.SECONDS;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import jakarta.enterprise.concurrent.LastExecution;
-import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
-import jakarta.enterprise.concurrent.Trigger;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Initialized;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
-import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
+import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
+import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor.Task;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 class DispatcherImpl implements Dispatcher {
@@ -38,14 +33,14 @@ class DispatcherImpl implements Dispatcher {
 
     private final Configuration configuration;
     private final Dispatcher dispatcher;
-    private final ManagedScheduledExecutorService executor;
+    private final EventExecutor executor;
     private final PendingEventStore store;
     private final Worker worker;
     private final AtomicInteger dispatchedRunning = new AtomicInteger();
 
     private volatile int intervalSeconds = 30;
 
-    private ScheduledFuture<?> scheduled;
+    private Task scheduled;
 
     DispatcherImpl() {
         this.configuration = null;
@@ -56,8 +51,8 @@ class DispatcherImpl implements Dispatcher {
     }
 
     @Inject
-    DispatcherImpl(Configuration configuration, Dispatcher dispatcher, @Events ManagedScheduledExecutorService executor,
-            PendingEventStore store, Worker worker) {
+    DispatcherImpl(Configuration configuration, Dispatcher dispatcher, EventExecutor executor, PendingEventStore store,
+            Worker worker) {
         this.configuration = configuration;
         this.dispatcher = dispatcher;
         this.executor = executor;
@@ -95,26 +90,18 @@ class DispatcherImpl implements Dispatcher {
     }
 
     void startup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-        scheduled = executor.schedule(dispatcher::schedule, new Trigger() {
-            @Override
-            public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
+        scheduled = executor.schedule(dispatcher::schedule, configuration.getAllInUseInterval(), () -> {
                 if (maxAquire() <= 0) {
-                    return Date.from(Instant.now().plusMillis(configuration.getAllInUseInterval()));
+                    return configuration.getAllInUseInterval();
                 }
-                return Date.from(Instant.now().plusSeconds(intervalSeconds));
-            }
-
-            @Override
-            public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
-                return false;
-            }
+                return intervalSeconds * 1000l;
         });
     }
 
     @PreDestroy
     void stop() {
         if (scheduled != null) {
-            scheduled.cancel(false);
+            scheduled.cancel();
             scheduled = null;
         }
     }

@@ -1,0 +1,9 @@
+name: Transactional Event
+metadata:
+  short-name: transactional-event
+  keywords:
+    - outbox
+    - transactional-event
+  categories:
+    - messaging
+  status: experimental
