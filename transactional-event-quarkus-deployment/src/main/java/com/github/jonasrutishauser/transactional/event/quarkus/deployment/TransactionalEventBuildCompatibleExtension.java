@@ -80,7 +80,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
 
     @Enhancement(types = Dispatcher.class, withSubtypes = true)
     public void disableStaticInitStartup(MethodConfig method) {
-        if (method.parameters().size() > 0) {
+        if (!method.parameters().isEmpty()) {
             ParameterConfig firstParameter = method.parameters().get(0);
             if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
                     .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name())
@@ -142,7 +142,8 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     private <T> void addCreator(SyntheticBeanBuilder<T> builder, Class<?> creatorHost) {
         builder.createWith(
                 Arrays.stream(creatorHost.getNestMembers()).filter(SyntheticBeanCreator.class::isAssignableFrom)
-                        .map(c -> (Class<? extends SyntheticBeanCreator<T>>) c).findAny().get());
+                        .map(c -> (Class<? extends SyntheticBeanCreator<T>>) c).findAny()
+                        .orElseThrow(IllegalStateException::new));
     }
 
     @Registration(types = Object.class)
