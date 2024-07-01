@@ -27,13 +27,13 @@ jobs:
     strategy:
       matrix:
         java:
-          - 11
           - 17
+          - 21
         event:
           - ${{ github.event_name }}
         exclude:
           - event: pull_request_target
-            java: 11
+            java: 17
     steps:
       - uses: actions/checkout@v4
         if: ${{ github.event_name != 'pull_request_target' }}
@@ -49,7 +49,7 @@ jobs:
           persist-credentials: false
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: github/codeql-action/init@v3
         with:
           languages: java
@@ -58,19 +58,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
+          cache: 'maven'
       - name: Setup Git
         run: >
           git config --global user.email "actions@github.com" && 
           git config --global user.name "GitHub Actions"
-        if: ${{ !startsWith(github.event_name, 'pull_request') }}
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-${{ matrix.java }}-
-            ${{ runner.os }}-m2-
         if: ${{ !startsWith(github.event_name, 'pull_request') }}
       - name: Build with Maven
         run: mvn -B -V -e clean verify
@@ -82,35 +74,35 @@ jobs:
           path: '**/target/liberty/wlp/usr/servers/*/logs/**/*.log'
           retention-days: 5
       - name: Publish Test Report
-        if: ${{ (success() || failure()) && matrix.java == '17' && github.event_name == 'pull_request' }}
+        if: ${{ (success() || failure()) && matrix.java == '21' && github.event_name == 'pull_request' }}
         uses: scacap/action-surefire-report@v1
         with:
           report_paths: "**/target/*-reports/TEST-*.xml"
       - name: Unittest Coverage
-        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '21' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
           mvn -B jacoco:report
       - name: Unittest Codecov
-        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '21' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: codecov/codecov-action@v4
         with:
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Integrationstest Coverage
-        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '21' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         run: >
           mvn -B jacoco:report-integration@report-integration
       - name: Integrationstest Codecov
-        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '21' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: codecov/codecov-action@v4
         with:
           flags: integration
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Perform CodeQL Analysis
-        if: ${{ matrix.java == '11' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && github.event_name != 'pull_request_target' }}
         uses: github/codeql-action/analyze@v3
       - name: Sonar Report
-        if: ${{ matrix.java == '17' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
+        if: ${{ matrix.java == '21' && (!startsWith(github.event_name, 'pull_request') || !github.event.pull_request.head.repo.fork || contains(github.event.pull_request.labels.*.name, 'sonar')) }}
         run: >
           if [  "$GITHUB_EVENT_NAME" == "pull_request_target" ]; 
           then 
@@ -124,7 +116,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
       - name: Deploy Site
-        if: ${{ matrix.java == '11' && github.event_name != 'release' && !startsWith(github.event_name, 'pull_request') }}
+        if: ${{ matrix.java == '17' && github.event_name != 'release' && !startsWith(github.event_name, 'pull_request') }}
         run: mvn -B -e site-deploy
         env:
           GITHUB_TOKEN: ${{ github.token }}
