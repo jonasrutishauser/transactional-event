@@ -5,9 +5,7 @@ import static org.awaitility.Awaitility.await;
 
 import java.util.concurrent.Callable;
 
-import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -18,7 +16,7 @@ class TransactionalEventIT {
 
     @RegisterExtension
     static final QuarkusUnitTest config = new QuarkusUnitTest() //
-            .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class) //
+            .withApplicationRoot(archive -> archive //
                     .addPackages(false, path -> true, TestResource.class.getPackage()) //
                     .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml") //
             );
