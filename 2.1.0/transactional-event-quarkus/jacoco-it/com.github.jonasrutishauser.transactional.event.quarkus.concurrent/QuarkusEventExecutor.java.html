@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuarkusEventExecutor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus.concurrent</a> &gt; <span class="el_source">QuarkusEventExecutor.java</span></div><h1>QuarkusEventExecutor.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus.concurrent;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.function.LongSupplier;
+
+import org.eclipse.microprofile.context.ManagedExecutor;
+
+import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
+
+import io.quarkus.arc.DefaultBean;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+class QuarkusEventExecutor implements EventExecutor {
+
+    private final ManagedExecutor executor;
+    private final ScheduledExecutorService scheduler;
+
+    @Inject
+<span class="nc" id="L28">    QuarkusEventExecutor(@Events ManagedExecutor executor, ScheduledExecutorService scheduler) {</span>
+<span class="nc" id="L29">        this.executor = executor;</span>
+<span class="nc" id="L30">        this.scheduler = scheduler;</span>
+<span class="nc" id="L31">    }</span>
+
+    @Override
+    public void execute(Runnable command) {
+<span class="nc" id="L35">        executor.execute(command);</span>
+<span class="nc" id="L36">    }</span>
+
+    @Override
+    public Task schedule(Runnable command, long minInterval, LongSupplier intervalInMillis) {
+<span class="pc" id="L40">        ScheduledFuture&lt;?&gt; future = scheduler.scheduleWithFixedDelay(new Runnable() {</span>
+<span class="fc" id="L41">            private Instant nextRun = Instant.now().plusMillis(intervalInMillis.getAsLong());</span>
+            @Override
+            public void run() {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">                if (!Instant.now().isBefore(nextRun)) {</span>
+<span class="fc" id="L45">                    command.run();</span>
+<span class="fc" id="L46">                    nextRun = Instant.now().plusMillis(intervalInMillis.getAsLong());</span>
+                }
+<span class="fc" id="L48">            }</span>
+        }, minInterval, minInterval, MILLISECONDS);
+<span class="nc" id="L50">        return () -&gt; future.cancel(false);</span>
+    }
+
+    @Dependent
+    static class DefaultManagedExecutor {
+        private final ManagedExecutor executor;
+
+        @Inject
+<span class="fc" id="L58">        DefaultManagedExecutor(ManagedExecutor executor) {</span>
+<span class="fc" id="L59">            this.executor = executor;</span>
+<span class="fc" id="L60">        }</span>
+
+        @Events
+        @Produces
+        @DefaultBean
+        ManagedExecutor getExecutor() {
+<span class="fc" id="L66">            return executor;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
