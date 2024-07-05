@@ -17,25 +17,25 @@ class TransactionalEventIT {
     @RegisterExtension
     static final QuarkusUnitTest config = new QuarkusUnitTest() //
             .withApplicationRoot(archive -> archive //
-                    .addPackages(false, path -> true, TestResource.class.getPackage()) //
+                    .addClasses(Messages.class, TestEvent.class, TestEventHandler.class, TestPublisher.class) //
                     .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml") //
             );
 
     @Inject
-    TestResource testResource;
+    TestPublisher publisher;
 
     @Test
     void testRoundTrip() {
-        testResource.publish("test message");
+        publisher.publish("test message");
 
         await().until(processedMessagesContains("test message"));
     }
 
     @Test
     void testFailure() {
-        testResource.publish("test failure");
+        publisher.publish("test failure");
         for (int i = 10; i < 50; i++) {
-            testResource.publish("failure " + i);
+            publisher.publish("failure " + i);
         }
 
         await().atMost(1, MINUTES).until(processedMessagesContains("test failure"));
@@ -45,6 +45,6 @@ class TransactionalEventIT {
     }
 
     private Callable<Boolean> processedMessagesContains(String content) {
-        return () -> testResource.getMessages().contains(content);
+        return () -> publisher.getMessages().contains(content);
     }
 }

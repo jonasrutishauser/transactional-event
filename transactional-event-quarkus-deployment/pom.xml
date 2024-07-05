@@ -44,6 +44,11 @@
 			<artifactId>awaitility</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -52,7 +57,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-jsonb</artifactId>
+			<artifactId>quarkus-resteasy-jsonb</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -86,6 +91,15 @@
 							<version>${quarkus.version}</version>
 						</path>
 					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<systemPropertyVariables>
+						<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+						<maven.home>${maven.home}</maven.home>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>

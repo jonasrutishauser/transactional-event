@@ -5,15 +5,12 @@ import java.util.Collection;
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
 
-@Path("/test")
 @Dependent
-public class TestResource {
+public class TestPublisher {
 
     @Inject
     private EventPublisher publisher;
@@ -21,14 +18,12 @@ public class TestResource {
     @Inject
     private Messages messages;
 
-    @POST
-    @Path("/publish")
     @Transactional
+    @ActivateRequestContext
     public void publish(String message) {
         publisher.publish(new TestEvent(message));
     }
 
-    @GET
     public Collection<String> getMessages() {
         return messages.get();
     }
