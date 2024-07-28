@@ -260,7 +260,7 @@ class PendingEventStore implements EventStore {
              PreparedStatement aquireStatement = connection.prepareStatement(aquireSQL);
              ResultSet resultSet = executeQuery(aquireStatement, lockOwner.getMinUntilForAquire(), limit);
              PreparedStatement updateStatement = connection.prepareStatement(updateSQL)) {
-            while (resultSet.next()) {
+            while (limit-- > 0 && resultSet.next()) {
                 result.add(resultSet.getString("id"));
                 updateStatement.setInt(1, resultSet.getInt("tries"));
                 updateStatement.setString(2, lockOwner.getId());
@@ -305,7 +305,11 @@ class PendingEventStore implements EventStore {
 
     private ResultSet executeQuery(PreparedStatement statement, long param1, int param2) throws SQLException {
         statement.setLong(1, param1);
-        statement.setInt(2, param2);
+        if (statement.getParameterMetaData().getParameterCount() > 1) {
+            statement.setInt(2, param2);
+        } else {
+            statement.setFetchSize(1);
+        }
         return statement.executeQuery();
     }
 

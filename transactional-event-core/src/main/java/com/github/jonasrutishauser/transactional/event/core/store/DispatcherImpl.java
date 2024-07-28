@@ -118,7 +118,7 @@ class DispatcherImpl implements Dispatcher {
         } catch (RejectedExecutionException e) {
             LOGGER.warn("Failed to dispatch events: {}", e.getMessage());
         }
-        if (processed || maxAquire <= 0) {
+        if (processed || maxAquire <= configuration.getMaxConcurrentDispatching() / 10) {
             intervalSeconds = 0;
         } else {
             intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));

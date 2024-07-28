@@ -91,7 +91,7 @@ class QueryAdapterFactory {
     private static class SkipLockedQueryAdapter extends SimpleQueryAdapter {
         @Override
         public String addSkipLocked(String sql) {
-            return sql.replace("FOR UPDATE", "FOR UPDATE SKIP LOCKED");
+            return sql.replaceAll(LIMIT_EXPRESSION, "").replace("FOR UPDATE", "FOR UPDATE SKIP LOCKED");
         }
     }
 
