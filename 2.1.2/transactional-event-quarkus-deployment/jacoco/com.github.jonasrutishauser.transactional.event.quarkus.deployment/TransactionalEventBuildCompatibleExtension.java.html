@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionalEventBuildCompatibleExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Quarkus Deployment</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus.deployment</a> &gt; <span class="el_source">TransactionalEventBuildCompatibleExtension.java</span></div><h1>TransactionalEventBuildCompatibleExtension.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus.deployment;
+
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static java.util.function.Predicate.isEqual;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+
+import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance;
+import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
+import com.github.jonasrutishauser.transactional.event.core.cdi.DefaultEventDeserializer;
+import com.github.jonasrutishauser.transactional.event.core.cdi.ExtendedEventDeserializer;
+import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
+import com.github.jonasrutishauser.transactional.event.core.store.Dispatcher;
+import com.github.jonasrutishauser.transactional.event.quarkus.DefaultEventDeserializerCreator;
+import com.github.jonasrutishauser.transactional.event.quarkus.ExtendedInstanceCreator;
+
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
+import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.enterprise.inject.build.compatible.spi.InjectionPointInfo;
+import jakarta.enterprise.inject.build.compatible.spi.InvokerFactory;
+import jakarta.enterprise.inject.build.compatible.spi.InvokerInfo;
+import jakarta.enterprise.inject.build.compatible.spi.Messages;
+import jakarta.enterprise.inject.build.compatible.spi.MethodConfig;
+import jakarta.enterprise.inject.build.compatible.spi.ParameterConfig;
+import jakarta.enterprise.inject.build.compatible.spi.Registration;
+import jakarta.enterprise.inject.build.compatible.spi.Synthesis;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents;
+import jakarta.enterprise.inject.build.compatible.spi.Types;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.types.ClassType;
+import jakarta.enterprise.lang.model.types.ParameterizedType;
+import jakarta.enterprise.lang.model.types.Type;
+import jakarta.inject.Singleton;
+
+<span class="fc" id="L60">public class TransactionalEventBuildCompatibleExtension implements BuildCompatibleExtension {</span>
+
+<span class="fc" id="L62">    private final Set&lt;ParameterizedType&gt; requiredEventDeserializers = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L63">    private final Set&lt;Type&gt; declaredEventDeserializers = new HashSet&lt;&gt;();</span>
+
+<span class="fc" id="L65">    private final Map&lt;ClassInfo, ClassInfo&gt; handlerClass = new HashMap&lt;&gt;();</span>
+
+    private MethodInfo startupMethod;
+    private InvokerInfo startup;
+
+    private InvokerInfo extendedInstanceProducer;
+<span class="fc" id="L71">    private Map&lt;Type, Collection&lt;AnnotationInfo&gt;&gt; requiredExtendedInstances = new HashMap&lt;&gt;();</span>
+
+    @Enhancement(types = Object.class, withSubtypes = true)
+    public void createLockOwnerOnlyOnce(ClassConfig type) {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (&quot;com.github.jonasrutishauser.transactional.event.core.store.LockOwner&quot;.equals(type.info().name())) {</span>
+<span class="fc" id="L76">            type.removeAnnotation(annotation -&gt; ApplicationScoped.class.getName().equals(annotation.name()));</span>
+<span class="fc" id="L77">            type.addAnnotation(Singleton.class);</span>
+        }
+<span class="fc" id="L79">    }</span>
+
+    @Enhancement(types = Dispatcher.class, withSubtypes = true)
+    public void disableStaticInitStartup(MethodConfig method) {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (!method.parameters().isEmpty()) {</span>
+<span class="fc" id="L84">            ParameterConfig firstParameter = method.parameters().get(0);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            if (firstParameter.info().hasAnnotation(Observes.class) &amp;&amp; firstParameter.info()</span>
+<span class="fc bfc" id="L86" title="All 4 branches covered.">                    .hasAnnotation(annotation -&gt; Initialized.class.getName().equals(annotation.name())</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">                            &amp;&amp; annotation.value().asType().isClass() &amp;&amp; ApplicationScoped.class.getName()</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                                    .equals(annotation.value().asType().asClass().declaration().name()))) {</span>
+<span class="fc" id="L89">                firstParameter.removeAllAnnotations();</span>
+<span class="fc" id="L90">                startupMethod = method.info();</span>
+            }
+        }
+<span class="fc" id="L93">    }</span>
+
+    @Registration(types = Dispatcher.class)
+    public void getStartupBean(BeanInfo beanInfo, InvokerFactory invokerFactory) {
+<span class="pc bpc" id="L97" title="2 of 4 branches missed.">        if (startupMethod != null &amp;&amp; beanInfo.declaringClass().methods().contains(startupMethod)) {</span>
+<span class="fc" id="L98">            startup = invokerFactory.createInvoker(beanInfo, startupMethod).withInstanceLookup().build();</span>
+        }
+<span class="fc" id="L100">    }</span>
+
+    @Registration(types = Handler.class)
+    public void processHandlers(BeanInfo beanInfo, Messages messages) {
+<span class="fc" id="L104">        Optional&lt;AnnotationInfo&gt; eventHandlerAnnotation = beanInfo.qualifiers().stream()</span>
+<span class="fc" id="L105">                .filter(annotation -&gt; EventHandler.class.getName().equals(annotation.name())).findAny();</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (eventHandlerAnnotation.isEmpty()) {</span>
+<span class="fc" id="L107">            messages.error(&quot;EventHandler annotation is missing on bean&quot;, beanInfo);</span>
+        } else {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(eventHandlerAnnotation.get().member(&quot;eventType&quot;).asString())) {</span>
+<span class="fc" id="L110">                Optional&lt;ParameterizedType&gt; abstractHandlerType = getAbstractHandlerType(beanInfo.types());</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">                if (abstractHandlerType.isEmpty()) {</span>
+<span class="fc" id="L112">                    messages.error(&quot;AbstractHandler type is missing on bean with implicit event type&quot;, beanInfo);</span>
+<span class="fc" id="L113">                } else if (beanInfo.types().stream().filter(Type::isClass).map(Type::asClass).map(ClassType::declaration)</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">                        .noneMatch(isEqual(beanInfo.declaringClass()))) {</span>
+<span class="fc" id="L115">                    messages.error(beanInfo.declaringClass().simpleName() + &quot; type is missing on bean with implicit event type&quot;, beanInfo);</span>
+                } else {
+<span class="nc" id="L117">                    handlerClass.put(getClassInfo(abstractHandlerType.get().typeArguments().get(0)), beanInfo.declaringClass());</span>
+                }
+            }
+        }
+<span class="fc" id="L121">    }</span>
+
+    @Synthesis
+    public void addEventHandlersBean(SyntheticComponents components) throws ClassNotFoundException {
+<span class="fc" id="L125">        List&lt;ClassInfo&gt; types = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L126">        List&lt;ClassInfo&gt; beans = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L127">        handlerClass.forEach((type, bean) -&gt; {</span>
+<span class="nc" id="L128">            types.add(type);</span>
+<span class="nc" id="L129">            beans.add(bean);</span>
+<span class="nc" id="L130">        });</span>
+<span class="fc" id="L131">        Class&lt;?&gt; quarkusEventHandlers = Class.forName(&quot;com.github.jonasrutishauser.transactional.event.quarkus.handler.QuarkusEventHandlers&quot;);</span>
+<span class="fc" id="L132">        addCreator(components.addBean(quarkusEventHandlers) //</span>
+<span class="fc" id="L133">            .type(EventHandlers.class) //</span>
+<span class="fc" id="L134">            .type(quarkusEventHandlers) //</span>
+<span class="fc" id="L135">                .scope(Singleton.class) //</span>
+<span class="fc" id="L136">                .withParam(&quot;types&quot;, types.toArray(ClassInfo[]::new)) //</span>
+<span class="fc" id="L137">                .withParam(&quot;beans&quot;, beans.toArray(ClassInfo[]::new)) //</span>
+<span class="fc" id="L138">                .withParam(&quot;startup&quot;, startup), quarkusEventHandlers);</span>
+<span class="fc" id="L139">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private &lt;T&gt; void addCreator(SyntheticBeanBuilder&lt;T&gt; builder, Class&lt;?&gt; creatorHost) {
+<span class="fc" id="L143">        builder.createWith(</span>
+<span class="fc" id="L144">                Arrays.stream(creatorHost.getNestMembers()).filter(SyntheticBeanCreator.class::isAssignableFrom)</span>
+<span class="fc" id="L145">                        .map(c -&gt; (Class&lt;? extends SyntheticBeanCreator&lt;T&gt;&gt;) c).findAny()</span>
+<span class="fc" id="L146">                        .orElseThrow(IllegalStateException::new));</span>
+<span class="fc" id="L147">    }</span>
+
+    @Registration(types = Object.class)
+    public void getExtendedInstanceProducer(BeanInfo beanInfo, Types types, InvokerFactory invokerFactory) {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (beanInfo.isClassBean()) {</span>
+<span class="fc" id="L152">            Optional&lt;MethodInfo&gt; producer = beanInfo.declaringClass().methods().stream()</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">                    .filter(method -&gt; method.returnType().isParameterizedType()</span>
+<span class="fc" id="L154">                            &amp;&amp; types.of(ExtendedInstance.class)</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">                                    .equals(method.returnType().asParameterizedType().genericClass())</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                            &amp;&amp; method.parameters().size() == 3</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">                            &amp;&amp; types.of(BeanManager.class).equals(method.parameters().get(0).type())</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">                            &amp;&amp; method.parameters().get(2).type().isParameterizedType()</span>
+<span class="fc" id="L159">                            &amp;&amp; types.of(Instance.class)</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                                    .equals(method.parameters().get(2).type().asParameterizedType().genericClass()))</span>
+<span class="fc" id="L161">                    .findAny();</span>
+<span class="fc" id="L162">            producer.ifPresent(</span>
+<span class="fc" id="L163">                    method -&gt; extendedInstanceProducer = invokerFactory.createInvoker(beanInfo, method).build());</span>
+        }
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (InjectionPointInfo injectionPoint : beanInfo.injectionPoints()) {</span>
+<span class="fc" id="L166">            Type type = injectionPoint.type();</span>
+<span class="pc bpc" id="L167" title="1 of 4 branches missed.">            if ((type.isClass() || type.isParameterizedType())</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">                    &amp;&amp; ExtendedInstance.class.getName().equals(getClassInfo(type).name())) {</span>
+<span class="fc" id="L169">                Type simplifiedType = types.of(Object.class);</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">                if (type.isParameterizedType()) {</span>
+<span class="fc" id="L171">                    Type typeArgument = type.asParameterizedType().typeArguments().get(0);</span>
+<span class="pc bpc" id="L172" title="2 of 4 branches missed.">                    if (!typeArgument.isTypeVariable() &amp;&amp; !typeArgument.isWildcardType()) {</span>
+<span class="fc" id="L173">                        simplifiedType = typeArgument;</span>
+                    }
+                }
+<span class="fc" id="L176">                requiredExtendedInstances.computeIfAbsent(simplifiedType, key -&gt; new HashSet&lt;&gt;())</span>
+<span class="fc" id="L177">                        .addAll(injectionPoint.qualifiers());</span>
+            }
+<span class="fc" id="L179">        }</span>
+<span class="fc" id="L180">    }</span>
+
+    @Synthesis
+    public void registerExtendedInstanceBeans(SyntheticComponents components, Types types) {
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (extendedInstanceProducer != null) {</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            for (Entry&lt;Type, Collection&lt;AnnotationInfo&gt;&gt; extendedInstance : requiredExtendedInstances.entrySet()) {</span>
+                @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="fc" id="L187">                SyntheticBeanBuilder&lt;ExtendedInstance&gt; builder = components.addBean(ExtendedInstance.class)</span>
+<span class="fc" id="L188">                        .type(types.parameterized(ExtendedInstance.class, extendedInstance.getKey())) //</span>
+<span class="fc" id="L189">                        .alternative(true) //</span>
+<span class="fc" id="L190">                        .priority(LIBRARY_AFTER);</span>
+<span class="fc" id="L191">                extendedInstance.getValue().forEach(builder::qualifier);</span>
+<span class="fc" id="L192">                builder.createWith(ExtendedInstanceCreator.class) //</span>
+<span class="fc" id="L193">                        .withParam(ExtendedInstanceCreator.PRODUCER, extendedInstanceProducer)</span>
+<span class="fc" id="L194">                        .withParam(ExtendedInstanceCreator.TYPE, getClassInfo(extendedInstance.getKey()));</span>
+<span class="fc" id="L195">            }</span>
+        }
+<span class="fc" id="L197">    }</span>
+
+    @Registration(types = Object.class)
+    public void processEventDeserializerInjections(BeanInfo beanInfo, Types types, Messages messages) {
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        for (InjectionPointInfo injectionPoint : beanInfo.injectionPoints()) {</span>
+<span class="fc" id="L202">            Type type = injectionPoint.type();</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">            if (type.isParameterizedType()</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">                    &amp;&amp; EventDeserializer.class.getName().equals(type.asParameterizedType().declaration().name())) {</span>
+<span class="fc" id="L205">                requiredEventDeserializers.add(type.asParameterizedType());</span>
+            }
+<span class="fc" id="L207">        }</span>
+<span class="fc" id="L208">    }</span>
+
+    @Registration(types = EventDeserializer.class)
+    public void processEventDeserializers(BeanInfo beanInfo, Messages messages) {
+<span class="nc" id="L212">        declaredEventDeserializers.addAll(beanInfo.types());</span>
+<span class="nc" id="L213">    }</span>
+
+    @Synthesis
+    @Priority(LIBRARY_AFTER)
+    public void addMissingEventDeserializers(SyntheticComponents components) {
+<span class="fc" id="L218">        requiredEventDeserializers.removeAll(declaredEventDeserializers);</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (ParameterizedType type : requiredEventDeserializers) {</span>
+<span class="fc" id="L220">            Type eventType = type.typeArguments().get(0);</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">            ClassType eventClass = eventType.isClass() ? eventType.asClass()</span>
+<span class="pc" id="L222">                    : eventType.asParameterizedType().genericClass();</span>
+<span class="fc" id="L223">            components.addBean(DefaultEventDeserializer.class) //</span>
+<span class="fc" id="L224">                .type(type) //</span>
+<span class="fc" id="L225">                .type(ExtendedEventDeserializer.class) //</span>
+<span class="fc" id="L226">                .scope(Singleton.class) //</span>
+<span class="fc" id="L227">                .qualifier(Default.Literal.INSTANCE) //</span>
+<span class="fc" id="L228">                .createWith(DefaultEventDeserializerCreator.class) //</span>
+<span class="fc" id="L229">                .withParam(DefaultEventDeserializerCreator.TYPE, eventClass.declaration());</span>
+<span class="fc" id="L230">        }</span>
+<span class="fc" id="L231">    }</span>
+
+    private ClassInfo getClassInfo(Type type) {
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (type.isParameterizedType()) {</span>
+<span class="fc" id="L235">            return type.asParameterizedType().declaration();</span>
+        }
+<span class="fc" id="L237">        return type.asClass().declaration();</span>
+    }
+
+    private Optional&lt;ParameterizedType&gt; getAbstractHandlerType(Collection&lt;Type&gt; types) {
+<span class="fc" id="L241">        return types.stream() //</span>
+<span class="fc" id="L242">                .filter(Type::isParameterizedType) //</span>
+<span class="fc" id="L243">                .map(Type::asParameterizedType) //</span>
+<span class="fc" id="L244">                .filter(type -&gt; AbstractHandler.class.getName().equals(type.declaration().name())) //</span>
+<span class="fc" id="L245">                .findAny();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
