@@ -93,25 +93,21 @@
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-concurrency</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-jta</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-mp-config</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-mp-metrics</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
