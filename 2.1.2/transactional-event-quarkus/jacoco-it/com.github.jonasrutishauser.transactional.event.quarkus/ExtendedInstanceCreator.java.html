@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExtendedInstanceCreator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus</a> &gt; <span class="el_source">ExtendedInstanceCreator.java</span></div><h1>ExtendedInstanceCreator.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus;
+
+import java.lang.annotation.Annotation;
+
+import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.build.compatible.spi.Parameters;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.invoke.Invoker;
+
+@SuppressWarnings(&quot;rawtypes&quot;)
+<span class="fc" id="L15">public class ExtendedInstanceCreator implements SyntheticBeanCreator&lt;ExtendedInstance&gt; {</span>
+
+    public static final String PRODUCER = &quot;produer&quot;;
+    public static final String TYPE = &quot;type&quot;;
+
+    @Override
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ExtendedInstance create(Instance&lt;Object&gt; lookup, Parameters params) {
+<span class="fc" id="L23">        BeanManager beanManager = lookup.select(BeanManager.class).get();</span>
+<span class="fc" id="L24">        InjectionPoint injectionPoint = lookup.select(InjectionPoint.class).get();</span>
+<span class="fc" id="L25">        Instance&lt;?&gt; instance = lookup.select(params.get(TYPE, Class.class),</span>
+<span class="fc" id="L26">                injectionPoint.getQualifiers().toArray(new Annotation[0]));</span>
+        try {
+<span class="fc" id="L28">            return (ExtendedInstance) params.get(PRODUCER, Invoker.class).invoke(null,</span>
+                    new Object[] {beanManager, null, instance});
+<span class="nc" id="L30">        } catch (Exception e) {</span>
+<span class="nc" id="L31">            throw new IllegalStateException(e);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
