@@ -24,7 +24,6 @@
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-api</artifactId>
-			<version>${cdi-test.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.enterprise</groupId>
@@ -46,19 +45,16 @@
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-concurrency</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-jta</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.jonasrutishauser</groupId>
 			<artifactId>cdi-test-mp-config</artifactId>
-			<version>${cdi-test.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>

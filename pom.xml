@@ -38,6 +38,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.github.jonasrutishauser</groupId>
+				<artifactId>cdi-test-bom</artifactId>
+				<version>1.1.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -57,7 +64,6 @@
 
 		<log4j.version>2.20.0</log4j.version>
 		<h2.version>2.2.220</h2.version>
-		<cdi-test.version>1.1.0</cdi-test.version>
 		<quarkus.version>3.12.0</quarkus.version>
 	</properties>
 
