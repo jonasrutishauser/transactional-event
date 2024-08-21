@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PendingEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core</a> &gt; <span class="el_source">PendingEvent.java</span></div><h1>PendingEvent.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+public class PendingEvent implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final String id;
+    private final String type;
+    private final String context;
+    private final String payload;
+    private final LocalDateTime publishedAt;
+    private final int tries;
+
+    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt) {
+<span class="fc" id="L18">        this(id, type, context, payload, publishedAt, 0);</span>
+<span class="fc" id="L19">    }</span>
+
+<span class="fc" id="L21">    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt, int tries) {</span>
+<span class="fc" id="L22">        this.id = id;</span>
+<span class="fc" id="L23">        this.type = type;</span>
+<span class="fc" id="L24">        this.context = context;</span>
+<span class="fc" id="L25">        this.payload = payload;</span>
+<span class="fc" id="L26">        this.publishedAt = publishedAt;</span>
+<span class="fc" id="L27">        this.tries = tries;</span>
+<span class="fc" id="L28">    }</span>
+
+    public String getId() {
+<span class="fc" id="L31">        return id;</span>
+    }
+
+    public String getType() {
+<span class="fc" id="L35">        return type;</span>
+    }
+
+    public String getContext() {
+<span class="fc" id="L39">        return context;</span>
+    }
+
+    public String getPayload() {
+<span class="fc" id="L43">        return payload;</span>
+    }
+
+    public LocalDateTime getPublishedAt() {
+<span class="fc" id="L47">        return publishedAt;</span>
+    }
+
+    public int getTries() {
+<span class="fc" id="L51">        return tries;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
