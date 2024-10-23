@@ -97,6 +97,11 @@ class QueryAdapterFactory {
 
     private static class OracleQueryAdapter extends SkipLockedQueryAdapter {
         @Override
+        public String addSkipLocked(String sql, int maxRows) {
+            return super.addSkipLocked(sql.replace("SELECT ", "SELECT /*+ FIRST_ROWS(" + maxRows + ") */ "));
+        }
+
+        @Override
         public String fixLimits(String sql) {
             return sql.replaceAll(LIMIT_EXPRESSION, "AND rownum <= $1");
         }

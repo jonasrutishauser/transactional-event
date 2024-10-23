@@ -91,7 +91,7 @@ class PendingEventStore implements EventStore {
         updateSQL = "UPDATE " + configuration.getTableName() + " SET tries=?, lock_owner=?, locked_until=? WHERE id=?";
         updateSQLwithLockOwner = updateSQL + " AND lock_owner=?";
         aquireSQL = adapter.fixLimits(adapter.addSkipLocked("SELECT id, tries FROM " + configuration.getTableName()
-                + " WHERE locked_until<=? {LIMIT ?} FOR UPDATE"));
+                + " WHERE locked_until<=? {LIMIT ?} FOR UPDATE", configuration.getMaxAquire()));
         String readBlocked = "SELECT * FROM " + configuration.getTableName() + " WHERE locked_until=" + Long.MAX_VALUE;
         readBlockedSQL = adapter.fixLimits(readBlocked + " {LIMIT ?}");
         readBlockedForUpdateSQL = adapter.addSkipLocked(readBlocked + " AND id=? FOR UPDATE");
