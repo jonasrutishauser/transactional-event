@@ -18,11 +18,19 @@ import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
 @RequestScoped
 public class TestResource {
 
-    @Inject
-    private EventPublisher publisher;
+    private final EventPublisher publisher;
+
+    private final Messages messages;
+
+    public TestResource() {
+        this(null, null);
+    }
 
     @Inject
-    private Messages messages;
+    public TestResource(EventPublisher publisher, Messages messages) {
+        this.publisher = publisher;
+        this.messages = messages;
+    }
 
     @POST
     @Transactional

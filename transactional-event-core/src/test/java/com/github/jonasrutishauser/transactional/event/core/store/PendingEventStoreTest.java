@@ -63,11 +63,11 @@ class PendingEventStoreTest {
     private Event<ProcessingDeletedEvent> deletedEvent = mock(Event.class);
 
     protected DataSource getDataSource() throws Exception {
-        JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setURL("jdbc:h2:mem:testPendingEventStore;LOCK_TIMEOUT=10;DB_CLOSE_DELAY=-1");
-        dataSource.setUser("sa");
-        dataSource.setPassword("sa");
-        return dataSource;
+        JdbcDataSource ds = new JdbcDataSource();
+        ds.setURL("jdbc:h2:mem:testPendingEventStore;LOCK_TIMEOUT=10;DB_CLOSE_DELAY=-1");
+        ds.setUser("sa");
+        ds.setPassword("sa");
+        return ds;
     }
 
     @BeforeEach
@@ -369,7 +369,7 @@ class PendingEventStoreTest {
     }
 
     @Test
-    void getAndLockEventWhenNotExists() throws Exception {
+    void getAndLockEventWhenNotExists() {
         assertThrows(NoSuchElementException.class, () -> testee.getAndLockEvent("foo"));
     }
 
@@ -424,7 +424,7 @@ class PendingEventStoreTest {
     }
 
     @Test
-    void deleteWhenNotExists() throws Exception {
+    void deleteWhenNotExists() {
         PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.now());
 
         assertThrows(NoSuchElementException.class, () -> testee.delete(event));
@@ -463,7 +463,7 @@ class PendingEventStoreTest {
     }
 
     @Test
-    void updateForRetryWhenNotExists() throws Exception {
+    void updateForRetryWhenNotExists() {
         PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.now());
 
         assertThrows(NoSuchElementException.class, () -> testee.updateForRetry(event));

@@ -262,7 +262,7 @@ public class TransactionalEventPublisherIT {
         }
     }
 
-    static abstract class AbstractTestHandler<T> extends AbstractHandler<T> {
+    abstract static class AbstractTestHandler<T> extends AbstractHandler<T> {
         @Inject
         ReceivedMessages messages;
 

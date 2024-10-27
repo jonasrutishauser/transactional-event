@@ -10,8 +10,12 @@ import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 @EventHandler
 public class TestEventHandler extends AbstractHandler<TestEvent> {
 
+    private final Messages messages;
+
     @Inject
-    private Messages messages;
+    TestEventHandler(Messages messages) {
+        this.messages = messages;
+    }
 
     @Override
     protected void handle(TestEvent event) {
