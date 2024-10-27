@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionalWorker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">TransactionalWorker.java</span></div><h1>TransactionalWorker.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Optional;
+import java.util.Properties;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance;
+import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance.Handle;
+import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
+import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
+import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
+
+@Dependent
+class TransactionalWorker {
+
+<span class="fc" id="L29">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    private final PendingEventStore store;
+    private final ExtendedInstance&lt;Handler&gt; handlers;
+    private final EventHandlers handlerExtension;
+    private final EventTypeResolver typeResolver;
+    private final ContextualProcessor processor;
+
+    TransactionalWorker() {
+<span class="nc" id="L38">        this(null, null, null, null, null);</span>
+<span class="nc" id="L39">    }</span>
+
+    @Inject
+    TransactionalWorker(PendingEventStore store, @Any ExtendedInstance&lt;Handler&gt; handlers,
+<span class="fc" id="L43">            EventHandlers handlerExtension, EventTypeResolver typeResolver, ContextualProcessor processor) {</span>
+<span class="fc" id="L44">        this.store = store;</span>
+<span class="fc" id="L45">        this.handlers = handlers;</span>
+<span class="fc" id="L46">        this.handlerExtension = handlerExtension;</span>
+<span class="fc" id="L47">        this.typeResolver = typeResolver;</span>
+<span class="fc" id="L48">        this.processor = processor;</span>
+<span class="fc" id="L49">    }</span>
+
+    @Transactional
+    public void process(String eventId) {
+<span class="fc" id="L53">        PendingEvent event = store.getAndLockEvent(eventId);</span>
+<span class="fc" id="L54">        processor.process(event.getId(), event.getType(), getContextProperties(event.getContext()), event.getPayload(),</span>
+<span class="fc" id="L55">                getHandler(event.getType()));</span>
+<span class="fc" id="L56">        store.delete(event);</span>
+<span class="fc" id="L57">    }</span>
+
+    @Transactional
+    public void processFailed(String eventId) {
+<span class="fc" id="L61">        PendingEvent event = store.getAndLockEvent(eventId);</span>
+<span class="fc" id="L62">        store.updateForRetry(event);</span>
+<span class="fc" id="L63">    }</span>
+
+    private Handler getHandler(String eventType) {
+<span class="fc" id="L66">        return payload -&gt; {</span>
+<span class="fc" id="L67">            Optional&lt;Class&lt;? extends Handler&gt;&gt; handlerClassWithImplicitType = handlerExtension</span>
+<span class="fc" id="L68">                    .getHandlerClassWithImplicitType(typeResolver, eventType);</span>
+            ExtendedInstance&lt;? extends Handler&gt; handlerInstance;
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (handlerClassWithImplicitType.isPresent()) {</span>
+<span class="fc" id="L71">                handlerInstance = handlers.select(handlerClassWithImplicitType.get());</span>
+            } else {
+<span class="fc" id="L73">                handlerInstance = handlers.select(new EventHandlerLiteral(eventType));</span>
+            }
+<span class="fc" id="L75">            try (Handle&lt;? extends Handler&gt; handle = handlerInstance.getPseudoScopeClosingHandle()) {</span>
+<span class="fc" id="L76">                handle.get().handle(payload);</span>
+            }
+<span class="fc" id="L78">        };</span>
+    }
+
+    private Properties getContextProperties(String context) {
+<span class="fc" id="L82">        Properties properties = new Properties();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (context != null) {</span>
+            try {
+<span class="fc" id="L85">                properties.load(new StringReader(context));</span>
+<span class="nc" id="L86">            } catch (IOException e) {</span>
+<span class="nc" id="L87">                LOGGER.warn(&quot;unexpected IOException while reading context&quot;, e);</span>
+<span class="fc" id="L88">            }</span>
+        }
+<span class="fc" id="L90">        return properties;</span>
+    }
+
+    @SuppressWarnings(&quot;serial&quot;)
+    private static class EventHandlerLiteral extends AnnotationLiteral&lt;EventHandler&gt; implements EventHandler {
+        private final String eventType;
+
+<span class="fc" id="L97">        public EventHandlerLiteral(String eventType) {</span>
+<span class="fc" id="L98">            this.eventType = eventType;</span>
+<span class="fc" id="L99">        }</span>
+
+        @Override
+        public String eventType() {
+<span class="fc" id="L103">            return eventType;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
