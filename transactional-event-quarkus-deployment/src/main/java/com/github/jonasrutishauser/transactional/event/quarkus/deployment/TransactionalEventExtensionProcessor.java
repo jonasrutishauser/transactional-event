@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.jboss.jandex.DotName;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.transactional.event.api.MPConfiguration;
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.DefaultEventExecutor;
@@ -53,6 +54,7 @@ public class TransactionalEventExtensionProcessor {
         excludeProducer.produce(new ExcludedTypeBuildItem(DefaultConcurrencyProvider.class.getName()));
         excludeProducer.produce(new ExcludedTypeBuildItem(DefaultEventExecutor.class.getName()));
         excludeProducer.produce(new ExcludedTypeBuildItem(Configuration.class.getName()));
+        excludeProducer.produce(new ExcludedTypeBuildItem(MPConfiguration.class.getName()));
     }
 
     @BuildStep
@@ -82,7 +84,7 @@ public class TransactionalEventExtensionProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     @Consume(BeanContainerBuildItem.class)
     @BuildStep(onlyIfNot = IsNormal.class)
-    public ServiceStartBuildItem initDb(TransactionalEventBuildTimeConfiguration configuration,
+    ServiceStartBuildItem initDb(TransactionalEventBuildTimeConfiguration configuration,
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             List<DefaultDataSourceDbKindBuildItem> installedDrivers, DbSchemaRecorder recorder) {
         List<String> statements = new ArrayList<>();
@@ -95,7 +97,7 @@ public class TransactionalEventExtensionProcessor {
                 builder.append(line);
                 if (builder.length() > 0 && builder.charAt(builder.length() - 1) == ';') {
                     statements.add(builder.substring(0, builder.length() - 1).trim()
-                            .replace(Configuration.DEFAULT_TABLE_NAME, configuration.tableName));
+                            .replace(Configuration.DEFAULT_TABLE_NAME, configuration.tableName()));
                     builder.setLength(0);
                 } else {
                     builder.append('\n');

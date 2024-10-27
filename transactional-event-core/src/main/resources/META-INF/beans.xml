@@ -12,6 +12,9 @@
 		<exclude name="com.github.jonasrutishauser.transactional.event.core.metrics.MetricsEventObserver">
 			<if-class-not-available name="org.eclipse.microprofile.metrics.annotation.Counted"/>
 		</exclude>
+		<exclude name="com.github.jonasrutishauser.transactional.event.core.metrics.ConfigurationMetrics">
+			<if-class-not-available name="org.eclipse.microprofile.metrics.annotation.Gauge"/>
+		</exclude>
 		<exclude name="com.github.jonasrutishauser.transactional.event.core.opentelemetry.*">
 			<if-class-not-available name="io.opentelemetry.api.trace.Tracer"/>
 		</exclude>

@@ -22,10 +22,12 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.EventDe
 import com.github.jonasrutishauser.transactional.event.core.cdi.DefaultEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.cdi.ExtendedEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
+import com.github.jonasrutishauser.transactional.event.core.metrics.ConfigurationMetrics;
 import com.github.jonasrutishauser.transactional.event.core.store.Dispatcher;
 import com.github.jonasrutishauser.transactional.event.quarkus.DefaultEventDeserializerCreator;
 import com.github.jonasrutishauser.transactional.event.quarkus.ExtendedInstanceCreator;
 
+import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
@@ -75,6 +77,24 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
         if ("com.github.jonasrutishauser.transactional.event.core.store.LockOwner".equals(type.info().name())) {
             type.removeAnnotation(annotation -> ApplicationScoped.class.getName().equals(annotation.name()));
             type.addAnnotation(Singleton.class);
+        }
+    }
+
+    @Enhancement(types = ConfigurationMetrics.class)
+    public void correctStartupOfConfigurationMetrics(ClassConfig type) {
+        type.addAnnotation(Startup.class);
+    }
+
+    @Enhancement(types = ConfigurationMetrics.class)
+    public void correctStartupOfConfigurationMetrics(MethodConfig method) {
+        if (!method.parameters().isEmpty()) {
+            ParameterConfig firstParameter = method.parameters().get(0);
+            if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
+                    .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name())
+                            && annotation.value().asType().isClass() && ApplicationScoped.class.getName()
+                                    .equals(annotation.value().asType().asClass().declaration().name()))) {
+                firstParameter.removeAllAnnotations();
+            }
         }
     }
 

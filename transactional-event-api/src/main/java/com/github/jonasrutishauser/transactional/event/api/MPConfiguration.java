@@ -1,18 +1,15 @@
 package com.github.jonasrutishauser.transactional.event.api;
 
-import static org.eclipse.microprofile.metrics.MetricUnits.*;
-
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Specializes;
 import jakarta.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.metrics.annotation.Gauge;
-
+@Dependent
 @Specializes
-@ApplicationScoped // needed for gauges
 public class MPConfiguration extends Configuration {
 
     @Inject
@@ -40,23 +37,16 @@ public class MPConfiguration extends Configuration {
     Optional<Integer> maxConcurrentDispatching = Optional.empty();
 
     @Override
-    @Gauge(name = "com.github.jonasrutishauser.transaction.event.all.in.use.interval",
-            description = "Interval between lookups for events to process when maxConcurrentDispatching is reached",
-            unit = MILLISECONDS, absolute = true)
     public int getAllInUseInterval() {
         return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();
     }
 
     @Override
-    @Gauge(name = "com.github.jonasrutishauser.transaction.event.max.dispatch.interval",
-            description = "Maximum interval between lookups for events to process", unit = SECONDS, absolute = true)
     public int getMaxDispatchInterval() {
         return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();
     }
 
     @Override
-    @Gauge(name = "com.github.jonasrutishauser.transaction.event.initial.dispatch.interval",
-            description = "Initial interval between lookups for events to process", unit = SECONDS, absolute = true)
     public int getInitialDispatchInterval() {
         return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();
     }
@@ -67,16 +57,11 @@ public class MPConfiguration extends Configuration {
     }
 
     @Override
-    @Gauge(name = "com.github.jonasrutishauser.transaction.event.max.aquire",
-            description = "Maximum number of events aquired per query", unit = NONE, absolute = true)
     public int getMaxAquire() {
         return maxAquire.orElseGet(super::getMaxAquire).intValue();
     }
 
     @Override
-    @Gauge(name = "com.github.jonasrutishauser.transaction.event.max.concurrent.dispatching",
-            description = "Maximum number of dispatched events being processed concurrently", unit = NONE,
-            absolute = true)
     public int getMaxConcurrentDispatching() {
         return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();
     }
