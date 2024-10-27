@@ -119,10 +119,10 @@ class DispatcherImpl implements Dispatcher {
     }
 
     public synchronized void schedule() {
-        for (Set<String> events = store.aquire(configuration.getMaxAquire());
-                !events.isEmpty() && eventsToDispatch.size() < configuration.getMaxConcurrentDispatching();
-                events = store.aquire(configuration.getMaxAquire())) {
+        for (boolean empty = false; !empty && eventsToDispatch.size() < configuration.getMaxConcurrentDispatching();) {
+            Set<String> events = store.aquire(configuration.getMaxAquire());
             events.forEach(eventsToDispatch::offer);
+            empty = events.isEmpty();
         }
         if (dispatchable() > 0 || !eventsToDispatch.isEmpty()) {
             intervalSeconds = 0;
