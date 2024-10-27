@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>TransactionalEventPublisher xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/com/github/jonasrutishauser/transactional/event/core/TransactionalEventPublisher.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.github.jonasrutishauser.transactional.event.core;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> jakarta.transaction.Transactional.TxType.MANDATORY;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.util.Properties;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> jakarta.enterprise.context.Dependent;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> jakarta.inject.Inject;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> jakarta.transaction.Transactional;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.apache.logging.log4j.LogManager;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.apache.logging.log4j.Logger;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> com.github.jonasrutishauser.transactional.event.api.EventPublisher;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.github.jonasrutishauser.transactional.event.api.context.ContextualPublisher;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  @Dependent
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="TransactionalEventPublisher" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/TransactionalEventPublisher.html#TransactionalEventPublisher">TransactionalEventPublisher</a> <strong class="jxr_keyword">implements</strong> <a name="EventPublisher" href="../../../../../../com/github/jonasrutishauser/transactional/event/api/EventPublisher.html#EventPublisher">EventPublisher</a> {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOGGER = LogManager.getLogger();
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="EventTypeResolver" href="../../../../../../com/github/jonasrutishauser/transactional/event/api/EventTypeResolver.html#EventTypeResolver">EventTypeResolver</a> typeResolver;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="Serializer" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/Serializer.html#Serializer">Serializer</a> eventSerializer;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="ContextualPublisher" href="../../../../../../com/github/jonasrutishauser/transactional/event/api/context/ContextualPublisher.html#ContextualPublisher">ContextualPublisher</a> publisher;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <a name="TransactionalEventPublisher" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/TransactionalEventPublisher.html#TransactionalEventPublisher">TransactionalEventPublisher</a>() {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      @Inject
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <a name="TransactionalEventPublisher" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/TransactionalEventPublisher.html#TransactionalEventPublisher">TransactionalEventPublisher</a>(<a name="EventTypeResolver" href="../../../../../../com/github/jonasrutishauser/transactional/event/api/EventTypeResolver.html#EventTypeResolver">EventTypeResolver</a> typeResolver, <a name="Serializer" href="../../../../../../com/github/jonasrutishauser/transactional/event/core/Serializer.html#Serializer">Serializer</a> eventSerializer,
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              <a name="ContextualPublisher" href="../../../../../../com/github/jonasrutishauser/transactional/event/api/context/ContextualPublisher.html#ContextualPublisher">ContextualPublisher</a> publisher) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">this</strong>.typeResolver = typeResolver;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">this</strong>.eventSerializer = eventSerializer;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">this</strong>.publisher = publisher;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Override
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Transactional(MANDATORY)
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> publish(Object event) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          String id = randomId();
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          String type = typeResolver.resolve(event.getClass());
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          String payload = eventSerializer.serialize(event);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          publisher.publish(id, type, <strong class="jxr_keyword">new</strong> Properties(), payload);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          LOGGER.debug(<span class="jxr_string">"enqueued event '{}' with type '{}' (payload '{}')"</span>, id, type, payload);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2024</div>
+</body>
+</html>
