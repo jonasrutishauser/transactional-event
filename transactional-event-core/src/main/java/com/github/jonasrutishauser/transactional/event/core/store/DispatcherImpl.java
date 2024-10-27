@@ -7,6 +7,8 @@ import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
 import static org.eclipse.microprofile.metrics.MetricUnits.SECONDS;
 
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,6 +39,7 @@ class DispatcherImpl implements Dispatcher {
     private final PendingEventStore store;
     private final Worker worker;
     private final AtomicInteger dispatchedRunning = new AtomicInteger();
+    private final BlockingQueue<String> eventsToDispatch = new LinkedBlockingQueue<>();
 
     private volatile int intervalSeconds = 30;
 
@@ -71,12 +74,21 @@ class DispatcherImpl implements Dispatcher {
 
     @Override
     public void processDirect(EventsPublished events) {
-        try {
-            for (PendingEvent event : events.getEvents()) {
-                executor.execute(dispatcher.processor(event.getId()));
+        for (PendingEvent event : events.getEvents()) {
+            String eventId = event.getId();
+            if (dispatchable() > 0) {
+                try {
+                    executor.execute(dispatcher.processor(eventId));
+                } catch (RejectedExecutionException e) {
+                    LOGGER.warn("Failed to submit event {} for processing: {}", eventId, e.getMessage());
+                }
+            } else if (eventsToDispatch.size() < 8 * configuration.getMaxAquire()) {
+                if (!eventsToDispatch.offer(eventId)) {
+                    LOGGER.warn("Failed to submit event {} for processing", eventId);
+                }
+            } else {
+                LOGGER.warn("There are already too many events to process event {}", eventId);
             }
-        } catch (RejectedExecutionException e) {
-            LOGGER.warn("Failed to submit events for processing: {}", e.getMessage());
         }
     }
 
@@ -91,7 +103,7 @@ class DispatcherImpl implements Dispatcher {
 
     void startup(@Observes @Initialized(ApplicationScoped.class) Object event) {
         scheduled = executor.schedule(dispatcher::schedule, configuration.getAllInUseInterval(), () -> {
-                if (maxAquire() <= 0) {
+                if (dispatchable() <= 0) {
                     return configuration.getAllInUseInterval();
                 }
                 return intervalSeconds * 1000l;
@@ -107,21 +119,25 @@ class DispatcherImpl implements Dispatcher {
     }
 
     public synchronized void schedule() {
-        boolean processed = false;
-        int maxAquire = maxAquire();
-        try {
-            for (Set<String> events = store.aquire(maxAquire); !events.isEmpty(); events = store.aquire(maxAquire)) {
-                processed = true;
-                events.stream().map(dispatcher::processor).forEach(this::executeCounting);
-                maxAquire = maxAquire();
-            }
-        } catch (RejectedExecutionException e) {
-            LOGGER.warn("Failed to dispatch events: {}", e.getMessage());
+        for (boolean empty = false; !empty && eventsToDispatch.size() < configuration.getMaxConcurrentDispatching();) {
+            Set<String> events = store.aquire(configuration.getMaxAquire());
+            events.forEach(eventsToDispatch::offer);
+            empty = events.isEmpty();
         }
-        if (processed || maxAquire <= configuration.getMaxConcurrentDispatching() / 10) {
+        if (dispatchable() > 0 || !eventsToDispatch.isEmpty()) {
             intervalSeconds = 0;
         } else {
             intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
+        }
+        while (dispatchable() > 0 && !eventsToDispatch.isEmpty()) {
+            try {
+                executeCounting(dispatcher.processor(eventsToDispatch.take()));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            } catch (RejectedExecutionException e) {
+                LOGGER.warn("Failed to dispatch events: {}", e.getMessage());
+            }
         }
     }
 
@@ -137,7 +153,7 @@ class DispatcherImpl implements Dispatcher {
         return intervalSeconds;
     }
 
-    private int maxAquire() {
+    private int dispatchable() {
         return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();
     }
 
