@@ -24,6 +24,7 @@ jobs:
     permissions:
       checks: write
       security-events: write
+      contents: write
     strategy:
       matrix:
         java:
