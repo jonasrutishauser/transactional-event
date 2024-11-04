@@ -106,12 +106,21 @@ class DispatcherImpl implements Dispatcher {
     }
 
     void startup(@Observes @Priority(LIBRARY_AFTER + 500) @Initialized(ApplicationScoped.class) Object event) {
-        scheduled = executor.schedule(dispatcher::schedule, configuration.getAllInUseInterval(), () -> {
+        scheduled = executor.schedule(this::safeSchedule, configuration.getAllInUseInterval(), () -> {
                 if (dispatchable() <= 0) {
                     return configuration.getAllInUseInterval();
                 }
                 return intervalSeconds * 1000l;
         });
+    }
+
+    private void safeSchedule() {
+        try {
+            dispatcher.schedule();
+        } catch (RuntimeException e) {
+            LOGGER.warn("Failed to schedule event processing", e);
+            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
+        }
     }
 
     void shutdown(@Observes @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {

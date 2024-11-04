@@ -15,7 +15,10 @@ import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.store.Dispatcher;
 import com.github.jonasrutishauser.transactional.event.core.store.EventsPublished;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
@@ -23,6 +26,8 @@ import io.opentelemetry.context.Scope;
 @Decorator
 @Priority(LIBRARY_BEFORE)
 public class InstrumentedScheduler implements Dispatcher {
+
+    private static final AttributeKey<Boolean> EXCEPTION_ESCAPED = AttributeKey.booleanKey("exception.escaped");
 
     private final Dispatcher delegate;
 
@@ -64,6 +69,10 @@ public class InstrumentedScheduler implements Dispatcher {
                     .startSpan();
             try (Scope unused = span.makeCurrent()) {
                 processor.run();
+            } catch (RuntimeException e) {
+                span.setStatus(StatusCode.ERROR, e.getMessage());
+                span.recordException(e, Attributes.of(EXCEPTION_ESCAPED, true));
+                throw e;
             } finally {
                 span.end();
             }
@@ -79,6 +88,10 @@ public class InstrumentedScheduler implements Dispatcher {
                 .startSpan();
         try (Scope unused = span.makeCurrent()) {
             runnable.run();
+        } catch (RuntimeException e) {
+            span.setStatus(StatusCode.ERROR, e.getMessage());
+            span.recordException(e, Attributes.of(EXCEPTION_ESCAPED, true));
+            throw e;
         } finally {
             span.end();
         }
