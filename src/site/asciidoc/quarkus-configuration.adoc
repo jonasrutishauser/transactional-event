@@ -1,0 +1,3 @@
+= Quarkus Configuration
+
+include::{generated-dir}/config/quarkus-transactional-event.adoc[opts=optional, leveloffset=+1]

@@ -57,6 +57,31 @@
 		<module>transactional-event-quarkus-deployment</module>
 	</modules>
 
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<configuration>
+						<asciidoc>
+							<attributes>
+								<generated-dir>${project.build.directory}/asciidoc/generated</generated-dir>
+		                        <icons>font</icons>
+							</attributes>
+						</asciidoc>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.asciidoctor</groupId>
+							<artifactId>asciidoctor-converter-doxia-module</artifactId>
+							<version>3.1.0</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
 	<properties>
 		<root.artifactId>transactional-event</root.artifactId>
 

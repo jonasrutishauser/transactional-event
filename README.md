@@ -77,6 +77,12 @@ class EventsDataSource {
    private DataSource dataSource;
 }
 ```
+
+## Configuration
+The [Quarkus Configuration](https://jonasrutishauser.github.io/transactional-event/snapshot/quarkus-configuration.html) is documented on the [project site](https://jonasrutishauser.github.io/transactional-event/).
+
+The configuration properties are the same without the `quarkus.` prefix if not running in Quarkus.
+
 ## Metrics (if mpMetrics is available)
 If mpMetrics is enabled on the server there will be the following metrics
 - application_com_github_jonasrutishauser_transaction_event_published_total (number of published events)

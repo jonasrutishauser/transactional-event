@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site xmlns="http://maven.apache.org/SITE/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd">
+	<body>
+		<head>
+			<![CDATA[<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">]]>
+		</head>
+		<menu name="Overview">
+			<item name="Quarkus Configuration" href="quarkus-configuration.html"/>
+		</menu>
+	</body>
+</site>
