@@ -1,0 +1,3 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Transactional Event Library Quarkus Deployment,com.github.jonasrutishauser.transactional.event.quarkus.deployment,TransactionalEventBuildCompatibleExtension,35,629,19,63,6,127,21,48,2,26
+Transactional Event Library Quarkus Deployment,com.github.jonasrutishauser.transactional.event.quarkus.deployment,TransactionalEventExtensionProcessor,129,93,18,8,26,17,13,8,2,6
