@@ -1,5 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.core.metrics;
 
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import static org.eclipse.microprofile.metrics.MetricUnits.MILLISECONDS;
 import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
 import static org.eclipse.microprofile.metrics.MetricUnits.SECONDS;
@@ -10,6 +11,7 @@ import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
@@ -31,7 +33,7 @@ public class ConfigurationMetrics {
         this.configuration = configuration;
     }
 
-    void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+    void init(@Observes @Priority(LIBRARY_BEFORE) @Initialized(ApplicationScoped.class) Object init) {
         LOGGER.debug("initialized");
     }
 

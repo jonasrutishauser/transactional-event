@@ -5,6 +5,7 @@ import static java.sql.Statement.SUCCESS_NO_INFO;
 import static java.sql.Types.VARCHAR;
 import static java.util.Collections.emptySet;
 import static jakarta.enterprise.event.TransactionPhase.BEFORE_COMPLETION;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
 import java.sql.Connection;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.function.IntPredicate;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -163,7 +165,7 @@ class PendingEventStore implements EventStore {
     }
 
     @Transactional(MANDATORY)
-    void store(@Observes(during = BEFORE_COMPLETION) EventsPublished events) {
+    void store(@Observes(during = BEFORE_COMPLETION) @Priority(LIBRARY_AFTER) EventsPublished events) {
         String errorMessage = "failed to insert pending events";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(insertSQL)) {

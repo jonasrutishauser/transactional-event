@@ -1,6 +1,8 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
 import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
@@ -23,7 +25,9 @@ import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExec
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.BeforeDestroyed;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -68,7 +72,7 @@ class DispatcherImpl implements Dispatcher {
         intervalSeconds = configuration.getInitialDispatchInterval();
     }
 
-    void directDispatch(@Observes(during = AFTER_SUCCESS) EventsPublished events) {
+    void directDispatch(@Observes(during = AFTER_SUCCESS) @Priority(LIBRARY_BEFORE) EventsPublished events) {
         dispatcher.processDirect(events);
     }
 
@@ -101,13 +105,17 @@ class DispatcherImpl implements Dispatcher {
         };
     }
 
-    void startup(@Observes @Initialized(ApplicationScoped.class) Object event) {
+    void startup(@Observes @Priority(LIBRARY_AFTER + 500) @Initialized(ApplicationScoped.class) Object event) {
         scheduled = executor.schedule(dispatcher::schedule, configuration.getAllInUseInterval(), () -> {
                 if (dispatchable() <= 0) {
                     return configuration.getAllInUseInterval();
                 }
                 return intervalSeconds * 1000l;
         });
+    }
+
+    void shutdown(@Observes @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {
+        stop();
     }
 
     @PreDestroy
