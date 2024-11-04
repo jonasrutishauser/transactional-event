@@ -1,85 +1,70 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MPConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library API</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.api</a> &gt; <span class="el_source">MPConfiguration.java</span></div><h1>MPConfiguration.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.api;
-
-import static org.eclipse.microprofile.metrics.MetricUnits.*;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MPConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library API</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.api</a> &gt; <span class="el_source">MPConfiguration.java</span></div><h1>MPConfiguration.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.api;
 
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Specializes;
 import jakarta.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.metrics.annotation.Gauge;
-
+@Dependent
 @Specializes
-@ApplicationScoped // needed for gauges
-<span class="fc" id="L16">public class MPConfiguration extends Configuration {</span>
+<span class="fc" id="L13">public class MPConfiguration extends Configuration {</span>
 
-<span class="fc" id="L18">    @Inject</span>
+<span class="fc" id="L15">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.allInUseInterval&quot;)
-<span class="fc" id="L20">    Optional&lt;Integer&gt; allInUseInterval = Optional.empty();</span>
+<span class="fc" id="L17">    Optional&lt;Integer&gt; allInUseInterval = Optional.empty();</span>
 
-<span class="fc" id="L22">    @Inject</span>
+<span class="fc" id="L19">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.maxDispatchInterval&quot;)
-<span class="fc" id="L24">    Optional&lt;Integer&gt; maxDispatchInterval = Optional.empty();</span>
+<span class="fc" id="L21">    Optional&lt;Integer&gt; maxDispatchInterval = Optional.empty();</span>
 
-<span class="fc" id="L26">    @Inject</span>
+<span class="fc" id="L23">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.initialDispatchInterval&quot;)
-<span class="fc" id="L28">    Optional&lt;Integer&gt; initialDispatchInterval = Optional.empty();</span>
+<span class="fc" id="L25">    Optional&lt;Integer&gt; initialDispatchInterval = Optional.empty();</span>
 
-<span class="fc" id="L30">    @Inject</span>
+<span class="fc" id="L27">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.table&quot;)
-<span class="fc" id="L32">    Optional&lt;String&gt; tableName = Optional.empty();</span>
+<span class="fc" id="L29">    Optional&lt;String&gt; tableName = Optional.empty();</span>
 
-<span class="fc" id="L34">    @Inject</span>
+<span class="fc" id="L31">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.maxAquire&quot;)
-<span class="fc" id="L36">    Optional&lt;Integer&gt; maxAquire = Optional.empty();</span>
+<span class="fc" id="L33">    Optional&lt;Integer&gt; maxAquire = Optional.empty();</span>
 
-<span class="fc" id="L38">    @Inject</span>
+<span class="fc" id="L35">    @Inject</span>
     @ConfigProperty(name = &quot;transactional.event.maxConcurrentDispatching&quot;)
-<span class="fc" id="L40">    Optional&lt;Integer&gt; maxConcurrentDispatching = Optional.empty();</span>
+<span class="fc" id="L37">    Optional&lt;Integer&gt; maxConcurrentDispatching = Optional.empty();</span>
 
     @Override
-    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.all.in.use.interval&quot;,
-            description = &quot;Interval between lookups for events to process when maxConcurrentDispatching is reached&quot;,
-            unit = MILLISECONDS, absolute = true)
     public int getAllInUseInterval() {
-<span class="fc" id="L47">        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();</span>
+<span class="fc" id="L41">        return allInUseInterval.orElseGet(super::getAllInUseInterval).intValue();</span>
     }
 
     @Override
-    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.dispatch.interval&quot;,
-            description = &quot;Maximum interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     public int getMaxDispatchInterval() {
-<span class="fc" id="L54">        return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();</span>
+<span class="fc" id="L46">        return maxDispatchInterval.orElseGet(super::getMaxDispatchInterval).intValue();</span>
     }
 
     @Override
-    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.initial.dispatch.interval&quot;,
-            description = &quot;Initial interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     public int getInitialDispatchInterval() {
-<span class="fc" id="L61">        return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();</span>
+<span class="fc" id="L51">        return initialDispatchInterval.orElseGet(super::getInitialDispatchInterval).intValue();</span>
     }
 
     @Override
     public String getTableName() {
-<span class="fc" id="L66">        return tableName.orElseGet(super::getTableName);</span>
+<span class="fc" id="L56">        return tableName.orElseGet(super::getTableName);</span>
     }
 
     @Override
-    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.aquire&quot;,
-            description = &quot;Maximum number of events aquired per query&quot;, unit = NONE, absolute = true)
     public int getMaxAquire() {
-<span class="fc" id="L73">        return maxAquire.orElseGet(super::getMaxAquire).intValue();</span>
+<span class="fc" id="L61">        return maxAquire.orElseGet(super::getMaxAquire).intValue();</span>
     }
 
     @Override
-    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.concurrent.dispatching&quot;,
-            description = &quot;Maximum number of dispatched events being processed concurrently&quot;, unit = NONE,
-            absolute = true)
     public int getMaxConcurrentDispatching() {
-<span class="fc" id="L81">        return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();</span>
+<span class="fc" id="L66">        return maxConcurrentDispatching.orElseGet(super::getMaxConcurrentDispatching).intValue();</span>
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
