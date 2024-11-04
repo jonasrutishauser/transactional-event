@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
 <head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <title>PendingEventStoreTest xref</title>
 <link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
@@ -71,11 +71,11 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> Event&lt;ProcessingDeletedEvent&gt; deletedEvent = mock(Event.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">protected</strong> DataSource getDataSource() <strong class="jxr_keyword">throws</strong> Exception {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          JdbcDataSource dataSource = <strong class="jxr_keyword">new</strong> JdbcDataSource();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          dataSource.setURL(<span class="jxr_string">"jdbc:h2:mem:testPendingEventStore;LOCK_TIMEOUT=10;DB_CLOSE_DELAY=-1"</span>);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          dataSource.setUser(<span class="jxr_string">"sa"</span>);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          dataSource.setPassword(<span class="jxr_string">"sa"</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> dataSource;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          JdbcDataSource ds = <strong class="jxr_keyword">new</strong> JdbcDataSource();
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          ds.setURL(<span class="jxr_string">"jdbc:h2:mem:testPendingEventStore;LOCK_TIMEOUT=10;DB_CLOSE_DELAY=-1"</span>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          ds.setUser(<span class="jxr_string">"sa"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          ds.setPassword(<span class="jxr_string">"sa"</span>);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> ds;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      @BeforeEach
@@ -377,7 +377,7 @@
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>     }
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> 
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>     @Test
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     <strong class="jxr_keyword">void</strong> getAndLockEventWhenNotExists() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>     <strong class="jxr_keyword">void</strong> getAndLockEventWhenNotExists() {
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>         assertThrows(NoSuchElementException.<strong class="jxr_keyword">class</strong>, () -&gt; testee.getAndLockEvent(<span class="jxr_string">"foo"</span>));
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>     }
 <a class="jxr_linenumber" name="L375" href="#L375">375</a> 
@@ -432,7 +432,7 @@
 <a class="jxr_linenumber" name="L424" href="#L424">424</a>     }
 <a class="jxr_linenumber" name="L425" href="#L425">425</a> 
 <a class="jxr_linenumber" name="L426" href="#L426">426</a>     @Test
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <strong class="jxr_keyword">void</strong> deleteWhenNotExists() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <strong class="jxr_keyword">void</strong> deleteWhenNotExists() {
 <a class="jxr_linenumber" name="L428" href="#L428">428</a>         PendingEvent event = <strong class="jxr_keyword">new</strong> PendingEvent(<span class="jxr_string">"foo"</span>, <span class="jxr_string">"t"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"p"</span>, LocalDateTime.now());
 <a class="jxr_linenumber" name="L429" href="#L429">429</a> 
 <a class="jxr_linenumber" name="L430" href="#L430">430</a>         assertThrows(NoSuchElementException.<strong class="jxr_keyword">class</strong>, () -&gt; testee.delete(event));
@@ -471,7 +471,7 @@
 <a class="jxr_linenumber" name="L463" href="#L463">463</a>     }
 <a class="jxr_linenumber" name="L464" href="#L464">464</a> 
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>     @Test
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>     <strong class="jxr_keyword">void</strong> updateForRetryWhenNotExists() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     <strong class="jxr_keyword">void</strong> updateForRetryWhenNotExists() {
 <a class="jxr_linenumber" name="L467" href="#L467">467</a>         PendingEvent event = <strong class="jxr_keyword">new</strong> PendingEvent(<span class="jxr_string">"foo"</span>, <span class="jxr_string">"t"</span>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"p"</span>, LocalDateTime.now());
 <a class="jxr_linenumber" name="L468" href="#L468">468</a> 
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>         assertThrows(NoSuchElementException.<strong class="jxr_keyword">class</strong>, () -&gt; testee.updateForRetry(event));
@@ -657,6 +657,6 @@
 <a class="jxr_linenumber" name="L649" href="#L649">649</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2023. All rights reserved.</div>
+<div id="footer">© 2024</div>
 </body>
 </html>
