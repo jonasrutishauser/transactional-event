@@ -1,6 +1,5 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -36,7 +35,6 @@ import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import jakarta.enterprise.event.Event;
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -50,6 +48,8 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Processing
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
+
+import jakarta.enterprise.event.Event;
 
 class PendingEventStoreTest {
 
@@ -281,8 +281,9 @@ class PendingEventStoreTest {
 
     @Test
     void storeSingleEvent() throws Exception {
-        testee.store(
-                new EventsPublished(asList(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()))));
+        EventsPublished events = new EventsPublished();
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
+        testee.store(events);
 
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
@@ -296,6 +297,7 @@ class PendingEventStoreTest {
             assertEquals("lock_id", resultSet.getString("lock_owner"));
             assertFalse(resultSet.next());
         }
+        assertThrows(UnsupportedOperationException.class, () -> events.addEvent(null));
     }
 
     @Test
@@ -304,17 +306,19 @@ class PendingEventStoreTest {
             statement.execute(
                     "INSERT INTO event_store VALUES ('test', 'type', null, 'payload', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
         }
-        EventsPublished events = new EventsPublished(
-                asList(new PendingEvent("test", "type", null, "payload", LocalDateTime.now())));
+        EventsPublished events = new EventsPublished();
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
 
         assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
 
     @Test
     void storeMultipleEvent() throws Exception {
-        testee.store(new EventsPublished(asList(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()),
-                new PendingEvent("foo", "t", null, "p", LocalDateTime.now()),
-                new PendingEvent("bar", "a", null, "b", LocalDateTime.now()))));
+        EventsPublished events = new EventsPublished();
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("foo", "t", null, "p", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("bar", "a", null, "b", LocalDateTime.now()));
+        testee.store(events);
 
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
@@ -342,8 +346,8 @@ class PendingEventStoreTest {
                         processingBlockedEvent),
                 unblockedEvent, deletedEvent);
         testee.initSqlQueries();
-        EventsPublished events = new EventsPublished(
-                asList(new PendingEvent("test", "type", null, "payload", LocalDateTime.now())));
+        EventsPublished events = new EventsPublished();
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
 
         assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
@@ -362,8 +366,8 @@ class PendingEventStoreTest {
                         processingBlockedEvent),
                 unblockedEvent, deletedEvent);
         testee.initSqlQueries();
-        EventsPublished events = new EventsPublished(
-                asList(new PendingEvent("test", "type", null, "payload", LocalDateTime.now())));
+        EventsPublished events = new EventsPublished();
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
 
         assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
