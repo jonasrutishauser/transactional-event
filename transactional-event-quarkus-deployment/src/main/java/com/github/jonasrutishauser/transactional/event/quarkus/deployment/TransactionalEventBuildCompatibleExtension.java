@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance;
 import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
@@ -23,7 +21,6 @@ import com.github.jonasrutishauser.transactional.event.core.cdi.DefaultEventDese
 import com.github.jonasrutishauser.transactional.event.core.cdi.ExtendedEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 import com.github.jonasrutishauser.transactional.event.quarkus.DefaultEventDeserializerCreator;
-import com.github.jonasrutishauser.transactional.event.quarkus.ExtendedInstanceCreator;
 
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
@@ -31,14 +28,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
-import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
 import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
 import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
 import jakarta.enterprise.inject.build.compatible.spi.InjectionPointInfo;
-import jakarta.enterprise.inject.build.compatible.spi.InvokerFactory;
-import jakarta.enterprise.inject.build.compatible.spi.InvokerInfo;
 import jakarta.enterprise.inject.build.compatible.spi.Messages;
 import jakarta.enterprise.inject.build.compatible.spi.ParameterConfig;
 import jakarta.enterprise.inject.build.compatible.spi.Registration;
@@ -47,10 +41,8 @@ import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
 import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
 import jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents;
 import jakarta.enterprise.inject.build.compatible.spi.Types;
-import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.lang.model.AnnotationInfo;
 import jakarta.enterprise.lang.model.declarations.ClassInfo;
-import jakarta.enterprise.lang.model.declarations.MethodInfo;
 import jakarta.enterprise.lang.model.types.ClassType;
 import jakarta.enterprise.lang.model.types.ParameterizedType;
 import jakarta.enterprise.lang.model.types.Type;
@@ -62,9 +54,6 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     private final Set<Type> declaredEventDeserializers = new HashSet<>();
 
     private final Map<ClassInfo, ClassInfo> handlerClass = new HashMap<>();
-
-    private InvokerInfo extendedInstanceProducer;
-    private Map<Type, Collection<AnnotationInfo>> requiredExtendedInstances = new HashMap<>();
 
     @Enhancement(types = Object.class, withSubtypes = true)
     @Priority(LIBRARY_AFTER)
@@ -146,57 +135,6 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
                 Arrays.stream(creatorHost.getNestMembers()).filter(SyntheticBeanCreator.class::isAssignableFrom)
                         .map(c -> (Class<? extends SyntheticBeanCreator<T>>) c).findAny()
                         .orElseThrow(IllegalStateException::new));
-    }
-
-    @Registration(types = Object.class)
-    public void getExtendedInstanceProducer(BeanInfo beanInfo, Types types, InvokerFactory invokerFactory) {
-        if (beanInfo.isClassBean()) {
-            Optional<MethodInfo> producer = beanInfo.declaringClass().methods().stream()
-                    .filter(method -> method.returnType().isParameterizedType()
-                            && types.of(ExtendedInstance.class)
-                                    .equals(method.returnType().asParameterizedType().genericClass())
-                            && method.parameters().size() == 3
-                            && types.of(BeanManager.class).equals(method.parameters().get(0).type())
-                            && method.parameters().get(2).type().isParameterizedType()
-                            && types.of(Instance.class)
-                                    .equals(method.parameters().get(2).type().asParameterizedType().genericClass()))
-                    .findAny();
-            producer.ifPresent(
-                    method -> extendedInstanceProducer = invokerFactory.createInvoker(beanInfo, method).build());
-        }
-        for (InjectionPointInfo injectionPoint : beanInfo.injectionPoints()) {
-            Type type = injectionPoint.type();
-            if ((type.isClass() || type.isParameterizedType())
-                    && ExtendedInstance.class.getName().equals(getClassInfo(type).name())) {
-                Type simplifiedType = types.of(Object.class);
-                if (type.isParameterizedType()) {
-                    Type typeArgument = type.asParameterizedType().typeArguments().get(0);
-                    if (!typeArgument.isTypeVariable() && !typeArgument.isWildcardType()) {
-                        simplifiedType = typeArgument;
-                    }
-                }
-                requiredExtendedInstances.computeIfAbsent(simplifiedType, key -> new HashSet<>())
-                        .addAll(injectionPoint.qualifiers());
-            }
-        }
-    }
-
-    @Synthesis
-    @Priority(LIBRARY_AFTER)
-    public void registerExtendedInstanceBeans(SyntheticComponents components, Types types) {
-        if (extendedInstanceProducer != null) {
-            for (Entry<Type, Collection<AnnotationInfo>> extendedInstance : requiredExtendedInstances.entrySet()) {
-                @SuppressWarnings("rawtypes")
-                SyntheticBeanBuilder<ExtendedInstance> builder = components.addBean(ExtendedInstance.class)
-                        .type(types.parameterized(ExtendedInstance.class, extendedInstance.getKey())) //
-                        .alternative(true) //
-                        .priority(LIBRARY_AFTER);
-                extendedInstance.getValue().forEach(builder::qualifier);
-                builder.createWith(ExtendedInstanceCreator.class) //
-                        .withParam(ExtendedInstanceCreator.PRODUCER, extendedInstanceProducer)
-                        .withParam(ExtendedInstanceCreator.TYPE, getClassInfo(extendedInstance.getKey()));
-            }
-        }
     }
 
     @Registration(types = Object.class)

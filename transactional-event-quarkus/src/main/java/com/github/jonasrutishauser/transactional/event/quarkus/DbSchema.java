@@ -13,7 +13,7 @@ import com.github.jonasrutishauser.transactional.event.api.Events;
 import jakarta.inject.Singleton;
 
 @Singleton
-class DbSchema {
+public class DbSchema {
 
     private final DataSource datasource;
 

@@ -31,10 +31,6 @@ public class InstrumentedWorkProcessor implements WorkProcessor {
     private final Tracer tracer;
     private final String lockOwnerId;
 
-    InstrumentedWorkProcessor() {
-        this(null, null, null);
-    }
-
     @Inject
     InstrumentedWorkProcessor(@Delegate @Any WorkProcessor delegate, @Events Tracer tracer,
             @Named("lockOwner.id") String lockOwnerId) {

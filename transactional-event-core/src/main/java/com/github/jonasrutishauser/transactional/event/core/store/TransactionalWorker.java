@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -14,8 +17,6 @@ import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance;
-import com.github.jonasrutishauser.jakarta.enterprise.inject.ExtendedInstance.Handle;
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
@@ -29,9 +30,7 @@ class TransactionalWorker {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final PendingEventStore store;
-    private final ExtendedInstance<Handler> handlers;
-    private final EventHandlers handlerExtension;
-    private final EventTypeResolver typeResolver;
+    private final HandlerProvider handlerProvider;
     private final ContextualProcessor processor;
 
     TransactionalWorker() {
@@ -39,12 +38,10 @@ class TransactionalWorker {
     }
 
     @Inject
-    TransactionalWorker(PendingEventStore store, @Any ExtendedInstance<Handler> handlers,
-            EventHandlers handlerExtension, EventTypeResolver typeResolver, ContextualProcessor processor) {
+    TransactionalWorker(PendingEventStore store, @Any Instance<Handler> handlers, EventHandlers handlerExtension,
+            EventTypeResolver typeResolver, ContextualProcessor processor) {
         this.store = store;
-        this.handlers = handlers;
-        this.handlerExtension = handlerExtension;
-        this.typeResolver = typeResolver;
+        this.handlerProvider = new HandlerProvider(handlers, handlerExtension, typeResolver);
         this.processor = processor;
     }
 
@@ -52,7 +49,7 @@ class TransactionalWorker {
     public void process(String eventId) {
         PendingEvent event = store.getAndLockEvent(eventId);
         processor.process(event.getId(), event.getType(), getContextProperties(event.getContext()), event.getPayload(),
-                getHandler(event.getType()));
+                handlerProvider.handler(event.getType()));
         store.delete(event);
     }
 
@@ -60,22 +57,6 @@ class TransactionalWorker {
     public void processFailed(String eventId) {
         PendingEvent event = store.getAndLockEvent(eventId);
         store.updateForRetry(event);
-    }
-
-    private Handler getHandler(String eventType) {
-        return payload -> {
-            Optional<Class<? extends Handler>> handlerClassWithImplicitType = handlerExtension
-                    .getHandlerClassWithImplicitType(typeResolver, eventType);
-            ExtendedInstance<? extends Handler> handlerInstance;
-            if (handlerClassWithImplicitType.isPresent()) {
-                handlerInstance = handlers.select(handlerClassWithImplicitType.get());
-            } else {
-                handlerInstance = handlers.select(new EventHandlerLiteral(eventType));
-            }
-            try (Handle<? extends Handler> handle = handlerInstance.getPseudoScopeClosingHandle()) {
-                handle.get().handle(payload);
-            }
-        };
     }
 
     private Properties getContextProperties(String context) {
@@ -90,18 +71,49 @@ class TransactionalWorker {
         return properties;
     }
 
-    @SuppressWarnings("serial")
-    private static class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {
-        private final String eventType;
+    private static class HandlerProvider {
+        private final ConcurrentMap<String, Handler> handlerMap = new ConcurrentHashMap<>();
+        private final Instance<Handler> handlers;
+        private final EventHandlers handlerExtension;
+        private final EventTypeResolver typeResolver;
 
-        public EventHandlerLiteral(String eventType) {
-            this.eventType = eventType;
+        public HandlerProvider(Instance<Handler> handlers, EventHandlers handlerExtension,
+                EventTypeResolver typeResolver) {
+            this.handlers = handlers;
+            this.handlerExtension = handlerExtension;
+            this.typeResolver = typeResolver;
         }
 
-        @Override
-        public String eventType() {
-            return eventType;
+        public Handler handler(String eventType) {
+            return handlerMap.computeIfAbsent(eventType, this::getHandler);
+        }
+
+        private synchronized Handler getHandler(String eventType) {
+            if (handlerMap.containsKey(eventType)) {
+                // because this method is synchronized we can ensure that an instance is only
+                // created once
+                return handlerMap.get(eventType);
+            }
+            Optional<Class<? extends Handler>> handlerClassWithImplicitType = handlerExtension
+                    .getHandlerClassWithImplicitType(typeResolver, eventType);
+            if (handlerClassWithImplicitType.isPresent()) {
+                return handlers.select(handlerClassWithImplicitType.get()).get();
+            }
+            return handlers.select(new EventHandlerLiteral(eventType)).get();
+        }
+
+        @SuppressWarnings("serial")
+        private static class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {
+            private final String eventType;
+
+            public EventHandlerLiteral(String eventType) {
+                this.eventType = eventType;
+            }
+
+            @Override
+            public String eventType() {
+                return eventType;
+            }
         }
     }
-
 }

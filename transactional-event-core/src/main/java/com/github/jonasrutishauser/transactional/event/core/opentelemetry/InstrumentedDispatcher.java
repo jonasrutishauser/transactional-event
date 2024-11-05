@@ -29,10 +29,6 @@ public abstract class InstrumentedDispatcher implements Dispatcher {
     private final Tracer tracer;
     private final String lockOwnerId;
 
-    InstrumentedDispatcher() {
-        this(null, null, null);
-    }
-
     @Inject
     InstrumentedDispatcher(@Delegate @Any Dispatcher delegate, @Events Tracer tracer,
             @Named("lockOwner.id") String lockOwnerId) {

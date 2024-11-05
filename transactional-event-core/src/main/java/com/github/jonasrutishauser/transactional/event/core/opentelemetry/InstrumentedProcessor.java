@@ -48,10 +48,6 @@ public class InstrumentedProcessor implements ContextualProcessor {
         }
     };
 
-    InstrumentedProcessor() {
-        this(null, null, null, null);
-    }
-
     @Inject
     InstrumentedProcessor(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
             @Events TextMapPropagator propagator, @Named("lockOwner.id") String lockOwnerId) {

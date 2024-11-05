@@ -30,10 +30,6 @@ public class InstrumentedPublisher implements ContextualPublisher {
     private final Tracer tracer;
     private final TextMapPropagator propagator;
 
-    InstrumentedPublisher() {
-        this(null, null, null);
-    }
-
     @Inject
     InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, @Events Tracer tracer,
             @Events TextMapPropagator propagator) {

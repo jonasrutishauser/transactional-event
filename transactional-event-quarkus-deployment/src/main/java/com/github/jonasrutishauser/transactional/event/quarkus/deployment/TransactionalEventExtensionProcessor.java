@@ -15,9 +15,9 @@ import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.DefaultEventExecutor;
 import com.github.jonasrutishauser.transactional.event.core.defaults.DefaultConcurrencyProvider;
-import com.github.jonasrutishauser.transactional.event.core.metrics.MetricsEventObserver;
 import com.github.jonasrutishauser.transactional.event.core.serialization.JaxbSerialization;
 import com.github.jonasrutishauser.transactional.event.core.serialization.JsonbSerialization;
+import com.github.jonasrutishauser.transactional.event.quarkus.DbSchema;
 import com.github.jonasrutishauser.transactional.event.quarkus.DbSchemaRecorder;
 import com.github.jonasrutishauser.transactional.event.quarkus.TransactionalEventBuildTimeConfiguration;
 
@@ -59,7 +59,8 @@ public class TransactionalEventExtensionProcessor {
 
     @BuildStep
     void excludeFromBeansXml(Capabilities capabilities, Optional<MetricsCapabilityBuildItem> metricsCapability,
-            BuildProducer<ExcludedTypeBuildItem> excludeProducer) {
+            BuildProducer<ExcludedTypeBuildItem> excludeProducer,
+            BuildProducer<UnremovableBeanBuildItem> unremovableBean) {
         if (capabilities.isMissing(Capability.JAXB)) {
             excludeProducer.produce(new ExcludedTypeBuildItem(JaxbSerialization.class.getName()));
         }
@@ -67,7 +68,11 @@ public class TransactionalEventExtensionProcessor {
             excludeProducer.produce(new ExcludedTypeBuildItem(JsonbSerialization.class.getName()));
         }
         if (metricsCapability.isEmpty()) {
-            excludeProducer.produce(new ExcludedTypeBuildItem(MetricsEventObserver.class.getName()));
+            excludeProducer.produce(
+                    new ExcludedTypeBuildItem("com.github.jonasrutishauser.transactional.event.core.metrics.*"));
+        } else {
+            unremovableBean.produce(UnremovableBeanBuildItem.beanClassNames(
+                    "com.github.jonasrutishauser.transactional.event.core.metrics.ConfigurationMetrics"));
         }
         if (capabilities.isMissing(Capability.OPENTELEMETRY_TRACER)) {
             excludeProducer.produce(
@@ -79,6 +84,11 @@ public class TransactionalEventExtensionProcessor {
     UnremovableBeanBuildItem ensureEventHandlersAreNotRemoved() {
         return new UnremovableBeanBuildItem(beanInfo -> beanInfo.hasType(DotName.createSimple(Handler.class))
                 && beanInfo.getQualifier(DotName.createSimple(EventHandler.class)).isPresent());
+    }
+
+    @BuildStep(onlyIfNot = IsNormal.class)
+    UnremovableBeanBuildItem ensureDbSchemaIsNotRemoved() {
+        return UnremovableBeanBuildItem.beanTypes(DbSchema.class);
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)

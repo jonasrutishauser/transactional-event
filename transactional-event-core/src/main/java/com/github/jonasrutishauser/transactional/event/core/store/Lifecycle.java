@@ -1,5 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static jakarta.enterprise.event.Reception.IF_EXISTS;
 import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
@@ -65,7 +66,7 @@ class Lifecycle implements Startup {
         }
     }
 
-    void shutdown(@Observes @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {
+    void shutdown(@Observes(notifyObserver = IF_EXISTS) @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {
         stop();
     }
 
