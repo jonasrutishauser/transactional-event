@@ -139,7 +139,7 @@ class DispatcherImpl implements Dispatcher {
         try {
             executor.execute(counting(() -> {
                 try {
-                    if (!supplier.call()) {
+                    if (!Boolean.TRUE.equals(supplier.call())) {
                         intervalSeconds = 0;
                     }
                 } catch (Exception e) {
