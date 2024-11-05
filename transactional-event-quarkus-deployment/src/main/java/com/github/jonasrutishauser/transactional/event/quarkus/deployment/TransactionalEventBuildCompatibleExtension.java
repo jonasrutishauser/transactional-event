@@ -22,8 +22,6 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.EventDe
 import com.github.jonasrutishauser.transactional.event.core.cdi.DefaultEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.cdi.ExtendedEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
-import com.github.jonasrutishauser.transactional.event.core.metrics.ConfigurationMetrics;
-import com.github.jonasrutishauser.transactional.event.core.store.Dispatcher;
 import com.github.jonasrutishauser.transactional.event.quarkus.DefaultEventDeserializerCreator;
 import com.github.jonasrutishauser.transactional.event.quarkus.ExtendedInstanceCreator;
 
@@ -42,7 +40,6 @@ import jakarta.enterprise.inject.build.compatible.spi.InjectionPointInfo;
 import jakarta.enterprise.inject.build.compatible.spi.InvokerFactory;
 import jakarta.enterprise.inject.build.compatible.spi.InvokerInfo;
 import jakarta.enterprise.inject.build.compatible.spi.Messages;
-import jakarta.enterprise.inject.build.compatible.spi.MethodConfig;
 import jakarta.enterprise.inject.build.compatible.spi.ParameterConfig;
 import jakarta.enterprise.inject.build.compatible.spi.Registration;
 import jakarta.enterprise.inject.build.compatible.spi.Synthesis;
@@ -66,13 +63,11 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
 
     private final Map<ClassInfo, ClassInfo> handlerClass = new HashMap<>();
 
-    private MethodInfo startupMethod;
-    private InvokerInfo startup;
-
     private InvokerInfo extendedInstanceProducer;
     private Map<Type, Collection<AnnotationInfo>> requiredExtendedInstances = new HashMap<>();
 
     @Enhancement(types = Object.class, withSubtypes = true)
+    @Priority(LIBRARY_AFTER)
     public void createLockOwnerOnlyOnce(ClassConfig type) {
         if ("com.github.jonasrutishauser.transactional.event.core.store.LockOwner".equals(type.info().name())) {
             type.removeAnnotation(annotation -> ApplicationScoped.class.getName().equals(annotation.name()));
@@ -80,43 +75,27 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
         }
     }
 
-    @Enhancement(types = ConfigurationMetrics.class)
-    public void correctStartupOfConfigurationMetrics(ClassConfig type) {
+    @Enhancement(types = com.github.jonasrutishauser.transactional.event.core.cdi.Startup.class, withSubtypes = true)
+    @Priority(LIBRARY_AFTER)
+    public void fixStaticInitStartup(ClassConfig type) {
+        if (!com.github.jonasrutishauser.transactional.event.core.cdi.Startup.class.getName().equals(type.info().name())) {
+            changeInitializedApplicationScopedObserverToStartup(type);
+        }
+    }
+
+    private void changeInitializedApplicationScopedObserverToStartup(ClassConfig type) {
         type.addAnnotation(Startup.class);
-    }
-
-    @Enhancement(types = ConfigurationMetrics.class)
-    public void correctStartupOfConfigurationMetrics(MethodConfig method) {
-        if (!method.parameters().isEmpty()) {
-            ParameterConfig firstParameter = method.parameters().get(0);
-            if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
-                    .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name())
-                            && annotation.value().asType().isClass() && ApplicationScoped.class.getName()
-                                    .equals(annotation.value().asType().asClass().declaration().name()))) {
-                firstParameter.removeAllAnnotations();
+        type.methods().forEach(method -> {
+            if (!method.parameters().isEmpty()) {
+                ParameterConfig firstParameter = method.parameters().get(0);
+                if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
+                        .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name())
+                                && annotation.value().asType().isClass() && ApplicationScoped.class.getName()
+                                        .equals(annotation.value().asType().asClass().declaration().name()))) {
+                    firstParameter.removeAllAnnotations();
+                }
             }
-        }
-    }
-
-    @Enhancement(types = Dispatcher.class, withSubtypes = true)
-    public void disableStaticInitStartup(MethodConfig method) {
-        if (!method.parameters().isEmpty()) {
-            ParameterConfig firstParameter = method.parameters().get(0);
-            if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
-                    .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name())
-                            && annotation.value().asType().isClass() && ApplicationScoped.class.getName()
-                                    .equals(annotation.value().asType().asClass().declaration().name()))) {
-                firstParameter.removeAllAnnotations();
-                startupMethod = method.info();
-            }
-        }
-    }
-
-    @Registration(types = Dispatcher.class)
-    public void getStartupBean(BeanInfo beanInfo, InvokerFactory invokerFactory) {
-        if (startupMethod != null && beanInfo.declaringClass().methods().contains(startupMethod)) {
-            startup = invokerFactory.createInvoker(beanInfo, startupMethod).withInstanceLookup().build();
-        }
+        });
     }
 
     @Registration(types = Handler.class)
@@ -141,6 +120,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     }
 
     @Synthesis
+    @Priority(LIBRARY_AFTER)
     public void addEventHandlersBean(SyntheticComponents components) throws ClassNotFoundException {
         List<ClassInfo> types = new ArrayList<>();
         List<ClassInfo> beans = new ArrayList<>();
@@ -148,14 +128,16 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
             types.add(type);
             beans.add(bean);
         });
-        Class<?> quarkusEventHandlers = Class.forName("com.github.jonasrutishauser.transactional.event.quarkus.handler.QuarkusEventHandlers");
-        addCreator(components.addBean(quarkusEventHandlers) //
-            .type(EventHandlers.class) //
-            .type(quarkusEventHandlers) //
-                .scope(Singleton.class) //
-                .withParam("types", types.toArray(ClassInfo[]::new)) //
-                .withParam("beans", beans.toArray(ClassInfo[]::new)) //
-                .withParam("startup", startup), quarkusEventHandlers);
+        Class<?> quarkusEventHandlers = Class
+                .forName("com.github.jonasrutishauser.transactional.event.quarkus.handler.QuarkusEventHandlers");
+        addCreator( //
+                components.addBean(quarkusEventHandlers) //
+                        .type(EventHandlers.class) //
+                        .type(quarkusEventHandlers) //
+                        .scope(Singleton.class) //
+                        .withParam("types", types.toArray(ClassInfo[]::new)) //
+                        .withParam("beans", beans.toArray(ClassInfo[]::new)), //
+                quarkusEventHandlers);
     }
 
     @SuppressWarnings("unchecked")
@@ -200,6 +182,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     }
 
     @Synthesis
+    @Priority(LIBRARY_AFTER)
     public void registerExtendedInstanceBeans(SyntheticComponents components, Types types) {
         if (extendedInstanceProducer != null) {
             for (Entry<Type, Collection<AnnotationInfo>> extendedInstance : requiredExtendedInstances.entrySet()) {

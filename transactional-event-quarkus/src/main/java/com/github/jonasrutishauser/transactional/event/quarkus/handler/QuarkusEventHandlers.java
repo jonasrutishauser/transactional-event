@@ -9,23 +9,16 @@ import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 
-import io.quarkus.runtime.StartupEvent;
-import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.build.compatible.spi.Parameters;
 import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
-import jakarta.enterprise.invoke.Invoker;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 class QuarkusEventHandlers implements EventHandlers {
 
     private final Map<Class<?>, Class<? extends Handler>> handlerClass;
-    private final Invoker<?, ?> startupMethod;
 
-    QuarkusEventHandlers(Map<Class<?>, Class<? extends Handler>> handlerClass, Invoker<?, ?> startupMethod) {
+    QuarkusEventHandlers(Map<Class<?>, Class<? extends Handler>> handlerClass) {
         this.handlerClass = handlerClass;
-        this.startupMethod = startupMethod;
     }
 
     @Override
@@ -39,26 +32,6 @@ class QuarkusEventHandlers implements EventHandlers {
         return Optional.empty();
     }
 
-    void startup(StartupEvent event) throws Exception {
-        if (startupMethod != null) {
-            startupMethod.invoke(null, new Object[] {event});
-        }
-    }
-
-    @Singleton
-    static class Startup {
-        private final QuarkusEventHandlers handlers;
-        
-        @Inject
-        Startup(QuarkusEventHandlers handlers) {
-            this.handlers = handlers;
-        }
-        
-        void startup(@Observes StartupEvent event) throws Exception {
-            handlers.startup(event);
-        }
-    }
-
     static class Creator implements SyntheticBeanCreator<EventHandlers> {
 
         @Override
@@ -69,7 +42,7 @@ class QuarkusEventHandlers implements EventHandlers {
             for (int i = 0; i < types.length; i++) {
                 handlerClass.put(types[i], beans[i].asSubclass(Handler.class));
             }
-            return new QuarkusEventHandlers(handlerClass, params.get("startup", Invoker.class));
+            return new QuarkusEventHandlers(handlerClass);
         }
 
     }

@@ -1,5 +1,6 @@
 com.github.jonasrutishauser.transactional.event.api.MPConfiguration
 com.github.jonasrutishauser.transactional.event.core.store.DispatcherImpl
+com.github.jonasrutishauser.transactional.event.core.store.Lifecycle
 com.github.jonasrutishauser.transactional.event.core.store.LockOwner
 com.github.jonasrutishauser.transactional.event.core.store.QueryAdapterFactory
 com.github.jonasrutishauser.transactional.event.core.store.PendingEventStore

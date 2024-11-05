@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,7 +19,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 @ApplicationScoped // needed for gauges
-public class ConfigurationMetrics {
+class ConfigurationMetrics implements Startup {
 
     private static final Logger LOGGER = LogManager.getLogger();
 

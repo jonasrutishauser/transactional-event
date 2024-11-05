@@ -1,8 +1,5 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
-import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
-import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
-import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
@@ -10,6 +7,7 @@ import static org.eclipse.microprofile.metrics.MetricUnits.SECONDS;
 
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,15 +19,9 @@ import org.eclipse.microprofile.metrics.annotation.Gauge;
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
-import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor.Task;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.BeforeDestroyed;
-import jakarta.enterprise.context.Initialized;
-import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
@@ -38,42 +30,32 @@ class DispatcherImpl implements Dispatcher {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final Configuration configuration;
-    private final Dispatcher dispatcher;
+    private final WorkProcessorImpl processor;
     private final EventExecutor executor;
     private final PendingEventStore store;
-    private final Worker worker;
     private final AtomicInteger dispatchedRunning = new AtomicInteger();
     private final BlockingQueue<String> eventsToDispatch = new LinkedBlockingQueue<>();
 
     private volatile int intervalSeconds = 30;
 
-    private Task scheduled;
-
     DispatcherImpl() {
         this.configuration = null;
-        this.dispatcher = null;
+        this.processor = null;
         this.executor = null;
         this.store = null;
-        this.worker = null;
     }
 
     @Inject
-    DispatcherImpl(Configuration configuration, Dispatcher dispatcher, EventExecutor executor, PendingEventStore store,
-            Worker worker) {
+    DispatcherImpl(Configuration configuration, WorkProcessorImpl dispatcher, EventExecutor executor, PendingEventStore store) {
         this.configuration = configuration;
-        this.dispatcher = dispatcher;
+        this.processor = dispatcher;
         this.executor = executor;
         this.store = store;
-        this.worker = worker;
     }
 
     @PostConstruct
     void initIntervalSeconds() {
         intervalSeconds = configuration.getInitialDispatchInterval();
-    }
-
-    void directDispatch(@Observes(during = AFTER_SUCCESS) @Priority(LIBRARY_BEFORE) EventsPublished events) {
-        dispatcher.processDirect(events);
     }
 
     @Override
@@ -82,7 +64,7 @@ class DispatcherImpl implements Dispatcher {
             String eventId = event.getId();
             if (dispatchable() > 0) {
                 try {
-                    executor.execute(dispatcher.processor(eventId));
+                    executeCounting(eventId);
                 } catch (RejectedExecutionException e) {
                     LOGGER.warn("Failed to submit event {} for processing: {}", eventId, e.getMessage());
                 }
@@ -97,45 +79,23 @@ class DispatcherImpl implements Dispatcher {
     }
 
     @Override
-    public Runnable processor(String eventId) {
-        return () -> {
-            if (!worker.process(eventId)) {
-                intervalSeconds = 0;
-            }
-        };
+    public long dispatchInterval() {
+        if (dispatchable() <= 0) {
+            return configuration.getAllInUseInterval();
+        }
+        return intervalSeconds * 1000l;
     }
 
-    void startup(@Observes @Priority(LIBRARY_AFTER + 500) @Initialized(ApplicationScoped.class) Object event) {
-        scheduled = executor.schedule(this::safeSchedule, configuration.getAllInUseInterval(), () -> {
-                if (dispatchable() <= 0) {
-                    return configuration.getAllInUseInterval();
-                }
-                return intervalSeconds * 1000l;
-        });
-    }
-
-    private void safeSchedule() {
+    public void schedule() {
         try {
-            dispatcher.schedule();
+            scheduleImpl();
         } catch (RuntimeException e) {
-            LOGGER.warn("Failed to schedule event processing", e);
             intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
+            throw e;
         }
     }
 
-    void shutdown(@Observes @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {
-        stop();
-    }
-
-    @PreDestroy
-    void stop() {
-        if (scheduled != null) {
-            scheduled.cancel();
-            scheduled = null;
-        }
-    }
-
-    public synchronized void schedule() {
+    private synchronized void scheduleImpl() {
         for (boolean empty = false; !empty && eventsToDispatch.size() < configuration.getMaxConcurrentDispatching();) {
             Set<String> events = store.aquire(configuration.getMaxAquire());
             events.forEach(eventsToDispatch::offer);
@@ -148,7 +108,7 @@ class DispatcherImpl implements Dispatcher {
         }
         while (dispatchable() > 0 && !eventsToDispatch.isEmpty()) {
             try {
-                executeCounting(dispatcher.processor(eventsToDispatch.take()));
+                executeCounting(eventsToDispatch.take());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
@@ -174,9 +134,18 @@ class DispatcherImpl implements Dispatcher {
         return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();
     }
 
-    private void executeCounting(Runnable task) {
+    private void executeCounting(String eventId) {
+        Callable<Boolean> supplier = processor.get(eventId);
         try {
-            executor.execute(counting(task));
+            executor.execute(counting(() -> {
+                try {
+                    if (!supplier.call()) {
+                        intervalSeconds = 0;
+                    }
+                } catch (Exception e) {
+                    LOGGER.catching(e);
+                }
+            }));
         } catch (RejectedExecutionException e) {
             dispatchedRunning.decrementAndGet();
             throw e;

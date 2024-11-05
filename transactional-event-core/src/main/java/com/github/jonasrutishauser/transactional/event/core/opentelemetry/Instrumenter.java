@@ -8,11 +8,15 @@ import com.github.jonasrutishauser.transactional.event.api.Events;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 
 @Dependent
 class Instrumenter {
+
+    static final AttributeKey<Boolean> EXCEPTION_ESCAPED = AttributeKey.booleanKey("exception.escaped");
+
     private static final String NAME = Instrumenter.class.getPackage().getName().replace(".core.opentelemetry", "");
 
     private Instrumenter() {

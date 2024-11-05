@@ -22,10 +22,6 @@ public class Messages {
     }
 
     protected boolean addFailure(String message) {
-        if (!failures.add(message)) {
-            failures.remove(message);
-            return false;
-        }
-        return true;
+        return failures.add(message) || !failures.remove(message);
     }
 }

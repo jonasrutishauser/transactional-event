@@ -5,5 +5,5 @@ public interface Dispatcher {
 
     void processDirect(EventsPublished events);
 
-    Runnable processor(String eventId);
+    long dispatchInterval();
 }
