@@ -139,7 +139,7 @@ class DispatcherImpl implements Dispatcher {
         try {
 <span class="nc" id="L140">            executor.execute(counting(() -&gt; {</span>
                 try {
-<span class="nc bnc" id="L142" title="All 2 branches missed.">                    if (!supplier.call()) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                    if (!Boolean.TRUE.equals(supplier.call())) {</span>
 <span class="nc" id="L143">                        intervalSeconds = 0;</span>
                     }
 <span class="nc" id="L145">                } catch (Exception e) {</span>

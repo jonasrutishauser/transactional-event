@@ -61,8 +61,8 @@ class Lifecycle implements Startup {
     private void safeSchedule() {
         try {
 <span class="fc" id="L63">            dispatcher.schedule();</span>
-<span class="fc" id="L64">        } catch (RuntimeException e) {</span>
-<span class="fc" id="L65">            LOGGER.warn(&quot;Failed to schedule event processing&quot;, e);</span>
+<span class="nc" id="L64">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L65">            LOGGER.warn(&quot;Failed to schedule event processing&quot;, e);</span>
 <span class="fc" id="L66">        }</span>
 <span class="fc" id="L67">    }</span>
 

@@ -89,9 +89,9 @@ class DispatcherImpl implements Dispatcher {
     public void schedule() {
         try {
 <span class="fc" id="L91">            scheduleImpl();</span>
-<span class="fc" id="L92">        } catch (RuntimeException e) {</span>
-<span class="fc" id="L93">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
-<span class="fc" id="L94">            throw e;</span>
+<span class="nc" id="L92">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L93">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
+<span class="nc" id="L94">            throw e;</span>
 <span class="fc" id="L95">        }</span>
 <span class="fc" id="L96">    }</span>
 
@@ -139,7 +139,7 @@ class DispatcherImpl implements Dispatcher {
         try {
 <span class="fc" id="L140">            executor.execute(counting(() -&gt; {</span>
                 try {
-<span class="fc bfc" id="L142" title="All 2 branches covered.">                    if (!supplier.call()) {</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">                    if (!Boolean.TRUE.equals(supplier.call())) {</span>
 <span class="fc" id="L143">                        intervalSeconds = 0;</span>
                     }
 <span class="nc" id="L145">                } catch (Exception e) {</span>

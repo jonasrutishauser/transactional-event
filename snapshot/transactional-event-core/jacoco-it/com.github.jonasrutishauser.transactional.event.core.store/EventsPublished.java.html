@@ -2,27 +2,30 @@
 
 import static java.util.Collections.unmodifiableList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 
-<span class="fc" id="L10">public final class EventsPublished {</span>
+<span class="fc" id="L11">public final class EventsPublished implements Serializable {</span>
 
-<span class="fc" id="L12">    private final List&lt;PendingEvent&gt; events = new ArrayList&lt;&gt;();</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L15">    private final List&lt;PendingEvent&gt; events = new ArrayList&lt;&gt;();</span>
     private boolean closed;
 
     public boolean addEvent(PendingEvent event) {
-<span class="fc bfc" id="L16" title="All 2 branches covered.">        if (closed) {</span>
-<span class="fc" id="L17">            throw new UnsupportedOperationException(&quot;events already committed&quot;);</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (closed) {</span>
+<span class="fc" id="L20">            throw new UnsupportedOperationException(&quot;events already committed&quot;);</span>
         }
-<span class="fc" id="L19">        events.add(event);</span>
-<span class="fc bfc" id="L20" title="All 2 branches covered.">        return events.size() == 1;</span>
+<span class="fc" id="L22">        events.add(event);</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        return events.size() == 1;</span>
     }
 
     List&lt;PendingEvent&gt; getEvents() {
-<span class="fc" id="L24">        closed = true;</span>
-<span class="fc" id="L25">        return unmodifiableList(events);</span>
+<span class="fc" id="L27">        closed = true;</span>
+<span class="fc" id="L28">        return unmodifiableList(events);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

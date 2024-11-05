@@ -56,10 +56,10 @@ public abstract class InstrumentedDispatcher implements Dispatcher {
 <span class="fc" id="L56">                .startSpan();</span>
 <span class="fc" id="L57">        try (Scope unused = span.makeCurrent()) {</span>
 <span class="fc" id="L58">            runnable.run();</span>
-<span class="fc" id="L59">        } catch (RuntimeException e) {</span>
-<span class="fc" id="L60">            span.setStatus(StatusCode.ERROR, e.getMessage());</span>
-<span class="fc" id="L61">            span.recordException(e, Attributes.of(EXCEPTION_ESCAPED, true));</span>
-<span class="fc" id="L62">            throw e;</span>
+<span class="nc" id="L59">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L60">            span.setStatus(StatusCode.ERROR, e.getMessage());</span>
+<span class="nc" id="L61">            span.recordException(e, Attributes.of(EXCEPTION_ESCAPED, true));</span>
+<span class="nc" id="L62">            throw e;</span>
         } finally {
 <span class="fc" id="L64">            span.end();</span>
         }
