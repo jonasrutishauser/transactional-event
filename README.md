@@ -19,7 +19,7 @@ The following APIs are optionally supported for serialization:
 - JSON-B 2.0
 
 ## Publish an Event
-An Event can be published using the [`EventPublisher`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/EventPublisher.html) API:
+An Event can be published using the [`EventPublisher`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/com/github/jonasrutishauser/transactional/event/api/EventPublisher.html) API:
 
 ```java
    @Inject
@@ -34,7 +34,7 @@ An Event can be published using the [`EventPublisher`](https://jonasrutishauser.
 ```
 
 ## Handle an Event
-For every event type published there must be a corresponding [`Handler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/handler/Handler.html) (qualified by [`EventHandler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/handler/EventHandler.html)):
+For every event type published there must be a corresponding [`Handler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/com/github/jonasrutishauser/transactional/event/api/handler/Handler.html) (qualified by [`EventHandler`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/com/github/jonasrutishauser/transactional/event/api/handler/EventHandler.html)):
 
 ```java
 @Dependent
@@ -48,7 +48,7 @@ class SomeEventHandler extends AbstractHandler<SomeEvent> {
 ```
 
 ## Data Source
-The library expects that the following table exists when using the `javax.sql.DataSource` with the [`Events`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/?com/github/jonasrutishauser/transactional/event/api/Events.html) qualifier:
+The library expects that the following table exists when using the `javax.sql.DataSource` with the [`Events`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/com/github/jonasrutishauser/transactional/event/api/Events.html) qualifier:
 
 ```sql
 CREATE TABLE event_store (
