@@ -30,34 +30,30 @@ public class InstrumentedPublisher implements ContextualPublisher {
     private final Tracer tracer;
     private final TextMapPropagator propagator;
 
-    InstrumentedPublisher() {
-<span class="nc" id="L34">        this(null, null, null);</span>
-<span class="nc" id="L35">    }</span>
-
     @Inject
     InstrumentedPublisher(@Delegate @Any ContextualPublisher delegate, @Events Tracer tracer,
-<span class="fc" id="L39">            @Events TextMapPropagator propagator) {</span>
-<span class="fc" id="L40">        this.delegate = delegate;</span>
-<span class="fc" id="L41">        this.tracer = tracer;</span>
-<span class="fc" id="L42">        this.propagator = propagator;</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L35">            @Events TextMapPropagator propagator) {</span>
+<span class="fc" id="L36">        this.delegate = delegate;</span>
+<span class="fc" id="L37">        this.tracer = tracer;</span>
+<span class="fc" id="L38">        this.propagator = propagator;</span>
+<span class="fc" id="L39">    }</span>
 
     @Override
     public void publish(String id, String type, Properties context, String payload) {
-<span class="fc" id="L47">        Span span = tracer.spanBuilder(type + &quot; send&quot;) //</span>
-<span class="fc" id="L48">                .setSpanKind(PRODUCER) //</span>
-<span class="fc" id="L49">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
-<span class="fc" id="L50">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
-<span class="fc" id="L51">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
-<span class="fc" id="L52">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
-<span class="fc" id="L53">                .startSpan();</span>
-<span class="fc" id="L54">        try (Scope unused = span.makeCurrent()) {</span>
-<span class="fc" id="L55">            propagator.inject(Context.current(), context, Properties::setProperty);</span>
-<span class="fc" id="L56">            delegate.publish(id, type, context, payload);</span>
+<span class="fc" id="L43">        Span span = tracer.spanBuilder(type + &quot; send&quot;) //</span>
+<span class="fc" id="L44">                .setSpanKind(PRODUCER) //</span>
+<span class="fc" id="L45">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
+<span class="fc" id="L46">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
+<span class="fc" id="L47">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
+<span class="fc" id="L48">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
+<span class="fc" id="L49">                .startSpan();</span>
+<span class="fc" id="L50">        try (Scope unused = span.makeCurrent()) {</span>
+<span class="fc" id="L51">            propagator.inject(Context.current(), context, Properties::setProperty);</span>
+<span class="fc" id="L52">            delegate.publish(id, type, context, payload);</span>
         } finally {
-<span class="fc" id="L58">            span.end();</span>
+<span class="fc" id="L54">            span.end();</span>
         }
-<span class="fc" id="L60">    }</span>
+<span class="fc" id="L56">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

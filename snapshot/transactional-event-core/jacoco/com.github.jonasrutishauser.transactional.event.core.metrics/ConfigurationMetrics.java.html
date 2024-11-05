@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,55 +19,55 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 @ApplicationScoped // needed for gauges
-public class ConfigurationMetrics {
+class ConfigurationMetrics implements Startup {
 
-<span class="nc" id="L23">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="nc" id="L24">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
     private final Configuration configuration;
 
     ConfigurationMetrics() {
-<span class="nc" id="L28">        this(null);</span>
-<span class="nc" id="L29">    }</span>
+<span class="nc" id="L29">        this(null);</span>
+<span class="nc" id="L30">    }</span>
 
     @Inject
-<span class="nc" id="L32">    ConfigurationMetrics(Configuration configuration) {</span>
-<span class="nc" id="L33">        this.configuration = configuration;</span>
-<span class="nc" id="L34">    }</span>
+<span class="nc" id="L33">    ConfigurationMetrics(Configuration configuration) {</span>
+<span class="nc" id="L34">        this.configuration = configuration;</span>
+<span class="nc" id="L35">    }</span>
 
     void init(@Observes @Priority(LIBRARY_BEFORE) @Initialized(ApplicationScoped.class) Object init) {
-<span class="nc" id="L37">        LOGGER.debug(&quot;initialized&quot;);</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L38">        LOGGER.debug(&quot;initialized&quot;);</span>
+<span class="nc" id="L39">    }</span>
 
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.all.in.use.interval&quot;,
             description = &quot;Interval between lookups for events to process when maxConcurrentDispatching is reached&quot;,
             unit = MILLISECONDS, absolute = true)
     int getAllInUseInterval() {
-<span class="nc" id="L44">        return configuration.getAllInUseInterval();</span>
+<span class="nc" id="L45">        return configuration.getAllInUseInterval();</span>
     }
 
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.dispatch.interval&quot;,
             description = &quot;Maximum interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     int getMaxDispatchInterval() {
-<span class="nc" id="L50">        return configuration.getMaxDispatchInterval();</span>
+<span class="nc" id="L51">        return configuration.getMaxDispatchInterval();</span>
     }
 
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.initial.dispatch.interval&quot;,
             description = &quot;Initial interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
     int getInitialDispatchInterval() {
-<span class="nc" id="L56">        return configuration.getInitialDispatchInterval();</span>
+<span class="nc" id="L57">        return configuration.getInitialDispatchInterval();</span>
     }
 
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.aquire&quot;,
             description = &quot;Maximum number of events aquired per query&quot;, unit = NONE, absolute = true)
     int getMaxAquire() {
-<span class="nc" id="L62">        return configuration.getMaxAquire();</span>
+<span class="nc" id="L63">        return configuration.getMaxAquire();</span>
     }
 
     @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.max.concurrent.dispatching&quot;,
             description = &quot;Maximum number of dispatched events being processed concurrently&quot;, unit = NONE,
             absolute = true)
     int getMaxConcurrentDispatching() {
-<span class="nc" id="L69">        return configuration.getMaxConcurrentDispatching();</span>
+<span class="nc" id="L70">        return configuration.getMaxConcurrentDispatching();</span>
     }
 
 }

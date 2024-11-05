@@ -56,46 +56,42 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      };
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <a name="InstrumentedProcessor" href="../../../../../../../com/github/jonasrutishauser/transactional/event/core/opentelemetry/InstrumentedProcessor.html#InstrumentedProcessor">InstrumentedProcessor</a>() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @Inject
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <a name="InstrumentedProcessor" href="../../../../../../../com/github/jonasrutishauser/transactional/event/core/opentelemetry/InstrumentedProcessor.html#InstrumentedProcessor">InstrumentedProcessor</a>(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              @Events TextMapPropagator propagator, @Named(<span class="jxr_string">"lockOwner.id"</span>) String lockOwnerId) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.delegate = delegate;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.tracer = tracer;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.propagator = propagator;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.lockOwnerId = lockOwnerId;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      @Override
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> process(String id, String type, Properties context, String payload, Handler handler) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          Context extractedContext = propagator.extract(Context.current(), context, getter);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          SpanBuilder spanBuilder = tracer.spanBuilder(type + <span class="jxr_string">" process"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  .setSpanKind(CONSUMER) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  .setAttribute(<span class="jxr_string">"messaging.system"</span>, <span class="jxr_string">"transactional-event"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  .setAttribute(<span class="jxr_string">"messaging.destination"</span>, type) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  .setAttribute(<span class="jxr_string">"messaging.message_id"</span>, id) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  .setAttribute(<span class="jxr_string">"messaging.message_payload_size_bytes"</span>, payload.getBytes(UTF_8).length) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  .setAttribute(<span class="jxr_string">"messaging.operation"</span>, <span class="jxr_string">"process"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  .setAttribute(<span class="jxr_string">"messaging.consumer_id"</span>, lockOwnerId);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (extractedContext != context) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          Span span = spanBuilder.startSpan();
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">try</strong> (Scope unused = span.makeCurrent()) {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              delegate.process(id, type, context, payload, handler);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              span.setStatus(ERROR, <span class="jxr_string">"Processing failed"</span>);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              span.recordException(e, Attributes.builder().put(<span class="jxr_string">"exception.escaped"</span>, <strong class="jxr_keyword">true</strong>).build());
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              span.end();
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      @Inject
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <a name="InstrumentedProcessor" href="../../../../../../../com/github/jonasrutishauser/transactional/event/core/opentelemetry/InstrumentedProcessor.html#InstrumentedProcessor">InstrumentedProcessor</a>(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              @Events TextMapPropagator propagator, @Named(<span class="jxr_string">"lockOwner.id"</span>) String lockOwnerId) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">this</strong>.delegate = delegate;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">this</strong>.tracer = tracer;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">this</strong>.propagator = propagator;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>.lockOwnerId = lockOwnerId;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Override
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> process(String id, String type, Properties context, String payload, Handler handler) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          Context extractedContext = propagator.extract(Context.current(), context, getter);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          SpanBuilder spanBuilder = tracer.spanBuilder(type + <span class="jxr_string">" process"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  .setSpanKind(CONSUMER) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  .setAttribute(<span class="jxr_string">"messaging.system"</span>, <span class="jxr_string">"transactional-event"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  .setAttribute(<span class="jxr_string">"messaging.destination"</span>, type) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  .setAttribute(<span class="jxr_string">"messaging.message_id"</span>, id) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  .setAttribute(<span class="jxr_string">"messaging.message_payload_size_bytes"</span>, payload.getBytes(UTF_8).length) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  .setAttribute(<span class="jxr_string">"messaging.operation"</span>, <span class="jxr_string">"process"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  .setAttribute(<span class="jxr_string">"messaging.consumer_id"</span>, lockOwnerId);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">if</strong> (extractedContext != context) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          Span span = spanBuilder.startSpan();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">try</strong> (Scope unused = span.makeCurrent()) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              delegate.process(id, type, context, payload, handler);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              span.setStatus(ERROR, <span class="jxr_string">"Processing failed"</span>);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              span.recordException(e, Attributes.builder().put(<span class="jxr_string">"exception.escaped"</span>, <strong class="jxr_keyword">true</strong>).build());
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              span.end();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2024</div>

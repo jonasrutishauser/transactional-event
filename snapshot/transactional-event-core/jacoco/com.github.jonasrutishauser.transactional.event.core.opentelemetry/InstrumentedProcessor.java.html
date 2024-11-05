@@ -48,44 +48,40 @@ public class InstrumentedProcessor implements ContextualProcessor {
         }
     };
 
-    InstrumentedProcessor() {
-<span class="nc" id="L52">        this(null, null, null, null);</span>
-<span class="nc" id="L53">    }</span>
-
     @Inject
     InstrumentedProcessor(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
-<span class="nc" id="L57">            @Events TextMapPropagator propagator, @Named(&quot;lockOwner.id&quot;) String lockOwnerId) {</span>
-<span class="nc" id="L58">        this.delegate = delegate;</span>
-<span class="nc" id="L59">        this.tracer = tracer;</span>
-<span class="nc" id="L60">        this.propagator = propagator;</span>
-<span class="nc" id="L61">        this.lockOwnerId = lockOwnerId;</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L53">            @Events TextMapPropagator propagator, @Named(&quot;lockOwner.id&quot;) String lockOwnerId) {</span>
+<span class="nc" id="L54">        this.delegate = delegate;</span>
+<span class="nc" id="L55">        this.tracer = tracer;</span>
+<span class="nc" id="L56">        this.propagator = propagator;</span>
+<span class="nc" id="L57">        this.lockOwnerId = lockOwnerId;</span>
+<span class="nc" id="L58">    }</span>
 
     @Override
     public void process(String id, String type, Properties context, String payload, Handler handler) {
-<span class="nc" id="L66">        Context extractedContext = propagator.extract(Context.current(), context, getter);</span>
-<span class="nc" id="L67">        SpanBuilder spanBuilder = tracer.spanBuilder(type + &quot; process&quot;) //</span>
-<span class="nc" id="L68">                .setSpanKind(CONSUMER) //</span>
-<span class="nc" id="L69">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
-<span class="nc" id="L70">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
-<span class="nc" id="L71">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
-<span class="nc" id="L72">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
-<span class="nc" id="L73">                .setAttribute(&quot;messaging.operation&quot;, &quot;process&quot;) //</span>
-<span class="nc" id="L74">                .setAttribute(&quot;messaging.consumer_id&quot;, lockOwnerId);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (extractedContext != context) {</span>
-<span class="nc" id="L76">            spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());</span>
+<span class="nc" id="L62">        Context extractedContext = propagator.extract(Context.current(), context, getter);</span>
+<span class="nc" id="L63">        SpanBuilder spanBuilder = tracer.spanBuilder(type + &quot; process&quot;) //</span>
+<span class="nc" id="L64">                .setSpanKind(CONSUMER) //</span>
+<span class="nc" id="L65">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
+<span class="nc" id="L66">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
+<span class="nc" id="L67">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
+<span class="nc" id="L68">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
+<span class="nc" id="L69">                .setAttribute(&quot;messaging.operation&quot;, &quot;process&quot;) //</span>
+<span class="nc" id="L70">                .setAttribute(&quot;messaging.consumer_id&quot;, lockOwnerId);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (extractedContext != context) {</span>
+<span class="nc" id="L72">            spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());</span>
         }
-<span class="nc" id="L78">        Span span = spanBuilder.startSpan();</span>
-<span class="nc" id="L79">        try (Scope unused = span.makeCurrent()) {</span>
-<span class="nc" id="L80">            delegate.process(id, type, context, payload, handler);</span>
-<span class="nc" id="L81">        } catch (RuntimeException e) {</span>
-<span class="nc" id="L82">            span.setStatus(ERROR, &quot;Processing failed&quot;);</span>
-<span class="nc" id="L83">            span.recordException(e, Attributes.builder().put(&quot;exception.escaped&quot;, true).build());</span>
-<span class="nc" id="L84">            throw e;</span>
+<span class="nc" id="L74">        Span span = spanBuilder.startSpan();</span>
+<span class="nc" id="L75">        try (Scope unused = span.makeCurrent()) {</span>
+<span class="nc" id="L76">            delegate.process(id, type, context, payload, handler);</span>
+<span class="nc" id="L77">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L78">            span.setStatus(ERROR, &quot;Processing failed&quot;);</span>
+<span class="nc" id="L79">            span.recordException(e, Attributes.builder().put(&quot;exception.escaped&quot;, true).build());</span>
+<span class="nc" id="L80">            throw e;</span>
         } finally {
-<span class="nc" id="L86">            span.end();</span>
+<span class="nc" id="L82">            span.end();</span>
         }
-<span class="nc" id="L88">    }</span>
+<span class="nc" id="L84">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
