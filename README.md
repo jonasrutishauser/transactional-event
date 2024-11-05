@@ -79,7 +79,7 @@ class EventsDataSource {
 ```
 
 ## Configuration
-The [Quarkus Configuration](https://jonasrutishauser.github.io/transactional-event/snapshot/quarkus-configuration.html) is documented on the [project site](https://jonasrutishauser.github.io/transactional-event/).
+The [Quarkus Configuration](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-quarkus/quarkus-configuration.html) is documented on the [project site](https://jonasrutishauser.github.io/transactional-event/).
 
 The configuration properties are the same without the `quarkus.` prefix if not running in Quarkus.
 

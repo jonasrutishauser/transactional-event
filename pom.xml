@@ -65,7 +65,7 @@
 					<configuration>
 						<asciidoc>
 							<attributes>
-								<generated-dir>${project.build.directory}/asciidoc/generated</generated-dir>
+								<generated-dir>${project.build.directory}/quarkus-generated-doc</generated-dir>
 		                        <icons>font</icons>
 							</attributes>
 						</asciidoc>
