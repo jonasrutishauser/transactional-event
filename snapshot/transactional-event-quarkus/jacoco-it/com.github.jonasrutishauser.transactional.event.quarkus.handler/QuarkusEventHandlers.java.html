@@ -9,67 +9,40 @@ import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 
-import io.quarkus.runtime.StartupEvent;
-import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.build.compatible.spi.Parameters;
 import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
-import jakarta.enterprise.invoke.Invoker;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 class QuarkusEventHandlers implements EventHandlers {
 
     private final Map&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClass;
-    private final Invoker&lt;?, ?&gt; startupMethod;
 
-<span class="fc" id="L26">    QuarkusEventHandlers(Map&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClass, Invoker&lt;?, ?&gt; startupMethod) {</span>
-<span class="fc" id="L27">        this.handlerClass = handlerClass;</span>
-<span class="fc" id="L28">        this.startupMethod = startupMethod;</span>
-<span class="fc" id="L29">    }</span>
+<span class="fc" id="L20">    QuarkusEventHandlers(Map&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClass) {</span>
+<span class="fc" id="L21">        this.handlerClass = handlerClass;</span>
+<span class="fc" id="L22">    }</span>
 
     @Override
     public Optional&lt;Class&lt;? extends Handler&gt;&gt; getHandlerClassWithImplicitType(EventTypeResolver typeResolver,
             String type) {
-<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        for (Entry&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClassEntry : handlerClass.entrySet()) {</span>
-<span class="pc bpc" id="L35" title="1 of 2 branches missed.">            if (type.equals(typeResolver.resolve(handlerClassEntry.getKey()))) {</span>
-<span class="fc" id="L36">                return Optional.of(handlerClassEntry.getValue());</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        for (Entry&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClassEntry : handlerClass.entrySet()) {</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">            if (type.equals(typeResolver.resolve(handlerClassEntry.getKey()))) {</span>
+<span class="fc" id="L29">                return Optional.of(handlerClassEntry.getValue());</span>
             }
-<span class="nc" id="L38">        }</span>
-<span class="nc" id="L39">        return Optional.empty();</span>
+<span class="nc" id="L31">        }</span>
+<span class="nc" id="L32">        return Optional.empty();</span>
     }
 
-    void startup(StartupEvent event) throws Exception {
-<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        if (startupMethod != null) {</span>
-<span class="fc" id="L44">            startupMethod.invoke(null, new Object[] {event});</span>
-        }
-<span class="fc" id="L46">    }</span>
-
-    @Singleton
-    static class Startup {
-        private final QuarkusEventHandlers handlers;
-        
-        @Inject
-<span class="fc" id="L53">        Startup(QuarkusEventHandlers handlers) {</span>
-<span class="fc" id="L54">            this.handlers = handlers;</span>
-<span class="fc" id="L55">        }</span>
-        
-        void startup(@Observes StartupEvent event) throws Exception {
-<span class="fc" id="L58">            handlers.startup(event);</span>
-<span class="fc" id="L59">        }</span>
-    }
-
-<span class="fc" id="L62">    static class Creator implements SyntheticBeanCreator&lt;EventHandlers&gt; {</span>
+<span class="fc" id="L35">    static class Creator implements SyntheticBeanCreator&lt;EventHandlers&gt; {</span>
 
         @Override
         public QuarkusEventHandlers create(Instance&lt;Object&gt; lookup, Parameters params) {
-<span class="fc" id="L66">            Class&lt;?&gt;[] types = params.get(&quot;types&quot;, Class[].class);</span>
-<span class="fc" id="L67">            Class&lt;?&gt;[] beans = params.get(&quot;beans&quot;, Class[].class);</span>
-<span class="fc" id="L68">            Map&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClass = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">            for (int i = 0; i &lt; types.length; i++) {</span>
-<span class="fc" id="L70">                handlerClass.put(types[i], beans[i].asSubclass(Handler.class));</span>
+<span class="fc" id="L39">            Class&lt;?&gt;[] types = params.get(&quot;types&quot;, Class[].class);</span>
+<span class="fc" id="L40">            Class&lt;?&gt;[] beans = params.get(&quot;beans&quot;, Class[].class);</span>
+<span class="fc" id="L41">            Map&lt;Class&lt;?&gt;, Class&lt;? extends Handler&gt;&gt; handlerClass = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">            for (int i = 0; i &lt; types.length; i++) {</span>
+<span class="fc" id="L43">                handlerClass.put(types[i], beans[i].asSubclass(Handler.class));</span>
             }
-<span class="fc" id="L72">            return new QuarkusEventHandlers(handlerClass, params.get(&quot;startup&quot;, Invoker.class));</span>
+<span class="fc" id="L45">            return new QuarkusEventHandlers(handlerClass);</span>
         }
 
     }
