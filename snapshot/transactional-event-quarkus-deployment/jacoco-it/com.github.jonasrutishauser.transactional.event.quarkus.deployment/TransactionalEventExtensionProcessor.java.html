@@ -15,9 +15,9 @@ import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.DefaultEventExecutor;
 import com.github.jonasrutishauser.transactional.event.core.defaults.DefaultConcurrencyProvider;
-import com.github.jonasrutishauser.transactional.event.core.metrics.MetricsEventObserver;
 import com.github.jonasrutishauser.transactional.event.core.serialization.JaxbSerialization;
 import com.github.jonasrutishauser.transactional.event.core.serialization.JsonbSerialization;
+import com.github.jonasrutishauser.transactional.event.quarkus.DbSchema;
 import com.github.jonasrutishauser.transactional.event.quarkus.DbSchemaRecorder;
 import com.github.jonasrutishauser.transactional.event.quarkus.TransactionalEventBuildTimeConfiguration;
 
@@ -59,26 +59,36 @@ import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 
     @BuildStep
     void excludeFromBeansXml(Capabilities capabilities, Optional&lt;MetricsCapabilityBuildItem&gt; metricsCapability,
-            BuildProducer&lt;ExcludedTypeBuildItem&gt; excludeProducer) {
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (capabilities.isMissing(Capability.JAXB)) {</span>
-<span class="fc" id="L64">            excludeProducer.produce(new ExcludedTypeBuildItem(JaxbSerialization.class.getName()));</span>
+            BuildProducer&lt;ExcludedTypeBuildItem&gt; excludeProducer,
+            BuildProducer&lt;UnremovableBeanBuildItem&gt; unremovableBean) {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (capabilities.isMissing(Capability.JAXB)) {</span>
+<span class="fc" id="L65">            excludeProducer.produce(new ExcludedTypeBuildItem(JaxbSerialization.class.getName()));</span>
         }
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (capabilities.isMissing(Capability.JSONB)) {</span>
-<span class="nc" id="L67">            excludeProducer.produce(new ExcludedTypeBuildItem(JsonbSerialization.class.getName()));</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (capabilities.isMissing(Capability.JSONB)) {</span>
+<span class="nc" id="L68">            excludeProducer.produce(new ExcludedTypeBuildItem(JsonbSerialization.class.getName()));</span>
         }
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (metricsCapability.isEmpty()) {</span>
-<span class="fc" id="L70">            excludeProducer.produce(new ExcludedTypeBuildItem(MetricsEventObserver.class.getName()));</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (metricsCapability.isEmpty()) {</span>
+<span class="fc" id="L71">            excludeProducer.produce(</span>
+                    new ExcludedTypeBuildItem(&quot;com.github.jonasrutishauser.transactional.event.core.metrics.*&quot;));
+        } else {
+<span class="nc" id="L74">            unremovableBean.produce(UnremovableBeanBuildItem.beanClassNames(</span>
+                    &quot;com.github.jonasrutishauser.transactional.event.core.metrics.ConfigurationMetrics&quot;));
         }
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (capabilities.isMissing(Capability.OPENTELEMETRY_TRACER)) {</span>
-<span class="fc" id="L73">            excludeProducer.produce(</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (capabilities.isMissing(Capability.OPENTELEMETRY_TRACER)) {</span>
+<span class="fc" id="L78">            excludeProducer.produce(</span>
                     new ExcludedTypeBuildItem(&quot;com.github.jonasrutishauser.transactional.event.core.opentelemetry.*&quot;));
         }
-<span class="fc" id="L76">    }</span>
+<span class="fc" id="L81">    }</span>
 
     @BuildStep
     UnremovableBeanBuildItem ensureEventHandlersAreNotRemoved() {
-<span class="fc bfc" id="L80" title="All 2 branches covered.">        return new UnremovableBeanBuildItem(beanInfo -&gt; beanInfo.hasType(DotName.createSimple(Handler.class))</span>
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                &amp;&amp; beanInfo.getQualifier(DotName.createSimple(EventHandler.class)).isPresent());</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        return new UnremovableBeanBuildItem(beanInfo -&gt; beanInfo.hasType(DotName.createSimple(Handler.class))</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                &amp;&amp; beanInfo.getQualifier(DotName.createSimple(EventHandler.class)).isPresent());</span>
+    }
+
+    @BuildStep(onlyIfNot = IsNormal.class)
+    UnremovableBeanBuildItem ensureDbSchemaIsNotRemoved() {
+<span class="fc" id="L91">        return UnremovableBeanBuildItem.beanTypes(DbSchema.class);</span>
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
@@ -87,42 +97,42 @@ import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
     ServiceStartBuildItem initDb(TransactionalEventBuildTimeConfiguration configuration,
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             List&lt;DefaultDataSourceDbKindBuildItem&gt; installedDrivers, DbSchemaRecorder recorder) {
-<span class="fc" id="L90">        List&lt;String&gt; statements = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L91">        StringBuilder builder = new StringBuilder();</span>
-<span class="fc" id="L92">        try (BufferedReader reader = new BufferedReader(</span>
-<span class="fc" id="L93">                new InputStreamReader(getClass().getResourceAsStream(&quot;/transactional-event-tables&quot;</span>
-<span class="fc" id="L94">                        + getDbKindSuffix(dataSourcesBuildTimeConfig, installedDrivers) + &quot;.sql&quot;)))) {</span>
+<span class="fc" id="L100">        List&lt;String&gt; statements = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L101">        StringBuilder builder = new StringBuilder();</span>
+<span class="fc" id="L102">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="fc" id="L103">                new InputStreamReader(getClass().getResourceAsStream(&quot;/transactional-event-tables&quot;</span>
+<span class="fc" id="L104">                        + getDbKindSuffix(dataSourcesBuildTimeConfig, installedDrivers) + &quot;.sql&quot;)))) {</span>
             String line;
-<span class="fc bfc" id="L96" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L97">                builder.append(line);</span>
-<span class="fc bfc" id="L98" title="All 4 branches covered.">                if (builder.length() &gt; 0 &amp;&amp; builder.charAt(builder.length() - 1) == ';') {</span>
-<span class="fc" id="L99">                    statements.add(builder.substring(0, builder.length() - 1).trim()</span>
-<span class="fc" id="L100">                            .replace(Configuration.DEFAULT_TABLE_NAME, configuration.tableName()));</span>
-<span class="fc" id="L101">                    builder.setLength(0);</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L107">                builder.append(line);</span>
+<span class="fc bfc" id="L108" title="All 4 branches covered.">                if (builder.length() &gt; 0 &amp;&amp; builder.charAt(builder.length() - 1) == ';') {</span>
+<span class="fc" id="L109">                    statements.add(builder.substring(0, builder.length() - 1).trim()</span>
+<span class="fc" id="L110">                            .replace(Configuration.DEFAULT_TABLE_NAME, configuration.tableName()));</span>
+<span class="fc" id="L111">                    builder.setLength(0);</span>
                 } else {
-<span class="fc" id="L103">                    builder.append('\n');</span>
+<span class="fc" id="L113">                    builder.append('\n');</span>
                 }
             }
-<span class="nc" id="L106">        } catch (IOException e) {</span>
-<span class="nc" id="L107">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L108">        }</span>
-<span class="fc" id="L109">        recorder.reset(statements);</span>
-<span class="fc" id="L110">        return new ServiceStartBuildItem(FEATURE);</span>
+<span class="nc" id="L116">        } catch (IOException e) {</span>
+<span class="nc" id="L117">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L118">        }</span>
+<span class="fc" id="L119">        recorder.reset(statements);</span>
+<span class="fc" id="L120">        return new ServiceStartBuildItem(FEATURE);</span>
     }
 
     private String getDbKindSuffix(DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             List&lt;DefaultDataSourceDbKindBuildItem&gt; installedDrivers) {
-<span class="fc" id="L115">        Optional&lt;String&gt; dbKind = dataSourcesBuildTimeConfig.dataSources().get(DataSourceUtil.DEFAULT_DATASOURCE_NAME)</span>
-<span class="fc" id="L116">                .dbKind().or(installedDrivers.stream().map(DefaultDataSourceDbKindBuildItem::getDbKind)::findFirst);</span>
-<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (dbKind.isPresent()) {</span>
-<span class="pc bpc" id="L118" title="2 of 4 branches missed.">            if (DatabaseKind.isMySQL(dbKind.get()) || DatabaseKind.isMariaDB(dbKind.get())) {</span>
-<span class="nc" id="L119">                return &quot;-mysql&quot;;</span>
+<span class="fc" id="L125">        Optional&lt;String&gt; dbKind = dataSourcesBuildTimeConfig.dataSources().get(DataSourceUtil.DEFAULT_DATASOURCE_NAME)</span>
+<span class="fc" id="L126">                .dbKind().or(installedDrivers.stream().map(DefaultDataSourceDbKindBuildItem::getDbKind)::findFirst);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (dbKind.isPresent()) {</span>
+<span class="pc bpc" id="L128" title="2 of 4 branches missed.">            if (DatabaseKind.isMySQL(dbKind.get()) || DatabaseKind.isMariaDB(dbKind.get())) {</span>
+<span class="nc" id="L129">                return &quot;-mysql&quot;;</span>
             }
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">            if (DatabaseKind.isOracle(dbKind.get())) {</span>
-<span class="nc" id="L122">                return &quot;-oracle&quot;;</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            if (DatabaseKind.isOracle(dbKind.get())) {</span>
+<span class="nc" id="L132">                return &quot;-oracle&quot;;</span>
             }
         }
-<span class="fc" id="L125">        return &quot;&quot;;</span>
+<span class="fc" id="L135">        return &quot;&quot;;</span>
     }
 
 }
