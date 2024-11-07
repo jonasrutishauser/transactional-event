@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Lifecycle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">Lifecycle.java</span></div><h1>Lifecycle.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
+
+import static jakarta.enterprise.event.Reception.IF_EXISTS;
+import static jakarta.enterprise.event.TransactionPhase.AFTER_SUCCESS;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
+import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
+import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor.Task;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.BeforeDestroyed;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+class Lifecycle implements Startup {
+
+<span class="fc" id="L28">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    private final Configuration configuration;
+    private final Dispatcher dispatcher;
+    private final EventExecutor executor;
+
+    private Task scheduled;
+
+    Lifecycle() {
+<span class="fc" id="L37">        this(null, null, null);</span>
+<span class="fc" id="L38">    }</span>
+
+    @Inject
+<span class="fc" id="L41">    Lifecycle(Configuration configuration, Dispatcher dispatcher, EventExecutor executor) {</span>
+<span class="fc" id="L42">        this.configuration = configuration;</span>
+<span class="fc" id="L43">        this.dispatcher = dispatcher;</span>
+<span class="fc" id="L44">        this.executor = executor;</span>
+<span class="fc" id="L45">    }</span>
+
+    void directDispatch(@Observes(during = AFTER_SUCCESS) @Priority(LIBRARY_BEFORE) EventsPublished events) {
+<span class="fc" id="L48">        dispatcher.processDirect(events);</span>
+<span class="fc" id="L49">    }</span>
+
+    void startup(@Observes @Priority(LIBRARY_AFTER + 500) @Initialized(ApplicationScoped.class) Object event) {
+<span class="fc" id="L52">        LOGGER.debug(&quot;initialized&quot;);</span>
+<span class="fc" id="L53">    }</span>
+
+    @PostConstruct
+    void startup() {
+<span class="fc" id="L57">        scheduled = executor.schedule(this::safeSchedule, configuration.getAllInUseInterval(),</span>
+<span class="fc" id="L58">                dispatcher::dispatchInterval);</span>
+<span class="fc" id="L59">    }</span>
+
+    private void safeSchedule() {
+        try {
+<span class="fc" id="L63">            dispatcher.schedule();</span>
+<span class="nc" id="L64">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L65">            LOGGER.warn(&quot;Failed to schedule event processing&quot;, e);</span>
+<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">    }</span>
+
+    void shutdown(@Observes(notifyObserver = IF_EXISTS) @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {
+<span class="fc" id="L70">        stop();</span>
+<span class="fc" id="L71">    }</span>
+
+    @PreDestroy
+    void stop() {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (scheduled != null) {</span>
+<span class="fc" id="L76">            scheduled.cancel();</span>
+<span class="fc" id="L77">            scheduled = null;</span>
+        }
+<span class="fc" id="L79">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
