@@ -101,7 +101,7 @@ class DispatcherImpl implements Dispatcher {
             events.forEach(eventsToDispatch::offer);
             empty = events.isEmpty();
         }
-        if (dispatchable() > 0 || !eventsToDispatch.isEmpty()) {
+        if (!eventsToDispatch.isEmpty()) {
             intervalSeconds = 0;
         } else {
             intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));
