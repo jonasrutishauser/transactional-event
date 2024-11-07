@@ -62,14 +62,14 @@ class DispatcherImpl implements Dispatcher {
     public void processDirect(EventsPublished events) {
 <span class="fc bfc" id="L63" title="All 2 branches covered.">        for (PendingEvent event : events.getEvents()) {</span>
 <span class="fc" id="L64">            String eventId = event.getId();</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            if (dispatchable() &gt; 0) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (dispatchable() &gt; 0) {</span>
                 try {
 <span class="fc" id="L67">                    executeCounting(eventId);</span>
 <span class="nc" id="L68">                } catch (RejectedExecutionException e) {</span>
 <span class="nc" id="L69">                    LOGGER.warn(&quot;Failed to submit event {} for processing: {}&quot;, eventId, e.getMessage());</span>
 <span class="pc" id="L70">                }</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">            } else if (eventsToDispatch.size() &lt; 8 * configuration.getMaxAquire()) {</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (!eventsToDispatch.offer(eventId)) {</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">            } else if (eventsToDispatch.size() &lt; 8 * configuration.getMaxAquire()) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                if (!eventsToDispatch.offer(eventId)) {</span>
 <span class="nc" id="L73">                    LOGGER.warn(&quot;Failed to submit event {} for processing&quot;, eventId);</span>
                 }
             } else {
