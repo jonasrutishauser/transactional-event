@@ -20,7 +20,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,Instrumenter,4,27,1,1,1,6,1,4,0,4
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,InstrumentedWorkProcessor,17,56,0,0,4,17,0,3,0,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Lifecycle,5,66,0,2,2,24,0,10,0,9
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,DispatcherImpl,84,213,8,16,20,58,5,22,0,15
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,DispatcherImpl,68,226,5,17,19,59,3,23,0,15
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,13,73,0,2,4,19,1,6,1,5
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,8,0,0,0,1,0,1,0,1

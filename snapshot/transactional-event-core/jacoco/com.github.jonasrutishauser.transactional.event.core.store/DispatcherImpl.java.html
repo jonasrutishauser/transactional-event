@@ -101,7 +101,7 @@ class DispatcherImpl implements Dispatcher {
 <span class="nc" id="L101">            events.forEach(eventsToDispatch::offer);</span>
 <span class="nc" id="L102">            empty = events.isEmpty();</span>
 <span class="nc" id="L103">        }</span>
-<span class="nc bnc" id="L104" title="All 4 branches missed.">        if (dispatchable() &gt; 0 || !eventsToDispatch.isEmpty()) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (!eventsToDispatch.isEmpty()) {</span>
 <span class="nc" id="L105">            intervalSeconds = 0;</span>
         } else {
 <span class="nc" id="L107">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
