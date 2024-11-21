@@ -100,7 +100,7 @@ import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 <span class="nc" id="L100">            return false;</span>
         }
 <span class="fc" id="L102">        ClassInfo superClass = index.getClassByName(implClazz.superClassType().name());</span>
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        return superClass == null ? false : hasEventHandlerMethod(implClazz, index);</span>
+<span class="pc bpc" id="L103" title="3 of 4 branches missed.">        return superClass != null &amp;&amp; hasEventHandlerMethod(implClazz, index);</span>
     }
 
     @BuildStep(onlyIfNot = IsNormal.class)
