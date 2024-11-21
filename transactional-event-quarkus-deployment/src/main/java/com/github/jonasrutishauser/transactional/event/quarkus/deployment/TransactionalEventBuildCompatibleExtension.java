@@ -57,6 +57,8 @@ import jakarta.inject.Singleton;
 
 public class TransactionalEventBuildCompatibleExtension implements BuildCompatibleExtension {
 
+    private static final String EVENT_TYPE = "eventType";
+
     private final Map<MethodInfo, InvokerInfo> eventHandlerMethods = new HashMap<>();
 
     private final Set<ParameterizedType> requiredEventDeserializers = new HashSet<>();
@@ -101,7 +103,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     public void processTypedHandlers(ClassConfig typeConfig, Types types, Messages messages) {
         ClassInfo type = typeConfig.info();
         if (type.hasAnnotation(EventHandler.class) && EventHandler.ABSTRACT_HANDLER_TYPE
-                .equals(type.annotation(EventHandler.class).member("eventType").asString())) {
+                .equals(type.annotation(EventHandler.class).member(EVENT_TYPE).asString())) {
             Optional<ClassType> eventType = type.methods().stream() //
                     .filter(m -> "handle".equals(m.name())) //
                     .filter(m -> types.ofVoid().equals(m.returnType())) //
@@ -131,7 +133,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
             messages.error("EventHandler annotation is missing on bean", beanInfo);
         } else {
             if (EventHandler.ABSTRACT_HANDLER_TYPE
-                    .equals(eventHandlerAnnotation.get().member("eventType").asString())) {
+                    .equals(eventHandlerAnnotation.get().member(EVENT_TYPE).asString())) {
                 Optional<AnnotationInfo> typedEventHandler = beanInfo.qualifiers().stream() //
                         .filter(a -> TypedEventHandler.class.getName().equals(a.name())) //
                         .findAny();
@@ -173,10 +175,10 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
                     .qualifier(eventHandlerMethod.getKey().annotation(EventHandler.class)) //
                     .qualifier(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.declaration()).build()) //
                     .createWith(SyntheticHandlerCreator.class) //
-                    .withParam("eventType", eventType.declaration()) //
+                    .withParam("type", eventType.declaration()) //
                     .withParam("invoker", eventHandlerMethod.getValue());
             if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(
-                    eventHandlerMethod.getKey().annotation(EventHandler.class).member("eventType").asString())) {
+                    eventHandlerMethod.getKey().annotation(EventHandler.class).member(EVENT_TYPE).asString())) {
                 handledTypes.add(eventType.declaration());
             }
             requiredEventDeserializers.add(types.parameterized(EventDeserializer.class, eventType));

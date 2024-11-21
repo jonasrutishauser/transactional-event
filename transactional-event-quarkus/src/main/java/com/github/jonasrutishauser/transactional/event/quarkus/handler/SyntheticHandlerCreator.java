@@ -24,7 +24,7 @@ public class SyntheticHandlerCreator implements SyntheticBeanCreator<Handler> {
     public Handler create(Instance<Object> lookup, Parameters params) {
         EventDeserializer<?> deserializer = lookup.select(EVENT_DESIRIALIZERS) //
                 .handlesStream() //
-                .filter(matchesType(params.get("eventType", Class.class))) //
+                .filter(matchesType(params.get("type", Class.class))) //
                 .findAny() //
                 .orElseThrow() //
                 .get();

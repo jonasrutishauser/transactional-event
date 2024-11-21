@@ -100,7 +100,7 @@ public class TransactionalEventExtensionProcessor {
             return false;
         }
         ClassInfo superClass = index.getClassByName(implClazz.superClassType().name());
-        return superClass == null ? false : hasEventHandlerMethod(implClazz, index);
+        return superClass != null && hasEventHandlerMethod(implClazz, index);
     }
 
     @BuildStep(onlyIfNot = IsNormal.class)

@@ -83,7 +83,7 @@ class EventHandlerMethod<T> {
 
                         @Override
                         public int hashCode() {
-                            return Arrays.hashCode(getActualTypeArguments()) ^ 0 ^ EventDeserializer.class.hashCode();
+                            return Arrays.hashCode(getActualTypeArguments()) ^ EventDeserializer.class.hashCode();
                         }
 
                         @Override
