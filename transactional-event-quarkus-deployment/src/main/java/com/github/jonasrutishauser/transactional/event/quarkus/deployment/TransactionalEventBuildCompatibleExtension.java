@@ -1,15 +1,15 @@
 package com.github.jonasrutishauser.transactional.event.quarkus.deployment;
 
 import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
-import static java.util.function.Predicate.isEqual;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,8 +19,10 @@ import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.cdi.DefaultEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.cdi.ExtendedEventDeserializer;
+import com.github.jonasrutishauser.transactional.event.core.cdi.TypedEventHandler;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 import com.github.jonasrutishauser.transactional.event.quarkus.DefaultEventDeserializerCreator;
+import com.github.jonasrutishauser.transactional.event.quarkus.handler.SyntheticHandlerCreator;
 
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
@@ -28,11 +30,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilder;
 import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
 import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
 import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
 import jakarta.enterprise.inject.build.compatible.spi.InjectionPointInfo;
+import jakarta.enterprise.inject.build.compatible.spi.InvokerFactory;
+import jakarta.enterprise.inject.build.compatible.spi.InvokerInfo;
 import jakarta.enterprise.inject.build.compatible.spi.Messages;
 import jakarta.enterprise.inject.build.compatible.spi.ParameterConfig;
 import jakarta.enterprise.inject.build.compatible.spi.Registration;
@@ -43,6 +48,8 @@ import jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents;
 import jakarta.enterprise.inject.build.compatible.spi.Types;
 import jakarta.enterprise.lang.model.AnnotationInfo;
 import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.ParameterInfo;
 import jakarta.enterprise.lang.model.types.ClassType;
 import jakarta.enterprise.lang.model.types.ParameterizedType;
 import jakarta.enterprise.lang.model.types.Type;
@@ -50,10 +57,12 @@ import jakarta.inject.Singleton;
 
 public class TransactionalEventBuildCompatibleExtension implements BuildCompatibleExtension {
 
+    private final Map<MethodInfo, InvokerInfo> eventHandlerMethods = new HashMap<>();
+
     private final Set<ParameterizedType> requiredEventDeserializers = new HashSet<>();
     private final Set<Type> declaredEventDeserializers = new HashSet<>();
 
-    private final Map<ClassInfo, ClassInfo> handlerClass = new HashMap<>();
+    private final List<ClassInfo> handledTypes = new ArrayList<>();
 
     @Enhancement(types = Object.class, withSubtypes = true)
     @Priority(LIBRARY_AFTER)
@@ -87,36 +96,96 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
         });
     }
 
+    @Enhancement(types = AbstractHandler.class, withSubtypes = true, withAnnotations = EventHandler.class)
+    @Priority(LIBRARY_AFTER)
+    public void processTypedHandlers(ClassConfig typeConfig, Types types, Messages messages) {
+        ClassInfo type = typeConfig.info();
+        if (type.hasAnnotation(EventHandler.class) && EventHandler.ABSTRACT_HANDLER_TYPE
+                .equals(type.annotation(EventHandler.class).member("eventType").asString())) {
+            Optional<ClassType> eventType = type.methods().stream() //
+                    .filter(m -> "handle".equals(m.name())) //
+                    .filter(m -> types.ofVoid().equals(m.returnType())) //
+                    .filter(m -> !m.isAbstract()) //
+                    .filter(m -> !m.isStatic()) //
+                    .filter(m -> m.parameters().size() == 1) //
+                    .map(MethodInfo::parameters) //
+                    .map(params -> params.get(0)) //
+                    .map(ParameterInfo::type) //
+                    .filter(Type::isClass) //
+                    .map(Type::asClass) //
+                    .findAny();
+            if (eventType.isEmpty()) {
+                messages.warn("Failed to determine event type", type);
+            } else {
+                typeConfig.addAnnotation(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.get()).build());
+            }
+        }
+    }
+
     @Registration(types = Handler.class)
+    @Priority(LIBRARY_AFTER)
     public void processHandlers(BeanInfo beanInfo, Messages messages) {
         Optional<AnnotationInfo> eventHandlerAnnotation = beanInfo.qualifiers().stream()
                 .filter(annotation -> EventHandler.class.getName().equals(annotation.name())).findAny();
         if (eventHandlerAnnotation.isEmpty()) {
             messages.error("EventHandler annotation is missing on bean", beanInfo);
         } else {
-            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(eventHandlerAnnotation.get().member("eventType").asString())) {
-                Optional<ParameterizedType> abstractHandlerType = getAbstractHandlerType(beanInfo.types());
-                if (abstractHandlerType.isEmpty()) {
+            if (EventHandler.ABSTRACT_HANDLER_TYPE
+                    .equals(eventHandlerAnnotation.get().member("eventType").asString())) {
+                Optional<AnnotationInfo> typedEventHandler = beanInfo.qualifiers().stream() //
+                        .filter(a -> TypedEventHandler.class.getName().equals(a.name())) //
+                        .findAny();
+                if (typedEventHandler.isEmpty()) {
                     messages.error("AbstractHandler type is missing on bean with implicit event type", beanInfo);
-                } else if (beanInfo.types().stream().filter(Type::isClass).map(Type::asClass).map(ClassType::declaration)
-                        .noneMatch(isEqual(beanInfo.declaringClass()))) {
-                    messages.error(beanInfo.declaringClass().simpleName() + " type is missing on bean with implicit event type", beanInfo);
                 } else {
-                    handlerClass.put(getClassInfo(abstractHandlerType.get().typeArguments().get(0)), beanInfo.declaringClass());
+                    handledTypes.add(typedEventHandler.get().value().asType().asClass().declaration());
                 }
             }
+        }
+    }
+
+    @Registration(types = Object.class)
+    @Priority(LIBRARY_AFTER)
+    public void processHandlerMethods(BeanInfo beanInfo, InvokerFactory invokerFactory, Messages messages) {
+        if (beanInfo.isClassBean()) {
+            beanInfo.declaringClass().methods().stream() //
+                .filter(m -> m.hasAnnotation(EventHandler.class)) //
+                .forEach(m -> addHandlerMethod(beanInfo, m, invokerFactory, messages));
+        }
+    }
+
+    private void addHandlerMethod(BeanInfo beanInfo, MethodInfo method, InvokerFactory invokerFactory, Messages messages) {
+        if (method.parameters().size() != 1) {
+            messages.error("EventHandler method must have exactly one argument", method);
+        } else {
+            InvokerInfo invoker = invokerFactory.createInvoker(beanInfo, method).withInstanceLookup().build();
+            eventHandlerMethods.put(method, invoker);
+        }
+    }
+
+    @Synthesis
+    @Priority(LIBRARY_BEFORE)
+    public void addSyntheticEventHandlers(SyntheticComponents components, Types types) {
+        for (Entry<MethodInfo, InvokerInfo> eventHandlerMethod : eventHandlerMethods.entrySet()) {
+            ClassType eventType = eventHandlerMethod.getKey().parameters().get(0).type().asClass();
+            components.addBean(Handler.class) //
+                    .type(Handler.class) //
+                    .qualifier(eventHandlerMethod.getKey().annotation(EventHandler.class)) //
+                    .qualifier(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.declaration()).build()) //
+                    .createWith(SyntheticHandlerCreator.class) //
+                    .withParam("eventType", eventType.declaration()) //
+                    .withParam("invoker", eventHandlerMethod.getValue());
+            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(
+                    eventHandlerMethod.getKey().annotation(EventHandler.class).member("eventType").asString())) {
+                handledTypes.add(eventType.declaration());
+            }
+            requiredEventDeserializers.add(types.parameterized(EventDeserializer.class, eventType));
         }
     }
 
     @Synthesis
     @Priority(LIBRARY_AFTER)
     public void addEventHandlersBean(SyntheticComponents components) throws ClassNotFoundException {
-        List<ClassInfo> types = new ArrayList<>();
-        List<ClassInfo> beans = new ArrayList<>();
-        handlerClass.forEach((type, bean) -> {
-            types.add(type);
-            beans.add(bean);
-        });
         Class<?> quarkusEventHandlers = Class
                 .forName("com.github.jonasrutishauser.transactional.event.quarkus.handler.QuarkusEventHandlers");
         addCreator( //
@@ -124,8 +193,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
                         .type(EventHandlers.class) //
                         .type(quarkusEventHandlers) //
                         .scope(Singleton.class) //
-                        .withParam("types", types.toArray(ClassInfo[]::new)) //
-                        .withParam("beans", beans.toArray(ClassInfo[]::new)), //
+                        .withParam("types", handledTypes.toArray(ClassInfo[]::new)), //
                 quarkusEventHandlers);
     }
 
@@ -138,6 +206,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     }
 
     @Registration(types = Object.class)
+    @Priority(LIBRARY_BEFORE)
     public void processEventDeserializerInjections(BeanInfo beanInfo, Types types, Messages messages) {
         for (InjectionPointInfo injectionPoint : beanInfo.injectionPoints()) {
             Type type = injectionPoint.type();
@@ -149,6 +218,7 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
     }
 
     @Registration(types = EventDeserializer.class)
+    @Priority(LIBRARY_BEFORE)
     public void processEventDeserializers(BeanInfo beanInfo, Messages messages) {
         declaredEventDeserializers.addAll(beanInfo.types());
     }
@@ -169,21 +239,6 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
                 .createWith(DefaultEventDeserializerCreator.class) //
                 .withParam(DefaultEventDeserializerCreator.TYPE, eventClass.declaration());
         }
-    }
-
-    private ClassInfo getClassInfo(Type type) {
-        if (type.isParameterizedType()) {
-            return type.asParameterizedType().declaration();
-        }
-        return type.asClass().declaration();
-    }
-
-    private Optional<ParameterizedType> getAbstractHandlerType(Collection<Type> types) {
-        return types.stream() //
-                .filter(Type::isParameterizedType) //
-                .map(Type::asParameterizedType) //
-                .filter(type -> AbstractHandler.class.getName().equals(type.declaration().name())) //
-                .findAny();
     }
 
 }

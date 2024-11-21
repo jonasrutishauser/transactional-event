@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import com.github.jonasrutishauser.cdi.test.api.annotations.GlobalTestImplementation;
 import com.github.jonasrutishauser.cdi.test.api.context.TestScoped;
 import com.github.jonasrutishauser.cdi.test.core.junit.CdiTestJunitExtension;
 import com.github.jonasrutishauser.cdi.test.jndi.DataSourceEntry;
@@ -55,6 +57,7 @@ import com.github.jonasrutishauser.transactional.event.api.serialization.EventDe
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventSerializer;
 import com.github.jonasrutishauser.transactional.event.api.store.BlockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
+import com.github.jonasrutishauser.transactional.event.core.defaults.DefaultProcessingStrategy;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
@@ -111,11 +114,13 @@ public class TransactionalEventPublisherIT {
         publisher.publish(new TestJaxbElementEvent("bar"));
         publisher.publish(new TestJsonbEvent("jsonb"));
         publisher.publish(Integer.MAX_VALUE);
+        publisher.publish("test string");
         transaction.commit();
 
         await().until(() -> messages.contains("foo"));
         await().until(() -> messages.contains("bar"));
         await().until(() -> messages.contains("jsonb"));
+        await().until(() -> messages.contains("test string"));
 
         await().conditionEvaluationListener(condition -> dispatcher.schedule()).until(() -> messages.contains("test"));
     }
@@ -322,6 +327,17 @@ public class TransactionalEventPublisherIT {
     }
 
     @Dependent
+    static class TestCDI41Handler {
+        @Inject
+        ReceivedMessages messages;
+
+        @EventHandler
+        void handle(String event) {
+            this.messages.add(event);
+        }
+    }
+
+    @Dependent
     static class IntegerSerializer implements EventSerializer<Integer>, EventDeserializer<Integer> {
         @Override
         public String serialize(Integer event) {
@@ -335,6 +351,8 @@ public class TransactionalEventPublisherIT {
     }
 
     static class TestSerializableEvent implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final String message;
 
         public TestSerializableEvent(String message) {
@@ -380,6 +398,14 @@ public class TransactionalEventPublisherIT {
         
         public String getMessage() {
             return message;
+        }
+    }
+
+    @GlobalTestImplementation
+    static class TestProcessingStrategy extends DefaultProcessingStrategy {
+        @Override
+        public Duration waitDurationForRetry(int tries) {
+            return Duration.ofMillis(1);
         }
     }
 

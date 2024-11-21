@@ -1,19 +1,28 @@
 package com.github.jonasrutishauser.transactional.event.core.cdi;
 
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import static java.util.Collections.sort;
 import static java.util.Comparator.comparing;
-import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
+import com.github.jonasrutishauser.transactional.event.api.serialization.GenericSerialization;
+import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,67 +34,122 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.UnsatisfiedResolutionException;
 import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
 import jakarta.enterprise.inject.spi.AfterDeploymentValidation;
+import jakarta.enterprise.inject.spi.AnnotatedMethod;
+import jakarta.enterprise.inject.spi.AnnotatedType;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
 import jakarta.enterprise.inject.spi.ProcessBean;
 import jakarta.enterprise.inject.spi.ProcessInjectionPoint;
-
-import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
-import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
-import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
-import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
-import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
-import com.github.jonasrutishauser.transactional.event.api.serialization.GenericSerialization;
-import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
+import jakarta.enterprise.inject.spi.ProcessManagedBean;
+import jakarta.enterprise.inject.spi.WithAnnotations;
+import jakarta.enterprise.invoke.Invoker;
 
 public class EventHandlerExtension implements Extension, EventHandlers {
+
+    private final Collection<EventHandlerMethod<?>> eventHandlerMethods = new ArrayList<>();
 
     private final Set<ParameterizedType> requiredEventDeserializers = new HashSet<>();
     private final Set<Class<?>> genericSerializationEventTypes = new HashSet<>();
 
-    private final Map<ParameterizedType, Class<? extends Handler>> handlerClass = new HashMap<>();
+    private final Set<TypedEventHandler> handlerQualifiers = ConcurrentHashMap.newKeySet();
 
     @Override
-    public Optional<Class<? extends Handler>> getHandlerClassWithImplicitType(EventTypeResolver typeResolver,
-            String type) {
-        for (Entry<ParameterizedType, Class<? extends Handler>> handlerClassEntry : handlerClass.entrySet()) {
-            if (type.equals(typeResolver.resolve((Class<?>) handlerClassEntry.getKey().getActualTypeArguments()[0]))) {
-                return Optional.of(handlerClassEntry.getValue());
+    public Annotation getHandlerQualifier(EventTypeResolver typeResolver, String type) {
+        for (TypedEventHandler handlerQualifier : handlerQualifiers) {
+            if (type.equals(typeResolver.resolve(handlerQualifier.value()))) {
+                return handlerQualifier;
             }
         }
-        return Optional.empty();
+        return EventHandlerLiteral.of(type);
+    }
+
+    <T extends AbstractHandler<?>> void processTypedHandlers(
+            @Observes @Priority(LIBRARY_AFTER) @WithAnnotations(EventHandler.class) ProcessAnnotatedType<T> typeEvent) {
+        AnnotatedType<T> type = typeEvent.getAnnotatedType();
+        if (type.isAnnotationPresent(EventHandler.class)
+                && EventHandler.ABSTRACT_HANDLER_TYPE.equals(type.getAnnotation(EventHandler.class).eventType())) {
+            Class<?> eventType = (Class<?>) getAbstractHandlerType(type.getTypeClosure()).orElseThrow()
+                    .getActualTypeArguments()[0];
+            typeEvent.configureAnnotatedType().add(TypedEventHandler.Literal.of(eventType));
+        }
     }
 
     <T extends Handler> void processHandlers(@Observes @Priority(LIBRARY_AFTER) ProcessBean<T> beanEvent) {
-        if (!beanEvent.getAnnotated().isAnnotationPresent(EventHandler.class)) {
+        Optional<EventHandler> annotation = beanEvent.getBean().getQualifiers().stream() //
+            .filter(a -> EventHandler.class.equals(a.annotationType())) //
+            .map(EventHandler.class::cast) //
+            .findAny();
+        if (annotation.isEmpty()) {
             beanEvent.addDefinitionError(
                     new IllegalStateException("EventHandler annotation is missing on bean " + beanEvent.getBean()));
+        } else if (!beanEvent.getBean().getTypes().contains(Handler.class)) {
+            beanEvent.addDefinitionError(
+                    new IllegalStateException(Handler.class + " type is missing on bean " + beanEvent.getBean()));
         } else {
-            EventHandler annotation = beanEvent.getAnnotated().getAnnotation(EventHandler.class);
-            Optional<ParameterizedType> abstractHandlerType = getAbstractHandlerType(beanEvent.getBean().getTypes());
-            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(annotation.eventType())) {
-                if (!abstractHandlerType.isPresent()) {
+            Optional<TypedEventHandler> typedEventHandler = beanEvent.getBean().getQualifiers().stream() //
+                    .filter(a -> TypedEventHandler.class.equals(a.annotationType())) //
+                    .map(TypedEventHandler.class::cast) //
+                    .findAny();
+            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(annotation.get().eventType())) {
+                if (typedEventHandler.isEmpty()) {
                     beanEvent.addDefinitionError(new IllegalStateException("AbstractHandler type is missing on bean "
                             + beanEvent.getBean() + " with implicit event type"));
-                } else if (!beanEvent.getBean().getTypes().contains(beanEvent.getBean().getBeanClass())) {
-                    beanEvent.addDefinitionError(
-                            new IllegalStateException(beanEvent.getBean().getBeanClass().getSimpleName()
-                                    + " type is missing on bean " + beanEvent.getBean() + " with implicit event type"));
                 } else {
-                    handlerClass.put(abstractHandlerType.get(),
-                            beanEvent.getBean().getBeanClass().asSubclass(Handler.class));
+                    handlerQualifiers.add(typedEventHandler.get());
                 }
             }
 
         }
     }
 
+    <T> void processHandlerMethods(@Observes @Priority(LIBRARY_AFTER) ProcessManagedBean<T> beanEvent) {
+        try {
+            beanEvent.getAnnotatedBeanClass().getMethods().stream() //
+                    .filter(m -> m.isAnnotationPresent(EventHandler.class)) //
+                    .forEach(m -> addHandlerMethod(beanEvent, m));
+        } catch (NoSuchMethodError e) {
+            beanEvent.addDefinitionError(
+                    new IllegalStateException("direct handler methods need a CDI version >= 4.1", e));
+        }
+    }
+
+    private <T> void addHandlerMethod(ProcessManagedBean<T> beanEvent, AnnotatedMethod<? super T> method) {
+        if (method.getParameters().size() != 1) {
+            beanEvent.addDefinitionError(
+                    new IllegalStateException("EventHandler method " + method + " must have exactly one argument"));
+        } else {
+            Invoker<T, ?> invoker = beanEvent.createInvoker(method).withInstanceLookup().build();
+            eventHandlerMethods.add(new EventHandlerMethod<>(invoker,
+                    method.getParameters().get(0).getJavaParameter().getType(), method.getAnnotation(EventHandler.class)));
+        }
+    }
+
     <X extends EventDeserializer<?>> void processEventDeserializerInjections(
             @Observes ProcessInjectionPoint<?, X> event) {
-        Type type = event.getInjectionPoint().getType();
+        processEventDeserializerInjections(event.getInjectionPoint());
+    }
+
+    void processEventDeserializerInjections(InjectionPoint injectionPoint) {
+        Type type = injectionPoint.getType();
         if (type instanceof ParameterizedType
                 && EventDeserializer.class.equals(((ParameterizedType) type).getRawType())) {
             requiredEventDeserializers.add((ParameterizedType) type);
+        }
+    }
+
+    void addSyntheticEventHandlers(@Observes @Priority(LIBRARY_BEFORE) AfterBeanDiscovery event,
+            BeanManager beanManager) {
+        for (EventHandlerMethod<?> eventHandlerMethod : eventHandlerMethods) {
+            InjectionPoint injectionPoint = eventHandlerMethod.getEventDeserializerInjectionPoint(beanManager);
+            processEventDeserializerInjections(injectionPoint);
+            Annotation[] qualifiers = eventHandlerMethod.getEventHandlerQualifiers();
+            event.addBean().beanClass(SyntheticHandler.class) //
+                    .types(Handler.class) //
+                    .qualifiers(qualifiers) //
+                    .addInjectionPoint(injectionPoint) //
+                    .createWith(ctx -> eventHandlerMethod.createHandler(ctx, beanManager));
         }
     }
 

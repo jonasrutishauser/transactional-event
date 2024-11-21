@@ -3,16 +3,16 @@ package com.github.jonasrutishauser.transactional.event.quarkus.concurrent;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.function.LongSupplier;
-
-import org.eclipse.microprofile.context.ManagedExecutor;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
 
 import io.quarkus.arc.DefaultBean;
+import io.quarkus.virtual.threads.VirtualThreads;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
@@ -21,11 +21,11 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 class QuarkusEventExecutor implements EventExecutor {
 
-    private final ManagedExecutor executor;
+    private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
 
     @Inject
-    QuarkusEventExecutor(@Events ManagedExecutor executor, ScheduledExecutorService scheduler) {
+    QuarkusEventExecutor(@Events ExecutorService executor, ScheduledExecutorService scheduler) {
         this.executor = executor;
         this.scheduler = scheduler;
     }
@@ -51,18 +51,18 @@ class QuarkusEventExecutor implements EventExecutor {
     }
 
     @Dependent
-    static class DefaultManagedExecutor {
-        private final ManagedExecutor executor;
+    static class DefaultExecutorService {
+        private final ExecutorService executor;
 
         @Inject
-        DefaultManagedExecutor(ManagedExecutor executor) {
+        DefaultExecutorService(@VirtualThreads ExecutorService executor) {
             this.executor = executor;
         }
 
         @Events
         @Produces
         @DefaultBean
-        ManagedExecutor getExecutor() {
+        ExecutorService getExecutor() {
             return executor;
         }
     }

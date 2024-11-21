@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.jboss.jandex.DotName;
+import org.jboss.jandex.ClassInfo;
+import org.jboss.jandex.Index;
 
 import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.api.MPConfiguration;
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
-import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.DefaultEventExecutor;
 import com.github.jonasrutishauser.transactional.event.core.defaults.DefaultConcurrencyProvider;
 import com.github.jonasrutishauser.transactional.event.core.serialization.JaxbSerialization;
@@ -36,6 +36,7 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.ApplicationIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
@@ -81,9 +82,25 @@ public class TransactionalEventExtensionProcessor {
     }
 
     @BuildStep
-    UnremovableBeanBuildItem ensureEventHandlersAreNotRemoved() {
-        return new UnremovableBeanBuildItem(beanInfo -> beanInfo.hasType(DotName.createSimple(Handler.class))
-                && beanInfo.getQualifier(DotName.createSimple(EventHandler.class)).isPresent());
+    UnremovableBeanBuildItem ensureEventHandlerMethodsAreNotRemoved(ApplicationIndexBuildItem index) {
+        return new UnremovableBeanBuildItem(
+                beanInfo -> beanInfo.isClassBean() && hasEventHandlerMethod(beanInfo.getImplClazz(), index.getIndex()));
+    }
+
+    private boolean hasEventHandlerMethod(ClassInfo implClazz, Index index) {
+        if (implClazz.methods().stream() //
+                .filter(m -> !m.isBridge()) //
+                .filter(m -> !m.isSynthetic()) //
+                .filter(m -> !m.isConstructor()) //
+                .filter(m -> !m.isStaticInitializer()) //
+                .anyMatch(m -> m.hasAnnotation(EventHandler.class))) {
+            return true;
+        }
+        if (implClazz.superClassType() == null) {
+            return false;
+        }
+        ClassInfo superClass = index.getClassByName(implClazz.superClassType().name());
+        return superClass == null ? false : hasEventHandlerMethod(implClazz, index);
     }
 
     @BuildStep(onlyIfNot = IsNormal.class)

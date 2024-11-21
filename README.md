@@ -47,6 +47,20 @@ class SomeEventHandler extends AbstractHandler<SomeEvent> {
 }
 ```
 
+### CDI >= 4.1
+With a CDI version greater or equal to 4.1 it is even possible to simply annotate any class bean method (not static and not private) with `@EventHandler`.
+The annotated method must have exactly one argument.
+
+```java
+@Dependent
+class SomeBean {
+   @EventHandler
+   void doIt(SomeEvent event) {
+      ...
+   }
+}
+```
+
 ## Data Source
 The library expects that the following table exists when using the `javax.sql.DataSource` with the [`Events`](https://jonasrutishauser.github.io/transactional-event/snapshot/transactional-event-api/apidocs/com/github/jonasrutishauser/transactional/event/api/Events.html) qualifier:
 

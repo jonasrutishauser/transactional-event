@@ -2,27 +2,24 @@ package com.github.jonasrutishauser.transactional.event.core.store;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.util.AnnotationLiteral;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
 import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
-import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @Dependent
 class TransactionalWorker {
@@ -94,26 +91,7 @@ class TransactionalWorker {
                 // created once
                 return handlerMap.get(eventType);
             }
-            Optional<Class<? extends Handler>> handlerClassWithImplicitType = handlerExtension
-                    .getHandlerClassWithImplicitType(typeResolver, eventType);
-            if (handlerClassWithImplicitType.isPresent()) {
-                return handlers.select(handlerClassWithImplicitType.get()).get();
-            }
-            return handlers.select(new EventHandlerLiteral(eventType)).get();
-        }
-
-        @SuppressWarnings("serial")
-        private static class EventHandlerLiteral extends AnnotationLiteral<EventHandler> implements EventHandler {
-            private final String eventType;
-
-            public EventHandlerLiteral(String eventType) {
-                this.eventType = eventType;
-            }
-
-            @Override
-            public String eventType() {
-                return eventType;
-            }
+            return handlers.select(handlerExtension.getHandlerQualifier(typeResolver, eventType)).get();
         }
     }
 }

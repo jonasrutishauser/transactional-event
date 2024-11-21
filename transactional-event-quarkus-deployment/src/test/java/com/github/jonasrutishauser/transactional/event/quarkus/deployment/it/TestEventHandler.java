@@ -2,12 +2,15 @@ package com.github.jonasrutishauser.transactional.event.quarkus.deployment.it;
 
 import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
 import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 
 @Dependent
 @EventHandler
+@Typed(Handler.class)
 public class TestEventHandler extends AbstractHandler<TestEvent> {
 
     @Inject

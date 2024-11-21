@@ -1,5 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.api.handler;
 
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -11,7 +12,7 @@ import jakarta.inject.Qualifier;
 
 @Qualifier
 @Documented
-@Target(TYPE)
+@Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface EventHandler {
 

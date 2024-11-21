@@ -16,10 +16,11 @@ class TransactionalEventIT {
 
     @RegisterExtension
     static final QuarkusUnitTest config = new QuarkusUnitTest() //
+            .setFlatClassPath(true) // needed for invoker
             .withApplicationRoot(archive -> archive //
                     .addClasses(Messages.class, TestEvent.class, TestEventHandler.class, TestPublisher.class) //
                     .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml") //
-            );
+            ).overrideRuntimeConfigKey("quarkus.transactional.event.initial-dispatch-interval", "1");
 
     @Inject
     TestPublisher publisher;
@@ -29,6 +30,13 @@ class TransactionalEventIT {
         publisher.publish("test message");
 
         await().until(processedMessagesContains("test message"));
+    }
+
+    @Test
+    void testDirectMethodRoundTrip() {
+        publisher.publishString("some message");
+
+        await().until(processedMessagesContains("some message"));
     }
 
     @Test
