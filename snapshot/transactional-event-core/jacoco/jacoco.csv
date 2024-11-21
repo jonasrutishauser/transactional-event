@@ -20,11 +20,18 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,InstrumentedWorkProcessor,73,0,0,0,21,0,3,0,3,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,InstrumentedProcessor,103,0,2,0,27,0,3,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,Instrumenter,31,0,2,0,7,0,5,0,4,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,TypedEventHandler.Literal,14,0,0,0,5,0,3,0,3,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,519,0,42,0,111,0,42,0,21,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.new InjectionPoint() {...},35,0,0,0,9,0,9,0,9,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.1.new ParameterizedType() {...},60,0,10,0,12,0,11,0,6,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod,82,0,4,0,15,0,6,0,4,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,DefaultEventDeserializer,25,0,2,0,7,0,3,0,2,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerLiteral,14,0,0,0,5,0,3,0,3,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,SyntheticHandler,34,0,0,0,11,0,2,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,DispatcherImpl,263,31,22,0,68,10,24,2,13,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker,58,28,2,0,15,8,4,3,3,3
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker.HandlerProvider,55,17,4,0,8,6,4,1,2,1
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker.HandlerProvider,36,17,2,0,4,6,3,1,2,1
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.MariaDBQueryAdapter,0,5,0,0,0,1,0,1,0,1
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalWorker.HandlerProvider.EventHandlerLiteral,9,0,0,0,4,0,2,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkProcessorImpl,20,0,0,0,6,0,4,0,4,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalProcessor,7,0,0,0,3,0,2,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,12,87,0,6,4,19,2,11,2,8
@@ -37,7 +44,5 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,37,0,4,0,8,0,5,0,3
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory,0,122,0,14,0,31,0,14,0,7
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Worker,69,0,0,0,22,0,6,0,6,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,354,0,34,0,73,0,28,0,11,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,DefaultEventDeserializer,25,0,2,0,7,0,3,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.metrics,ConfigurationMetrics,37,0,0,0,13,0,9,0,9,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.metrics,MetricsEventObserver,40,0,0,0,16,0,9,0,9,0
