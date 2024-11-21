@@ -24,7 +24,7 @@ import jakarta.enterprise.util.TypeLiteral;
     public Handler create(Instance&lt;Object&gt; lookup, Parameters params) {
 <span class="fc" id="L25">        EventDeserializer&lt;?&gt; deserializer = lookup.select(EVENT_DESIRIALIZERS) //</span>
 <span class="fc" id="L26">                .handlesStream() //</span>
-<span class="fc" id="L27">                .filter(matchesType(params.get(&quot;eventType&quot;, Class.class))) //</span>
+<span class="fc" id="L27">                .filter(matchesType(params.get(&quot;type&quot;, Class.class))) //</span>
 <span class="fc" id="L28">                .findAny() //</span>
 <span class="fc" id="L29">                .orElseThrow() //</span>
 <span class="fc" id="L30">                .get();</span>
