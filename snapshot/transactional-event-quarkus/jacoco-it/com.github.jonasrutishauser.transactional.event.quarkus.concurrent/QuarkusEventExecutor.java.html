@@ -3,16 +3,16 @@
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.function.LongSupplier;
-
-import org.eclipse.microprofile.context.ManagedExecutor;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
 
 import io.quarkus.arc.DefaultBean;
+import io.quarkus.virtual.threads.VirtualThreads;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
@@ -21,11 +21,11 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 class QuarkusEventExecutor implements EventExecutor {
 
-    private final ManagedExecutor executor;
+    private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
 
     @Inject
-<span class="nc" id="L28">    QuarkusEventExecutor(@Events ManagedExecutor executor, ScheduledExecutorService scheduler) {</span>
+<span class="nc" id="L28">    QuarkusEventExecutor(@Events ExecutorService executor, ScheduledExecutorService scheduler) {</span>
 <span class="nc" id="L29">        this.executor = executor;</span>
 <span class="nc" id="L30">        this.scheduler = scheduler;</span>
 <span class="nc" id="L31">    }</span>
@@ -51,18 +51,18 @@ class QuarkusEventExecutor implements EventExecutor {
     }
 
     @Dependent
-    static class DefaultManagedExecutor {
-        private final ManagedExecutor executor;
+    static class DefaultExecutorService {
+        private final ExecutorService executor;
 
         @Inject
-<span class="fc" id="L58">        DefaultManagedExecutor(ManagedExecutor executor) {</span>
+<span class="fc" id="L58">        DefaultExecutorService(@VirtualThreads ExecutorService executor) {</span>
 <span class="fc" id="L59">            this.executor = executor;</span>
 <span class="fc" id="L60">        }</span>
 
         @Events
         @Produces
         @DefaultBean
-        ManagedExecutor getExecutor() {
+        ExecutorService getExecutor() {
 <span class="fc" id="L66">            return executor;</span>
         }
     }
