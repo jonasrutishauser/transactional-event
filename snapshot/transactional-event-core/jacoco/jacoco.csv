@@ -23,7 +23,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,TypedEventHandler.Literal,14,0,0,0,5,0,3,0,3,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,519,0,42,0,111,0,42,0,21,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.new InjectionPoint() {...},35,0,0,0,9,0,9,0,9,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.1.new ParameterizedType() {...},60,0,10,0,12,0,11,0,6,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.1.new ParameterizedType() {...},58,0,10,0,12,0,11,0,6,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod,82,0,4,0,15,0,6,0,4,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,DefaultEventDeserializer,25,0,2,0,7,0,3,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerLiteral,14,0,0,0,5,0,3,0,3,0
