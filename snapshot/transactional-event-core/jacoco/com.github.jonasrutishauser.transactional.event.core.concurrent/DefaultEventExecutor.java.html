@@ -33,7 +33,7 @@ public class DefaultEventExecutor implements EventExecutor {
 <span class="nc" id="L33">    }</span>
 
     @Override
-    public Task schedule(Runnable command, long minInterval, LongSupplier interval) {
+    public Task schedule(Runnable command, LongSupplier interval) {
 <span class="nc" id="L37">        ScheduledFuture&lt;?&gt; future = executor.schedule(command, new Trigger() {</span>
             @Override
             public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {

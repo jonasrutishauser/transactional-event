@@ -12,7 +12,7 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> java.util.function.LongSupplier;
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="EventExecutor" href="../../../../../../../com/github/jonasrutishauser/transactional/event/core/concurrent/EventExecutor.html#EventExecutor">EventExecutor</a> <strong class="jxr_keyword">extends</strong> Executor {
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>       Task schedule(Runnable command, <strong class="jxr_keyword">long</strong> minInterval, LongSupplier intervalInMillis);
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>       Task schedule(Runnable command, LongSupplier intervalInMillis);
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>       <strong class="jxr_keyword">interface</strong> Task {
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>          <strong class="jxr_keyword">void</strong> cancel();

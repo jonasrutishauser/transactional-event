@@ -8,7 +8,6 @@ import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor.Task;
@@ -25,58 +24,55 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 class Lifecycle implements Startup {
 
-<span class="nc" id="L28">    private static final Logger LOGGER = LogManager.getLogger();</span>
+<span class="nc" id="L27">    private static final Logger LOGGER = LogManager.getLogger();</span>
 
-    private final Configuration configuration;
     private final Dispatcher dispatcher;
     private final EventExecutor executor;
 
     private Task scheduled;
 
     Lifecycle() {
-<span class="nc" id="L37">        this(null, null, null);</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L35">        this(null, null);</span>
+<span class="nc" id="L36">    }</span>
 
     @Inject
-<span class="nc" id="L41">    Lifecycle(Configuration configuration, Dispatcher dispatcher, EventExecutor executor) {</span>
-<span class="nc" id="L42">        this.configuration = configuration;</span>
-<span class="nc" id="L43">        this.dispatcher = dispatcher;</span>
-<span class="nc" id="L44">        this.executor = executor;</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L39">    Lifecycle(Dispatcher dispatcher, EventExecutor executor) {</span>
+<span class="nc" id="L40">        this.dispatcher = dispatcher;</span>
+<span class="nc" id="L41">        this.executor = executor;</span>
+<span class="nc" id="L42">    }</span>
 
     void directDispatch(@Observes(during = AFTER_SUCCESS) @Priority(LIBRARY_BEFORE) EventsPublished events) {
-<span class="nc" id="L48">        dispatcher.processDirect(events);</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L45">        dispatcher.processDirect(events);</span>
+<span class="nc" id="L46">    }</span>
 
     void startup(@Observes @Priority(LIBRARY_AFTER + 500) @Initialized(ApplicationScoped.class) Object event) {
-<span class="nc" id="L52">        LOGGER.debug(&quot;initialized&quot;);</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L49">        LOGGER.debug(&quot;initialized&quot;);</span>
+<span class="nc" id="L50">    }</span>
 
     @PostConstruct
     void startup() {
-<span class="nc" id="L57">        scheduled = executor.schedule(this::safeSchedule, configuration.getAllInUseInterval(),</span>
-<span class="nc" id="L58">                dispatcher::dispatchInterval);</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L54">        scheduled = executor.schedule(this::safeSchedule, dispatcher::dispatchInterval);</span>
+<span class="nc" id="L55">    }</span>
 
     private void safeSchedule() {
         try {
-<span class="nc" id="L63">            dispatcher.schedule();</span>
-<span class="nc" id="L64">        } catch (RuntimeException e) {</span>
-<span class="nc" id="L65">            LOGGER.warn(&quot;Failed to schedule event processing&quot;, e);</span>
-<span class="nc" id="L66">        }</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc" id="L59">            dispatcher.schedule();</span>
+<span class="nc" id="L60">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L61">            LOGGER.warn(&quot;Failed to schedule event processing&quot;, e);</span>
+<span class="nc" id="L62">        }</span>
+<span class="nc" id="L63">    }</span>
 
     void shutdown(@Observes(notifyObserver = IF_EXISTS) @Priority(LIBRARY_BEFORE) @BeforeDestroyed(ApplicationScoped.class) Object event) {
-<span class="nc" id="L70">        stop();</span>
-<span class="nc" id="L71">    }</span>
+<span class="nc" id="L66">        stop();</span>
+<span class="nc" id="L67">    }</span>
 
     @PreDestroy
     void stop() {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (scheduled != null) {</span>
-<span class="nc" id="L76">            scheduled.cancel();</span>
-<span class="nc" id="L77">            scheduled = null;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (scheduled != null) {</span>
+<span class="nc" id="L72">            scheduled.cancel();</span>
+<span class="nc" id="L73">            scheduled = null;</span>
         }
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L75">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
