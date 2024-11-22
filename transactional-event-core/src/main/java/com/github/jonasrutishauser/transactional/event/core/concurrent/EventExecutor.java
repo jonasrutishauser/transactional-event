@@ -4,7 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.function.LongSupplier;
 
 public interface EventExecutor extends Executor {
-    Task schedule(Runnable command, long minInterval, LongSupplier intervalInMillis);
+    Task schedule(Runnable command, LongSupplier intervalInMillis);
 
     interface Task {
         void cancel();

@@ -2,10 +2,12 @@ package com.github.jonasrutishauser.transactional.event.quarkus.concurrent;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.LongSupplier;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;
@@ -40,18 +42,41 @@ class QuarkusEventExecutor implements EventExecutor {
     }
 
     @Override
-    public Task schedule(Runnable command, long minInterval, LongSupplier intervalInMillis) {
-        ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(new Runnable() {
-            private Instant nextRun = Instant.now().plusMillis(intervalInMillis.getAsLong());
-            @Override
-            public void run() {
-                if (!Instant.now().isBefore(nextRun)) {
-                    command.run();
-                    nextRun = Instant.now().plusMillis(intervalInMillis.getAsLong());
-                }
+    public Task schedule(Runnable command, LongSupplier intervalInMillis) {
+        ScheduledTask task = new ScheduledTask(command, intervalInMillis);
+        task.start();
+        return task;
+    }
+
+    private class ScheduledTask implements Task {
+        private final AtomicBoolean running = new AtomicBoolean(true);
+        private final AtomicReference<Future<?>> future = new AtomicReference<>();
+        private final Runnable command;
+        private final LongSupplier intervalInMillis;
+
+        public ScheduledTask(Runnable command, LongSupplier intervalInMillis) {
+            this.command = command;
+            this.intervalInMillis = intervalInMillis;
+        }
+
+        public void start() {
+            if (running.get()) {
+                CompletableFuture<Void> commandRun = CompletableFuture.runAsync(command,
+                        runnable -> scheduler.schedule(() -> {
+                            if (running.get()) {
+                                runnable.run();
+                            }
+                        }, intervalInMillis.getAsLong(), MILLISECONDS));
+                future.set(commandRun);
+                commandRun.thenRun(this::start);
             }
-        }, minInterval, minInterval, MILLISECONDS);
-        return () -> future.cancel(false);
+        }
+
+        @Override
+        public void cancel() {
+            running.set(false);
+            future.get().cancel(true);
+        }
     }
 
     @Dependent

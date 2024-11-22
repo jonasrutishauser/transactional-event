@@ -33,7 +33,7 @@ public class DefaultEventExecutor implements EventExecutor {
     }
 
     @Override
-    public Task schedule(Runnable command, long minInterval, LongSupplier interval) {
+    public Task schedule(Runnable command, LongSupplier interval) {
         ScheduledFuture<?> future = executor.schedule(command, new Trigger() {
             @Override
             public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {

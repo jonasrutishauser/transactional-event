@@ -8,7 +8,6 @@ import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.jonasrutishauser.transactional.event.api.Configuration;
 import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor.Task;
@@ -27,19 +26,17 @@ class Lifecycle implements Startup {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final Configuration configuration;
     private final Dispatcher dispatcher;
     private final EventExecutor executor;
 
     private Task scheduled;
 
     Lifecycle() {
-        this(null, null, null);
+        this(null, null);
     }
 
     @Inject
-    Lifecycle(Configuration configuration, Dispatcher dispatcher, EventExecutor executor) {
-        this.configuration = configuration;
+    Lifecycle(Dispatcher dispatcher, EventExecutor executor) {
         this.dispatcher = dispatcher;
         this.executor = executor;
     }
@@ -54,8 +51,7 @@ class Lifecycle implements Startup {
 
     @PostConstruct
     void startup() {
-        scheduled = executor.schedule(this::safeSchedule, configuration.getAllInUseInterval(),
-                dispatcher::dispatchInterval);
+        scheduled = executor.schedule(this::safeSchedule, dispatcher::dispatchInterval);
     }
 
     private void safeSchedule() {

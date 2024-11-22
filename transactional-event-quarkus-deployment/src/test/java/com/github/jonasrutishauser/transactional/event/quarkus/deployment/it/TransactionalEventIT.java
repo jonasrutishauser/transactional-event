@@ -1,6 +1,6 @@
 package com.github.jonasrutishauser.transactional.event.quarkus.deployment.it;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 
 import java.util.concurrent.Callable;
@@ -47,9 +47,9 @@ class TransactionalEventIT {
             publisher.publish("failure " + i);
         }
 
-        await().atMost(1, MINUTES).until(processedMessagesContains("test failure"));
+        await().pollInterval(10, MILLISECONDS).until(processedMessagesContains("test failure"));
         for (int i = 10; i < 50; i++) {
-            await().until(processedMessagesContains("failure " + i));
+            await().pollInterval(10, MILLISECONDS).until(processedMessagesContains("failure " + i));
         }
     }
 
