@@ -36,9 +36,12 @@ jobs:
                     </server>
                   </servers>
                 </settings>' > $GITHUB_WORKSPACE/git-settings.xml
+      - name: Prepare Release
+        run: mvn -V -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:clean release:prepare
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Release
         run: >
-          mvn -V -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:clean release:prepare && 
           echo "RELEASED_VERSION=$(grep scm.tag= release.properties | cut -d'=' -f2 | cut -c2-)" >> $GITHUB_OUTPUT && 
           mvn -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:perform
         env:
