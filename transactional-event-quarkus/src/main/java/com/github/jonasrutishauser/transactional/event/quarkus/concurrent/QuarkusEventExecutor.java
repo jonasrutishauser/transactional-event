@@ -24,6 +24,10 @@ class QuarkusEventExecutor implements EventExecutor {
     private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
 
+    QuarkusEventExecutor() {
+        this(null, null);
+    }
+
     @Inject
     QuarkusEventExecutor(@Events ExecutorService executor, ScheduledExecutorService scheduler) {
         this.executor = executor;

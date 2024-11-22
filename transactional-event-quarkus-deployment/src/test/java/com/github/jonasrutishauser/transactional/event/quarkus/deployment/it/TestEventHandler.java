@@ -13,8 +13,12 @@ import jakarta.inject.Inject;
 @Typed(Handler.class)
 public class TestEventHandler extends AbstractHandler<TestEvent> {
 
-    @Inject
     private Messages messages;
+
+    @Inject
+    TestEventHandler(Messages messages) {
+        this.messages = messages;
+    }
 
     @Override
     protected void handle(TestEvent event) {

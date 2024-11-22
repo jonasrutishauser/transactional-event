@@ -3,7 +3,6 @@ package com.github.jonasrutishauser.transactional.event.quarkus.deployment.it;
 import java.util.Collection;
 
 import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
-import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -13,11 +12,15 @@ import jakarta.transaction.Transactional;
 @Dependent
 public class TestPublisher {
 
-    @Inject
-    private EventPublisher publisher;
+    private final EventPublisher publisher;
+
+    private final Messages messages;
 
     @Inject
-    private Messages messages;
+    TestPublisher(EventPublisher publisher, Messages messages) {
+        this.publisher = publisher;
+        this.messages = messages;
+    }
 
     @Transactional
     @ActivateRequestContext
@@ -33,11 +36,6 @@ public class TestPublisher {
 
     public Collection<String> getMessages() {
         return messages.get();
-    }
-
-    @EventHandler
-    void handle(String event) {
-        messages.add(event);
     }
 
 }

@@ -18,7 +18,8 @@ class TransactionalEventIT {
     static final QuarkusUnitTest config = new QuarkusUnitTest() //
             .setFlatClassPath(true) // needed for invoker
             .withApplicationRoot(archive -> archive //
-                    .addClasses(Messages.class, TestEvent.class, TestEventHandler.class, TestPublisher.class) //
+                    .addClasses(Messages.class, TestEvent.class, TestEventHandler.class, TestPublisher.class,
+                            TestHandlerMethod.class) //
                     .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml") //
             ).overrideRuntimeConfigKey("quarkus.transactional.event.initial-dispatch-interval", "1");
 
