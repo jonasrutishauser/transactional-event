@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor.new Runnable() {...},0,35,0,2,0,6,0,3,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor.DefaultExecutorService,0,9,0,0,0,4,0,2,0,2
-Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor,0,40,0,0,0,10,0,5,0,5
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor,0,30,0,0,0,11,0,4,0,4
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor.ScheduledTask,0,75,2,2,0,18,2,5,0,5
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,DefaultEventDeserializerCreator,0,19,0,0,0,4,0,2,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,TransactionalEventSchemaProvider,24,0,2,0,8,0,5,0,4,0
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,DbSchemaRecorder,1,22,1,1,1,7,1,2,0,2
