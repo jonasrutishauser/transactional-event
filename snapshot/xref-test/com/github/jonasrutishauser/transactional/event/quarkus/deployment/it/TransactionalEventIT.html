@@ -8,7 +8,7 @@
 <div id="overview"><a href="../../../../../../../../../testapidocs/com/github/jonasrutishauser/transactional/event/quarkus/deployment/it/TransactionalEventIT.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.github.jonasrutishauser.transactional.event.quarkus.deployment.it;
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.concurrent.TimeUnit.MINUTES;
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.concurrent.TimeUnit.MILLISECONDS;
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.awaitility.Awaitility.await;
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.util.concurrent.Callable;
@@ -55,9 +55,9 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              publisher.publish(<span class="jxr_string">"failure "</span> + i);
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          await().atMost(1, MINUTES).until(processedMessagesContains(<span class="jxr_string">"test failure"</span>));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          await().pollInterval(10, MILLISECONDS).until(processedMessagesContains(<span class="jxr_string">"test failure"</span>));
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 10; i &lt; 50; i++) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              await().until(processedMessagesContains(<span class="jxr_string">"failure "</span> + i));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              await().pollInterval(10, MILLISECONDS).until(processedMessagesContains(<span class="jxr_string">"failure "</span> + i));
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
