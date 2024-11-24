@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DbSchemaRecorder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus</a> &gt; <span class="el_source">DbSchemaRecorder.java</span></div><h1>DbSchemaRecorder.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus;
+
+import java.util.List;
+
+import io.quarkus.arc.Arc;
+import io.quarkus.arc.InstanceHandle;
+import io.quarkus.runtime.annotations.Recorder;
+
+@Recorder
+<span class="fc" id="L10">public class DbSchemaRecorder {</span>
+
+    public void reset(List&lt;String&gt; statements) {
+<span class="fc" id="L13">        InstanceHandle&lt;DbSchema&gt; schemaHandle = Arc.container().instance(DbSchema.class);</span>
+<span class="pc bpc" id="L14" title="1 of 2 branches missed.">        if (!schemaHandle.isAvailable()) {</span>
+<span class="nc" id="L15">            return;</span>
+        }
+<span class="fc" id="L17">        DbSchema dbSchema = schemaHandle.get();</span>
+<span class="fc" id="L18">        dbSchema.setStatements(statements);</span>
+<span class="fc" id="L19">        dbSchema.reset();</span>
+<span class="fc" id="L20">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
