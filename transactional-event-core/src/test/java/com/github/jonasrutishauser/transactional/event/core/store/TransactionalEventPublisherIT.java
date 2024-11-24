@@ -82,7 +82,7 @@ import jakarta.xml.bind.annotation.XmlType;
         user = "sa", password = "sa")
 @ConfigPropertyValue(name="transactional.event.initialDispatchInterval", value="2")
 @ConfigPropertyValue(name="transactional.event.allInUseInterval", value="2")
-public class TransactionalEventPublisherIT {
+class TransactionalEventPublisherIT {
 
     @RegisterExtension
     static final OpenTelemetryExtension otelTesting = OpenTelemetryExtension.create();
