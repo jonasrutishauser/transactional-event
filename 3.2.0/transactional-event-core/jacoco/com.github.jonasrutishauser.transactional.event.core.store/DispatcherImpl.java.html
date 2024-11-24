@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DispatcherImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">DispatcherImpl.java</span></div><h1>DispatcherImpl.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static org.eclipse.microprofile.metrics.MetricUnits.NONE;
+import static org.eclipse.microprofile.metrics.MetricUnits.SECONDS;
+
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+
+import com.github.jonasrutishauser.transactional.event.api.Configuration;
+import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
+import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+class DispatcherImpl implements Dispatcher {
+
+<span class="fc" id="L30">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    private final Configuration configuration;
+    private final WorkProcessorImpl processor;
+    private final EventExecutor executor;
+    private final PendingEventStore store;
+<span class="pc" id="L36">    private final AtomicInteger dispatchedRunning = new AtomicInteger();</span>
+<span class="pc" id="L37">    private final BlockingQueue&lt;String&gt; eventsToDispatch = new LinkedBlockingQueue&lt;&gt;();</span>
+
+<span class="pc" id="L39">    private volatile int intervalSeconds = 30;</span>
+
+<span class="fc" id="L41">    DispatcherImpl() {</span>
+<span class="fc" id="L42">        this.configuration = null;</span>
+<span class="fc" id="L43">        this.processor = null;</span>
+<span class="fc" id="L44">        this.executor = null;</span>
+<span class="fc" id="L45">        this.store = null;</span>
+<span class="fc" id="L46">    }</span>
+
+    @Inject
+<span class="nc" id="L49">    DispatcherImpl(Configuration configuration, WorkProcessorImpl dispatcher, EventExecutor executor, PendingEventStore store) {</span>
+<span class="nc" id="L50">        this.configuration = configuration;</span>
+<span class="nc" id="L51">        this.processor = dispatcher;</span>
+<span class="nc" id="L52">        this.executor = executor;</span>
+<span class="nc" id="L53">        this.store = store;</span>
+<span class="nc" id="L54">    }</span>
+
+    @PostConstruct
+    void initIntervalSeconds() {
+<span class="nc" id="L58">        intervalSeconds = configuration.getInitialDispatchInterval();</span>
+<span class="nc" id="L59">    }</span>
+
+    @Override
+    public void processDirect(EventsPublished events) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (PendingEvent event : events.getEvents()) {</span>
+<span class="nc" id="L64">            String eventId = event.getId();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (dispatchable() &gt; 0) {</span>
+                try {
+<span class="nc" id="L67">                    executeCounting(eventId);</span>
+<span class="nc" id="L68">                } catch (RejectedExecutionException e) {</span>
+<span class="nc" id="L69">                    LOGGER.warn(&quot;Failed to submit event {} for processing: {}&quot;, eventId, e.getMessage());</span>
+<span class="nc" id="L70">                }</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            } else if (eventsToDispatch.size() &lt; 8 * configuration.getMaxAquire()) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (!eventsToDispatch.offer(eventId)) {</span>
+<span class="nc" id="L73">                    LOGGER.warn(&quot;Failed to submit event {} for processing&quot;, eventId);</span>
+                }
+            } else {
+<span class="nc" id="L76">                LOGGER.warn(&quot;There are already too many events to process event {}&quot;, eventId);</span>
+            }
+<span class="nc" id="L78">        }</span>
+<span class="nc" id="L79">    }</span>
+
+    @Override
+    public long dispatchInterval() {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (dispatchable() &lt;= 0) {</span>
+<span class="nc" id="L84">            return configuration.getAllInUseInterval();</span>
+        }
+<span class="nc" id="L86">        return intervalSeconds * 1000l;</span>
+    }
+
+    public void schedule() {
+        try {
+<span class="nc" id="L91">            scheduleImpl();</span>
+<span class="nc" id="L92">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L93">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
+<span class="nc" id="L94">            throw e;</span>
+<span class="nc" id="L95">        }</span>
+<span class="nc" id="L96">    }</span>
+
+    private synchronized void scheduleImpl() {
+<span class="nc bnc" id="L99" title="All 4 branches missed.">        for (boolean empty = false; !empty &amp;&amp; eventsToDispatch.size() &lt; configuration.getMaxConcurrentDispatching();) {</span>
+<span class="nc" id="L100">            Set&lt;String&gt; events = store.aquire(configuration.getMaxAquire());</span>
+<span class="nc" id="L101">            events.forEach(eventsToDispatch::offer);</span>
+<span class="nc" id="L102">            empty = events.isEmpty();</span>
+<span class="nc" id="L103">        }</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (!eventsToDispatch.isEmpty()) {</span>
+<span class="nc" id="L105">            intervalSeconds = 0;</span>
+        } else {
+<span class="nc" id="L107">            intervalSeconds = min(configuration.getMaxDispatchInterval(), max(intervalSeconds * 2, 1));</span>
+        }
+<span class="nc bnc" id="L109" title="All 4 branches missed.">        while (dispatchable() &gt; 0 &amp;&amp; !eventsToDispatch.isEmpty()) {</span>
+            try {
+<span class="nc" id="L111">                executeCounting(eventsToDispatch.take());</span>
+<span class="nc" id="L112">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L113">                Thread.currentThread().interrupt();</span>
+<span class="nc" id="L114">                return;</span>
+<span class="nc" id="L115">            } catch (RejectedExecutionException e) {</span>
+<span class="nc" id="L116">                LOGGER.warn(&quot;Failed to dispatch events: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L117">            }</span>
+        }
+<span class="nc" id="L119">    }</span>
+
+    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.dispatched.processing&quot;,
+            description = &quot;Number of dispatched events being processed&quot;, unit = NONE, absolute = true)
+    public int getDispatchedRunning() {
+<span class="nc" id="L124">        return dispatchedRunning.get();</span>
+    }
+
+    @Gauge(name = &quot;com.github.jonasrutishauser.transaction.event.dispatch.interval&quot;,
+            description = &quot;Interval between lookups for events to process&quot;, unit = SECONDS, absolute = true)
+    public int getIntervalSeconds() {
+<span class="nc" id="L130">        return intervalSeconds;</span>
+    }
+
+    private int dispatchable() {
+<span class="nc" id="L134">        return configuration.getMaxConcurrentDispatching() - dispatchedRunning.get();</span>
+    }
+
+    private void executeCounting(String eventId) {
+<span class="nc" id="L138">        Callable&lt;Boolean&gt; supplier = processor.get(eventId);</span>
+        try {
+<span class="nc" id="L140">            executor.execute(counting(() -&gt; {</span>
+                try {
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                    if (!Boolean.TRUE.equals(supplier.call())) {</span>
+<span class="nc" id="L143">                        intervalSeconds = 0;</span>
+                    }
+<span class="nc" id="L145">                } catch (Exception e) {</span>
+<span class="nc" id="L146">                    LOGGER.catching(e);</span>
+<span class="nc" id="L147">                }</span>
+<span class="nc" id="L148">            }));</span>
+<span class="nc" id="L149">        } catch (RejectedExecutionException e) {</span>
+<span class="nc" id="L150">            dispatchedRunning.decrementAndGet();</span>
+<span class="nc" id="L151">            throw e;</span>
+<span class="nc" id="L152">        }</span>
+<span class="nc" id="L153">    }</span>
+
+    private Runnable counting(Runnable task) {
+<span class="nc" id="L156">        dispatchedRunning.incrementAndGet();</span>
+<span class="nc" id="L157">        return () -&gt; {</span>
+            try {
+<span class="nc" id="L159">                task.run();</span>
+            } finally {
+<span class="nc" id="L161">                dispatchedRunning.decrementAndGet();</span>
+            }
+<span class="nc" id="L163">        };</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
