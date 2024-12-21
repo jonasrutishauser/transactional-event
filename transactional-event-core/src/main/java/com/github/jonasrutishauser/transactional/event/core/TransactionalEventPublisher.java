@@ -1,8 +1,11 @@
 package com.github.jonasrutishauser.transactional.event.core;
 
+import static java.time.Instant.now;
+import static com.github.jonasrutishauser.transactional.event.core.TransactionalPublisher.DELAYED_UNTIL_KEY;
 import static com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
 import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
+import java.time.temporal.TemporalAmount;
 import java.util.Properties;
 
 import jakarta.enterprise.context.Dependent;
@@ -47,6 +50,20 @@ public class TransactionalEventPublisher implements EventPublisher {
         publisher.publish(id, type, new Properties(), payload);
 
         LOGGER.debug("enqueued event '{}' with type '{}' (payload '{}')", id, type, payload);
+    }
+
+    @Override
+    @Transactional(MANDATORY)
+    public void publishDelayed(Object event, TemporalAmount delay) {
+        String id = randomId();
+        String type = typeResolver.resolve(event.getClass());
+        String payload = eventSerializer.serialize(event);
+        Properties context = new Properties();
+        context.put(DELAYED_UNTIL_KEY, now().plus(delay));
+
+        publisher.publish(id, type, context, payload);
+
+        LOGGER.debug("enqueued event '{}' with type '{}' (payload '{}') and delay {}", id, type, payload, delay);
     }
 
 }

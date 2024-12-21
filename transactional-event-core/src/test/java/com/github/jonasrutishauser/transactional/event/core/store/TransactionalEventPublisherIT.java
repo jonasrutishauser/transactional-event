@@ -126,6 +126,21 @@ class TransactionalEventPublisherIT {
     }
 
     @Test
+    void testPublishDelayed() throws Exception {
+        transaction.begin();
+        publisher.publishDelayed(new TestJaxbTypeEvent("foo"), Duration.ofDays(1));
+        publisher.publishDelayed(new TestJaxbElementEvent("bar"), Duration.ofDays(1));
+        publisher.publishDelayed(new TestJsonbEvent("jsonb"), Duration.ofDays(1));
+        publisher.publishDelayed("test string", Duration.ZERO);
+        transaction.commit();
+
+        await().until(() -> messages.contains("test string"));
+        assertFalse(messages.contains("foo"));
+        assertFalse(messages.contains("bar"));
+        assertFalse(messages.contains("jsonb"));
+    }
+
+    @Test
     void testManyDispatching() throws Exception {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             for (int i = 10; i < 5000; i++) {

@@ -74,7 +74,8 @@ class PendingEventStoreTest {
     @BeforeEach
     void initDb() throws Exception {
         dataSource = getDataSource();
-        testee = new PendingEventStore(new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
+        testee = new PendingEventStore(Clock.fixed(Instant.ofEpochMilli(42434243), ZoneOffset.UTC),
+                new MPConfiguration(), dataSource, new QueryAdapterFactory(dataSource),
                 new LockOwner(Clock.fixed(Instant.ofEpochMilli(42424242), ZoneOffset.UTC), "lock_id",
                         processingBlockedEvent, new DefaultProcessingStrategy()),
                 unblockedEvent, deletedEvent);
@@ -125,7 +126,7 @@ class PendingEventStoreTest {
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store WHERE id='foo'")) {
             assertTrue(resultSet.next());
-            assertEquals(42424242, resultSet.getLong("locked_until"));
+            assertEquals(42434243, resultSet.getLong("locked_until"));
             assertNull(resultSet.getString("lock_owner"));
         }
         verify(unblockedEvent).fire(new ProcessingUnblockedEvent("foo"));
@@ -283,7 +284,7 @@ class PendingEventStoreTest {
     @Test
     void storeSingleEvent() throws Exception {
         EventsPublished events = new EventsPublished();
-        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now(), null));
         testee.store(events);
 
         try (Connection connection = dataSource.getConnection();
@@ -308,7 +309,7 @@ class PendingEventStoreTest {
                     "INSERT INTO event_store VALUES ('test', 'type', null, 'payload', {ts '2021-01-01 12:42:00'}, 0, null, 12)");
         }
         EventsPublished events = new EventsPublished();
-        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now(), null));
 
         assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
@@ -316,9 +317,9 @@ class PendingEventStoreTest {
     @Test
     void storeMultipleEvent() throws Exception {
         EventsPublished events = new EventsPublished();
-        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
-        events.addEvent(new PendingEvent("foo", "t", null, "p", LocalDateTime.now()));
-        events.addEvent(new PendingEvent("bar", "a", null, "b", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now(), null));
+        events.addEvent(new PendingEvent("foo", "t", null, "p", LocalDateTime.now(), Instant.ofEpochMilli(123456789)));
+        events.addEvent(new PendingEvent("bar", "a", null, "b", LocalDateTime.now(), null));
         testee.store(events);
 
         try (Connection connection = dataSource.getConnection();
@@ -326,7 +327,7 @@ class PendingEventStoreTest {
              ResultSet resultSet = statement.executeQuery("SELECT * FROM event_store")) {
             for (int i = 0; i < 3; i++) {
                 assertTrue(resultSet.next());
-                assertEquals(42724242, resultSet.getLong("locked_until"));
+                assertEquals(i == 1 ? 123456789 : 42724242, resultSet.getLong("locked_until"));
                 assertEquals("lock_id", resultSet.getString("lock_owner"));
             }
             assertFalse(resultSet.next());
@@ -348,7 +349,7 @@ class PendingEventStoreTest {
                 unblockedEvent, deletedEvent);
         testee.initSqlQueries();
         EventsPublished events = new EventsPublished();
-        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now(), null));
 
         assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
@@ -368,7 +369,7 @@ class PendingEventStoreTest {
                 unblockedEvent, deletedEvent);
         testee.initSqlQueries();
         EventsPublished events = new EventsPublished();
-        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now()));
+        events.addEvent(new PendingEvent("test", "type", null, "payload", LocalDateTime.now(), null));
 
         assertThrows(IllegalStateException.class, () -> testee.store(events));
     }
@@ -430,7 +431,7 @@ class PendingEventStoreTest {
 
     @Test
     void deleteWhenNotExists() {
-        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.now());
+        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.now(), null);
 
         assertThrows(NoSuchElementException.class, () -> testee.delete(event));
     }
@@ -444,7 +445,7 @@ class PendingEventStoreTest {
                     "INSERT INTO event_store VALUES ('foo', 't', null, 'p', {ts '2021-01-01 12:42:00'}, 0, 'lock_id', 999999999)");
             connection.commit();
             statement.execute("SELECT * FROM event_store WHERE id='foo' FOR UPDATE");
-            PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42));
+            PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), null);
 
             assertThrows(IllegalStateException.class, () -> testee.delete(event));
         }
@@ -456,7 +457,7 @@ class PendingEventStoreTest {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', null, 'p', {ts '2021-01-01 12:42:00'}, 42, 'lock_id', 999999999)");
         }
-        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), 42);
+        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), null, 42);
 
         testee.delete(event);
 
@@ -469,7 +470,7 @@ class PendingEventStoreTest {
 
     @Test
     void updateForRetryWhenNotExists() {
-        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.now());
+        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.now(), null);
 
         assertThrows(NoSuchElementException.class, () -> testee.updateForRetry(event));
     }
@@ -483,7 +484,7 @@ class PendingEventStoreTest {
                     "INSERT INTO event_store VALUES ('foo', 't', null, 'p', {ts '2021-01-01 12:42:00'}, 0, 'lock_id', 999999999)");
             connection.commit();
             statement.execute("SELECT * FROM event_store WHERE id='foo' FOR UPDATE");
-            PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42));
+            PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), null);
 
             assertThrows(IllegalStateException.class, () -> testee.updateForRetry(event));
         }
@@ -495,7 +496,7 @@ class PendingEventStoreTest {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', null, 'p', {ts '2021-01-01 12:42:00'}, 1, 'lock_id', 999999999)");
         }
-        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), 1);
+        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), null, 1);
 
         testee.updateForRetry(event);
 
@@ -518,7 +519,7 @@ class PendingEventStoreTest {
             statement.execute(
                     "INSERT INTO event_store VALUES ('foo', 't', null, 'p', {ts '2021-01-01 12:42:00'}, 42, 'lock_id', 999999999)");
         }
-        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), 42);
+        PendingEvent event = new PendingEvent("foo", "t", null, "p", LocalDateTime.of(2012, 1, 1, 12, 42), null, 42);
 
         testee.updateForRetry(event);
 

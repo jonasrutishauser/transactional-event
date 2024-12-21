@@ -1,18 +1,20 @@
 package com.github.jonasrutishauser.transactional.event.core.store;
 
+import static jakarta.enterprise.event.TransactionPhase.BEFORE_COMPLETION;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
 import static java.lang.Math.min;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 import static java.sql.Types.VARCHAR;
 import static java.util.Collections.emptySet;
-import static jakarta.enterprise.event.TransactionPhase.BEFORE_COMPLETION;
-import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
-import static jakarta.transaction.Transactional.TxType.MANDATORY;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,14 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.IntPredicate;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Priority;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import jakarta.transaction.Transactional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,11 +38,20 @@ import com.github.jonasrutishauser.transactional.event.api.store.EventStore;
 import com.github.jonasrutishauser.transactional.event.api.store.QueryAdapter;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
 @ApplicationScoped
 class PendingEventStore implements EventStore {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private final Clock clock;
     private final Configuration configuration;
     private final DataSource dataSource;
     private final QueryAdapterFactory queryAdapterFactory;
@@ -73,6 +77,14 @@ class PendingEventStore implements EventStore {
     PendingEventStore(Configuration configuration, @Events DataSource dataSource,
             QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner,
             Event<ProcessingUnblockedEvent> unblockedEvent, Event<ProcessingDeletedEvent> deletedEvent) {
+        this(Clock.systemUTC(), configuration, dataSource, queryAdapterFactory, lockOwner, unblockedEvent,
+                deletedEvent);
+    }
+
+    PendingEventStore(Clock clock, Configuration configuration, @Events DataSource dataSource,
+            QueryAdapterFactory queryAdapterFactory, LockOwner lockOwner,
+            Event<ProcessingUnblockedEvent> unblockedEvent, Event<ProcessingDeletedEvent> deletedEvent) {
+        this.clock = clock;
         this.configuration = configuration;
         this.dataSource = dataSource;
         this.queryAdapterFactory = queryAdapterFactory;
@@ -110,7 +122,7 @@ class PendingEventStore implements EventStore {
             if (resultSet.next()) {
                 updateStatement.setInt(1, 0);
                 updateStatement.setNull(2, VARCHAR);
-                updateStatement.setLong(3, lockOwner.getUntilForRetry(0, eventId));
+                updateStatement.setLong(3, Instant.now(clock).toEpochMilli());
                 updateStatement.setString(4, eventId);
                 result = updateStatement.executeUpdate() > 0;
             } else {
@@ -177,7 +189,8 @@ class PendingEventStore implements EventStore {
                 statement.setTimestamp(5, Timestamp.valueOf(event.getPublishedAt()));
                 statement.setInt(6, event.getTries());
                 statement.setString(7, lockOwner.getId());
-                statement.setLong(8, lockOwner.getUntilToProcess());
+                statement.setLong(8,
+                        event.getDelayedUntil().map(Instant::toEpochMilli).orElseGet(lockOwner::getUntilToProcess));
                 statement.addBatch();
             }
             int[] result = statement.executeBatch();
@@ -207,7 +220,7 @@ class PendingEventStore implements EventStore {
             }
             return new PendingEvent(id, resultSet.getString("event_type"), resultSet.getString("context"),
                     resultSet.getString("payload"), resultSet.getTimestamp("published_at").toLocalDateTime(),
-                    resultSet.getInt("tries"));
+                    null, resultSet.getInt("tries"));
         } catch (SQLException exception) {
             LOGGER.error(errorMessage, exception);
             throw new IllegalStateException(errorMessage);

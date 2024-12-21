@@ -41,7 +41,7 @@ public class MetricsEventObserver {
 
     @Counted(name = "com.github.jonasrutishauser.transaction.event.blocked",
             description = "counter for blocked events (max attempts reached)", absolute = true)
-    public void processBlocked(@Observes ProcessingBlockedEvent e) {
+    public void processBlocked(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingBlockedEvent e) {
         LOGGER.debug(EVENT_LOG_MESSAGE, e);
     }
 

@@ -1,7 +1,9 @@
 package com.github.jonasrutishauser.transactional.event.core;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class PendingEvent implements Serializable {
 
@@ -12,18 +14,20 @@ public class PendingEvent implements Serializable {
     private final String context;
     private final String payload;
     private final LocalDateTime publishedAt;
+    private final Instant delayedUntil;
     private final int tries;
 
-    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt) {
-        this(id, type, context, payload, publishedAt, 0);
+    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt, Instant delayedUntil) {
+        this(id, type, context, payload, publishedAt, delayedUntil, 0);
     }
 
-    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt, int tries) {
+    public PendingEvent(String id, String type, String context, String payload, LocalDateTime publishedAt, Instant delayedUntil, int tries) {
         this.id = id;
         this.type = type;
         this.context = context;
         this.payload = payload;
         this.publishedAt = publishedAt;
+        this.delayedUntil = delayedUntil;
         this.tries = tries;
     }
 
@@ -45,6 +49,10 @@ public class PendingEvent implements Serializable {
 
     public LocalDateTime getPublishedAt() {
         return publishedAt;
+    }
+
+    public Optional<Instant> getDelayedUntil() {
+        return Optional.ofNullable(delayedUntil);
     }
 
     public int getTries() {

@@ -39,14 +39,12 @@ class DispatcherImpl implements Dispatcher {
     private volatile int intervalSeconds = 30;
 
     DispatcherImpl() {
-        this.configuration = null;
-        this.processor = null;
-        this.executor = null;
-        this.store = null;
+        this(null, null, null, null);
     }
 
     @Inject
-    DispatcherImpl(Configuration configuration, WorkProcessorImpl dispatcher, EventExecutor executor, PendingEventStore store) {
+    DispatcherImpl(Configuration configuration, WorkProcessorImpl dispatcher, EventExecutor executor,
+            PendingEventStore store) {
         this.configuration = configuration;
         this.processor = dispatcher;
         this.executor = executor;
@@ -61,20 +59,26 @@ class DispatcherImpl implements Dispatcher {
     @Override
     public void processDirect(EventsPublished events) {
         for (PendingEvent event : events.getEvents()) {
-            String eventId = event.getId();
-            if (dispatchable() > 0) {
-                try {
-                    executeCounting(eventId);
-                } catch (RejectedExecutionException e) {
-                    LOGGER.warn("Failed to submit event {} for processing: {}", eventId, e.getMessage());
-                }
-            } else if (eventsToDispatch.size() < 8 * configuration.getMaxAquire()) {
-                if (!eventsToDispatch.offer(eventId)) {
-                    LOGGER.warn("Failed to submit event {} for processing", eventId);
-                }
-            } else {
-                LOGGER.warn("There are already too many events to process event {}", eventId);
+            if (event.getDelayedUntil().isEmpty()) {
+                processDirect(event);
             }
+        }
+    }
+
+    private void processDirect(PendingEvent event) {
+        String eventId = event.getId();
+        if (dispatchable() > 0) {
+            try {
+                executeCounting(eventId);
+            } catch (RejectedExecutionException e) {
+                LOGGER.warn("Failed to submit event {} for processing: {}", eventId, e.getMessage());
+            }
+        } else if (eventsToDispatch.size() < 8 * configuration.getMaxAquire()) {
+            if (!eventsToDispatch.offer(eventId)) {
+                LOGGER.warn("Failed to submit event {} for processing", eventId);
+            }
+        } else {
+            LOGGER.warn("There are already too many events to process event {}", eventId);
         }
     }
 
