@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultEventExecutor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.concurrent</a> &gt; <span class="el_source">DefaultEventExecutor.java</span></div><h1>DefaultEventExecutor.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.concurrent;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.concurrent.ScheduledFuture;
+import java.util.function.LongSupplier;
+
+import com.github.jonasrutishauser.transactional.event.api.Events;
+
+import jakarta.enterprise.concurrent.LastExecution;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
+import jakarta.enterprise.concurrent.Trigger;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+public class DefaultEventExecutor implements EventExecutor {
+
+    private final ManagedScheduledExecutorService executor;
+
+    DefaultEventExecutor() {
+<span class="nc" id="L22">        this(null);</span>
+<span class="nc" id="L23">    }</span>
+
+    @Inject
+<span class="nc" id="L26">    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor) {</span>
+<span class="nc" id="L27">        this.executor = executor;</span>
+<span class="nc" id="L28">    }</span>
+
+    @Override
+    public void execute(Runnable command) {
+<span class="nc" id="L32">        executor.execute(command);</span>
+<span class="nc" id="L33">    }</span>
+
+    @Override
+    public Task schedule(Runnable command, LongSupplier interval) {
+<span class="nc" id="L37">        ScheduledFuture&lt;?&gt; future = executor.schedule(command, new Trigger() {</span>
+            @Override
+            public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
+<span class="nc" id="L40">                return false;</span>
+            }
+
+            @Override
+            public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
+<span class="nc" id="L45">                return Date.from(Instant.now().plusMillis(interval.getAsLong()));</span>
+            }
+        });
+<span class="nc" id="L48">        return () -&gt; future.cancel(false);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

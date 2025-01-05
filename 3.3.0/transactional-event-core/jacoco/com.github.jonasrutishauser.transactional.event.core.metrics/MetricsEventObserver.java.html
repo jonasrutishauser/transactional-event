@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MetricsEventObserver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.metrics</a> &gt; <span class="el_source">MetricsEventObserver.java</span></div><h1>MetricsEventObserver.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.metrics;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.TransactionPhase;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingBlockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingDeletedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingFailedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.PublishingEvent;
+
+@ApplicationScoped
+<span class="nc" id="L20">public class MetricsEventObserver {</span>
+
+    private static final String EVENT_LOG_MESSAGE = &quot;Got event {}&quot;;
+
+<span class="nc" id="L24">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+<span class="nc" id="L27">        LOGGER.debug(&quot;initialized&quot;);</span>
+<span class="nc" id="L28">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.failedattempts&quot;,
+            description = &quot;counter for failed attempts of processing the events&quot;, absolute = true)
+    public void processAttemptFailed(@Observes ProcessingFailedEvent e) {
+<span class="nc" id="L33">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L34">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.success&quot;,
+            description = &quot;counter for successfully processed events&quot;, absolute = true)
+    public void processSuccess(@Observes ProcessingSuccessEvent e) {
+<span class="nc" id="L39">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L40">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.blocked&quot;,
+            description = &quot;counter for blocked events (max attempts reached)&quot;, absolute = true)
+    public void processBlocked(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingBlockedEvent e) {
+<span class="nc" id="L45">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L46">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.unblocked&quot;,
+            description = &quot;counter for unblocked events&quot;, absolute = true)
+    public void processUnblocked(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingUnblockedEvent e) {
+<span class="nc" id="L51">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L52">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.deleted&quot;,
+            description = &quot;counter for deleted events&quot;, absolute = true)
+    public void processDeleted(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingDeletedEvent e) {
+<span class="nc" id="L57">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L58">    }</span>
+
+    @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.published&quot;,
+            description = &quot;counter for published events&quot;, absolute = true)
+    public void published(@Observes(during = TransactionPhase.AFTER_SUCCESS) PublishingEvent e) {
+<span class="nc" id="L63">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
+<span class="nc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
