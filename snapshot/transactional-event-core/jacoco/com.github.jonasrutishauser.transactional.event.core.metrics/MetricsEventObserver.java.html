@@ -41,7 +41,7 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Publishing
 
     @Counted(name = &quot;com.github.jonasrutishauser.transaction.event.blocked&quot;,
             description = &quot;counter for blocked events (max attempts reached)&quot;, absolute = true)
-    public void processBlocked(@Observes ProcessingBlockedEvent e) {
+    public void processBlocked(@Observes(during = TransactionPhase.AFTER_SUCCESS) ProcessingBlockedEvent e) {
 <span class="nc" id="L45">        LOGGER.debug(EVENT_LOG_MESSAGE, e);</span>
 <span class="nc" id="L46">    }</span>
 
