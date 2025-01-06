@@ -238,9 +238,6 @@
 						<oracle.net.disableOob>true</oracle.net.disableOob>
 						<oracle.jdbc.timezoneAsRegion>false</oracle.jdbc.timezoneAsRegion>
 					</systemPropertyVariables>
-					<excludes>
-						<exclude />
-					</excludes>
 					<forkCount>2C</forkCount>
 				</configuration>
 			</plugin>
