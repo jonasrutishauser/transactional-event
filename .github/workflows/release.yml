@@ -11,9 +11,11 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -37,13 +39,13 @@ jobs:
                   </servers>
                 </settings>' > $GITHUB_WORKSPACE/git-settings.xml
       - name: Prepare Release
-        run: mvn -V -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:clean release:prepare
+        run: mvn -V -gs $GITHUB_WORKSPACE/git-settings.xml -B -e -Dstyle.color=always release:clean release:prepare
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Release
         run: >
           echo "RELEASED_VERSION=$(grep scm.tag= release.properties | cut -d'=' -f2 | cut -c2-)" >> $GITHUB_OUTPUT && 
-          mvn -gs $GITHUB_WORKSPACE/git-settings.xml -B -e release:perform
+          mvn -gs $GITHUB_WORKSPACE/git-settings.xml -B -e -Dstyle.color=always release:perform
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN }}
