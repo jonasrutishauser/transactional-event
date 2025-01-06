@@ -56,6 +56,9 @@
       <li><a href="apidocs/index.html">Javadoc</a></li>
       <li><a href="jacoco/index.html">JaCoCo</a></li>
       <li><a href="jacoco-it/index.html">JaCoCo IT</a></li>
+      <li><a href="changelog.html">Change Log</a></li>
+      <li><a href="dev-activity.html">Developer Activity</a></li>
+      <li><a href="file-activity.html">File Activity</a></li>
       <li><a href="dependency-updates-report.html">Dependency Updates Report</a></li>
       <li><a href="plugin-updates-report.html">Plugin Updates Report</a></li>
       <li class="active"><a>Property Updates Report</a></li>
@@ -79,15 +82,15 @@
 <tr class="b">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td># of properties using the latest version available</td>
-<td>13</td></tr>
+<td>17</td></tr>
 <tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td># of properties where the next version available is smaller than an incremental version update</td>
 <td>0</td></tr>
 <tr class="b">
-<td><img src="images/icon_warning_sml.gif" /></td>
+<td><img src="images/icon_success_sml.gif" /></td>
 <td># of properties where the next version available is an incremental version update</td>
-<td>1</td></tr>
+<td>0</td></tr>
 <tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td># of properties where the next version available is a minor version update</td>
@@ -118,6 +121,22 @@
 <td><img src="images/icon_success_sml.gif" /></td>
 <td>${plugin.central-publishing.version}</td>
 <td>0.6.0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td></tr>
+<tr class="b">
+<td><img src="images/icon_success_sml.gif" /></td>
+<td>${plugin.changelog.version}</td>
+<td>3.0.0-M1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td></tr>
+<tr class="a">
+<td><img src="images/icon_success_sml.gif" /></td>
+<td>${plugin.changes.version}</td>
+<td>3.0.0-M2</td>
 <td></td>
 <td></td>
 <td></td>
@@ -195,11 +214,11 @@
 <td></td>
 <td><b>4.0.0-beta-1</b></td></tr>
 <tr class="a">
-<td><img src="images/icon_warning_sml.gif" /></td>
+<td><img src="images/icon_success_sml.gif" /></td>
 <td>${plugin.javadoc.version}</td>
-<td>3.11.1</td>
+<td>3.11.2</td>
 <td></td>
-<td><b>3.11.2</b></td>
+<td></td>
 <td></td>
 <td></td></tr>
 <tr class="b">
@@ -260,13 +279,21 @@
 <td><b>4.0.0-beta-1</b></td></tr>
 <tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
+<td>${plugin.surefire-junit5-tree-reporter.version}</td>
+<td>1.4.0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td></tr>
+<tr class="b">
+<td><img src="images/icon_success_sml.gif" /></td>
 <td>${plugin.surefire.version}</td>
 <td>3.5.2</td>
 <td></td>
 <td></td>
 <td></td>
 <td></td></tr>
-<tr class="b">
+<tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td>${plugin.taglist.version}</td>
 <td>3.2.1</td>
@@ -274,7 +301,7 @@
 <td></td>
 <td></td>
 <td></td></tr>
-<tr class="a">
+<tr class="b">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td>${plugin.versions.version}</td>
 <td>2.18.0</td>
@@ -282,7 +309,7 @@
 <td></td>
 <td></td>
 <td></td></tr>
-<tr class="b">
+<tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td>${wagon.git.version}</td>
 <td>1.1.1</td>
@@ -290,7 +317,7 @@
 <td></td>
 <td></td>
 <td></td></tr>
-<tr class="a">
+<tr class="b">
 <th>Status</th>
 <th>Property</th>
 <th>Current Version</th>
@@ -346,6 +373,64 @@
 <tr class="a">
 <th>Allowed version range</th>
 <td style="text-align: left;">0.6.0</td></tr>
+<tr class="b">
+<th>Infer associations from project</th>
+<td style="text-align: left;">Yes</td></tr>
+<tr class="a">
+<th>Only use release versions</th>
+<td style="text-align: left;">No</td></tr>
+<tr class="b">
+<th>Include projects from reactor</th>
+<td style="text-align: left;">Yes</td></tr>
+<tr class="a">
+<th>Always use reactor projects (even if older or -SNAPSHOT)</th>
+<td style="text-align: left;">Yes</td></tr></table></section><section><a id="a.24.7Bplugin.changelog.version.7D"></a>
+<h2>${plugin.changelog.version}</h2>
+<table class="table table-striped">
+<tr class="a">
+<th>Status</th>
+<td style="text-align: left;"><img src="images/icon_success_sml.gif" />&#160;No newer versions available.</td></tr>
+<tr class="b">
+<th>Property</th>
+<td style="text-align: left;">${plugin.changelog.version}</td></tr>
+<tr class="a">
+<th>Associated artifacts</th>
+<td style="text-align: left;">org.apache.maven.plugins:maven-changelog-plugin</td></tr>
+<tr class="b">
+<th>Current Version</th>
+<td style="text-align: left;">3.0.0-M1</td></tr>
+<tr class="a">
+<th>Allowed version range</th>
+<td style="text-align: left;">3.0.0-M1</td></tr>
+<tr class="b">
+<th>Infer associations from project</th>
+<td style="text-align: left;">Yes</td></tr>
+<tr class="a">
+<th>Only use release versions</th>
+<td style="text-align: left;">No</td></tr>
+<tr class="b">
+<th>Include projects from reactor</th>
+<td style="text-align: left;">Yes</td></tr>
+<tr class="a">
+<th>Always use reactor projects (even if older or -SNAPSHOT)</th>
+<td style="text-align: left;">Yes</td></tr></table></section><section><a id="a.24.7Bplugin.changes.version.7D"></a>
+<h2>${plugin.changes.version}</h2>
+<table class="table table-striped">
+<tr class="a">
+<th>Status</th>
+<td style="text-align: left;"><img src="images/icon_success_sml.gif" />&#160;No newer versions available.</td></tr>
+<tr class="b">
+<th>Property</th>
+<td style="text-align: left;">${plugin.changes.version}</td></tr>
+<tr class="a">
+<th>Associated artifacts</th>
+<td style="text-align: left;">org.apache.maven.plugins:maven-changes-plugin</td></tr>
+<tr class="b">
+<th>Current Version</th>
+<td style="text-align: left;">3.0.0-M2</td></tr>
+<tr class="a">
+<th>Allowed version range</th>
+<td style="text-align: left;">3.0.0-M2</td></tr>
 <tr class="b">
 <th>Infer associations from project</th>
 <td style="text-align: left;">Yes</td></tr>
@@ -638,7 +723,7 @@
 <table class="table table-striped">
 <tr class="a">
 <th>Status</th>
-<td style="text-align: left;"><img src="images/icon_warning_sml.gif" />&#160;There is at least one newer incremental version available. Incremental updates are typically passive.</td></tr>
+<td style="text-align: left;"><img src="images/icon_success_sml.gif" />&#160;No newer versions available.</td></tr>
 <tr class="b">
 <th>Property</th>
 <td style="text-align: left;">${plugin.javadoc.version}</td></tr>
@@ -647,23 +732,20 @@
 <td style="text-align: left;">org.apache.maven.plugins:maven-javadoc-plugin</td></tr>
 <tr class="b">
 <th>Current Version</th>
-<td style="text-align: left;">3.11.1</td></tr>
+<td style="text-align: left;">3.11.2</td></tr>
 <tr class="a">
-<th>Newer versions</th>
-<td style="text-align: left;"><b>3.11.2</b>&#160;<i>Latest Incremental</i></td></tr>
-<tr class="b">
 <th>Allowed version range</th>
-<td style="text-align: left;">3.11.1</td></tr>
-<tr class="a">
+<td style="text-align: left;">3.11.2</td></tr>
+<tr class="b">
 <th>Infer associations from project</th>
 <td style="text-align: left;">Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <th>Only use release versions</th>
 <td style="text-align: left;">No</td></tr>
-<tr class="a">
+<tr class="b">
 <th>Include projects from reactor</th>
 <td style="text-align: left;">Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <th>Always use reactor projects (even if older or -SNAPSHOT)</th>
 <td style="text-align: left;">Yes</td></tr></table></section><section><a id="a.24.7Bplugin.jxr.version.7D"></a>
 <h2>${plugin.jxr.version}</h2>
@@ -879,6 +961,35 @@
 <th>Include projects from reactor</th>
 <td style="text-align: left;">Yes</td></tr>
 <tr class="b">
+<th>Always use reactor projects (even if older or -SNAPSHOT)</th>
+<td style="text-align: left;">Yes</td></tr></table></section><section><a id="a.24.7Bplugin.surefire-junit5-tree-reporter.version.7D"></a>
+<h2>${plugin.surefire-junit5-tree-reporter.version}</h2>
+<table class="table table-striped">
+<tr class="a">
+<th>Status</th>
+<td style="text-align: left;"><img src="images/icon_success_sml.gif" />&#160;No newer versions available.</td></tr>
+<tr class="b">
+<th>Property</th>
+<td style="text-align: left;">${plugin.surefire-junit5-tree-reporter.version}</td></tr>
+<tr class="a">
+<th>Associated artifacts</th>
+<td style="text-align: left;">me.fabriciorby:maven-surefire-junit5-tree-reporter</td></tr>
+<tr class="b">
+<th>Current Version</th>
+<td style="text-align: left;">1.4.0</td></tr>
+<tr class="a">
+<th>Allowed version range</th>
+<td style="text-align: left;">1.4.0</td></tr>
+<tr class="b">
+<th>Infer associations from project</th>
+<td style="text-align: left;">Yes</td></tr>
+<tr class="a">
+<th>Only use release versions</th>
+<td style="text-align: left;">No</td></tr>
+<tr class="b">
+<th>Include projects from reactor</th>
+<td style="text-align: left;">Yes</td></tr>
+<tr class="a">
 <th>Always use reactor projects (even if older or -SNAPSHOT)</th>
 <td style="text-align: left;">Yes</td></tr></table></section><section><a id="a.24.7Bplugin.surefire.version.7D"></a>
 <h2>${plugin.surefire.version}</h2>
