@@ -15,13 +15,13 @@ import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.core.PendingEvent;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-@Dependent
+@ApplicationScoped
 class TransactionalWorker {
 
 <span class="fc" id="L27">    private static final Logger LOGGER = LogManager.getLogger();</span>

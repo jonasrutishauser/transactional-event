@@ -21,7 +21,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,InstrumentedProcessor,103,0,2,0,27,0,3,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,Instrumenter,31,0,2,0,7,0,5,0,4,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,TypedEventHandler.Literal,14,0,0,0,5,0,3,0,3,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,519,0,42,0,111,0,42,0,21,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,582,0,46,0,124,0,45,0,22,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.new InjectionPoint() {...},35,0,0,0,9,0,9,0,9,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.1.new ParameterizedType() {...},58,0,10,0,12,0,11,0,6,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod,82,0,4,0,15,0,6,0,4,0
@@ -35,7 +35,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,WorkProcessorImpl,20,0,0,0,6,0,4,0,4,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,TransactionalProcessor,7,0,0,0,3,0,2,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,LockOwner,12,87,0,6,4,19,2,11,2,8
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Lifecycle,63,0,2,0,24,0,10,0,9,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Lifecycle,59,0,2,0,22,0,9,0,8,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,8,0,0,0,1,0,1,0,1
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,3,759,2,42,1,176,2,39,0,19
