@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventHandlerExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.cdi</a> &gt; <span class="el_source">EventHandlerExtension.java</span></div><h1>EventHandlerExtension.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.cdi;
+
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+import static java.util.Collections.sort;
+import static java.util.Comparator.comparing;
+import static java.util.function.Predicate.isEqual;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+import com.github.jonasrutishauser.transactional.event.api.handler.AbstractHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
+import com.github.jonasrutishauser.transactional.event.api.serialization.GenericSerialization;
+import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
+
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.BeforeDestroyed;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Shutdown;
+import jakarta.enterprise.inject.AmbiguousResolutionException;
+import jakarta.enterprise.inject.Any.Literal;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.UnsatisfiedResolutionException;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.AfterDeploymentValidation;
+import jakarta.enterprise.inject.spi.AnnotatedMethod;
+import jakarta.enterprise.inject.spi.AnnotatedType;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
+import jakarta.enterprise.inject.spi.ProcessBean;
+import jakarta.enterprise.inject.spi.ProcessInjectionPoint;
+import jakarta.enterprise.inject.spi.ProcessManagedBean;
+import jakarta.enterprise.inject.spi.ProcessObserverMethod;
+import jakarta.enterprise.inject.spi.WithAnnotations;
+import jakarta.enterprise.invoke.Invoker;
+
+<span class="fc" id="L54">public class EventHandlerExtension implements Extension, EventHandlers {</span>
+
+<span class="fc" id="L56">    private final Collection&lt;EventHandlerMethod&lt;?&gt;&gt; eventHandlerMethods = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L58">    private final Set&lt;ParameterizedType&gt; requiredEventDeserializers = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L59">    private final Set&lt;Class&lt;?&gt;&gt; genericSerializationEventTypes = new HashSet&lt;&gt;();</span>
+
+<span class="fc" id="L61">    private final Set&lt;TypedEventHandler&gt; handlerQualifiers = ConcurrentHashMap.newKeySet();</span>
+
+    @Override
+    public Annotation getHandlerQualifier(EventTypeResolver typeResolver, String type) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (TypedEventHandler handlerQualifier : handlerQualifiers) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (type.equals(typeResolver.resolve(handlerQualifier.value()))) {</span>
+<span class="fc" id="L67">                return handlerQualifier;</span>
+            }
+<span class="fc" id="L69">        }</span>
+<span class="fc" id="L70">        return EventHandlerLiteral.of(type);</span>
+    }
+
+    void useBetterLifecycleEventsIfPossible(
+            @Observes @Priority(LIBRARY_BEFORE) ProcessObserverMethod&lt;Object, ? extends Startup&gt; event) {
+        try {
+<span class="fc" id="L76">            if (event.getObserverMethod().getObservedQualifiers().stream().filter(Initialized.class::isInstance)</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                    .map(Initialized.class::cast).map(Initialized::value).anyMatch(isEqual(ApplicationScoped.class))) {</span>
+<span class="fc" id="L78">                event.configureObserverMethod() //</span>
+<span class="fc" id="L79">                        .observedType(jakarta.enterprise.event.Startup.class) //</span>
+<span class="fc" id="L80">                        .qualifiers();</span>
+            }
+<span class="fc" id="L82">            if (event.getObserverMethod().getObservedQualifiers().stream().filter(BeforeDestroyed.class::isInstance)</span>
+<span class="fc" id="L83">                    .map(BeforeDestroyed.class::cast).map(BeforeDestroyed::value)</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">                    .anyMatch(isEqual(ApplicationScoped.class))) {</span>
+<span class="nc" id="L85">                event.configureObserverMethod().observedType(Shutdown.class) //</span>
+<span class="nc" id="L86">                        .qualifiers();</span>
+            }
+<span class="nc" id="L88">        } catch (NoClassDefFoundError e) {</span>
+            // ignore
+<span class="fc" id="L90">        }</span>
+<span class="fc" id="L91">    }</span>
+
+    &lt;T extends AbstractHandler&lt;?&gt;&gt; void processTypedHandlers(
+            @Observes @Priority(LIBRARY_AFTER) @WithAnnotations(EventHandler.class) ProcessAnnotatedType&lt;T&gt; typeEvent) {
+<span class="fc" id="L95">        AnnotatedType&lt;T&gt; type = typeEvent.getAnnotatedType();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (type.isAnnotationPresent(EventHandler.class)</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">                &amp;&amp; EventHandler.ABSTRACT_HANDLER_TYPE.equals(type.getAnnotation(EventHandler.class).eventType())) {</span>
+<span class="fc" id="L98">            Class&lt;?&gt; eventType = (Class&lt;?&gt;) getAbstractHandlerType(type.getTypeClosure()).orElseThrow()</span>
+<span class="fc" id="L99">                    .getActualTypeArguments()[0];</span>
+<span class="fc" id="L100">            typeEvent.configureAnnotatedType().add(TypedEventHandler.Literal.of(eventType));</span>
+        }
+<span class="fc" id="L102">    }</span>
+
+    &lt;T extends Handler&gt; void processHandlers(@Observes @Priority(LIBRARY_AFTER) ProcessBean&lt;T&gt; beanEvent) {
+<span class="fc" id="L105">        Optional&lt;EventHandler&gt; annotation = beanEvent.getBean().getQualifiers().stream() //</span>
+<span class="fc" id="L106">            .filter(a -&gt; EventHandler.class.equals(a.annotationType())) //</span>
+<span class="fc" id="L107">            .map(EventHandler.class::cast) //</span>
+<span class="fc" id="L108">            .findAny();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (annotation.isEmpty()) {</span>
+<span class="nc" id="L110">            beanEvent.addDefinitionError(</span>
+<span class="nc" id="L111">                    new IllegalStateException(&quot;EventHandler annotation is missing on bean &quot; + beanEvent.getBean()));</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        } else if (!beanEvent.getBean().getTypes().contains(Handler.class)) {</span>
+<span class="nc" id="L113">            beanEvent.addDefinitionError(</span>
+<span class="nc" id="L114">                    new IllegalStateException(Handler.class + &quot; type is missing on bean &quot; + beanEvent.getBean()));</span>
+        } else {
+<span class="fc" id="L116">            Optional&lt;TypedEventHandler&gt; typedEventHandler = beanEvent.getBean().getQualifiers().stream() //</span>
+<span class="fc" id="L117">                    .filter(a -&gt; TypedEventHandler.class.equals(a.annotationType())) //</span>
+<span class="fc" id="L118">                    .map(TypedEventHandler.class::cast) //</span>
+<span class="fc" id="L119">                    .findAny();</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(annotation.get().eventType())) {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">                if (typedEventHandler.isEmpty()) {</span>
+<span class="nc" id="L122">                    beanEvent.addDefinitionError(new IllegalStateException(&quot;AbstractHandler type is missing on bean &quot;</span>
+<span class="nc" id="L123">                            + beanEvent.getBean() + &quot; with implicit event type&quot;));</span>
+                } else {
+<span class="fc" id="L125">                    handlerQualifiers.add(typedEventHandler.get());</span>
+                }
+            }
+
+        }
+<span class="fc" id="L130">    }</span>
+
+    &lt;T&gt; void processHandlerMethods(@Observes @Priority(LIBRARY_AFTER) ProcessManagedBean&lt;T&gt; beanEvent) {
+        try {
+<span class="fc" id="L134">            beanEvent.getAnnotatedBeanClass().getMethods().stream() //</span>
+<span class="fc" id="L135">                    .filter(m -&gt; m.isAnnotationPresent(EventHandler.class)) //</span>
+<span class="fc" id="L136">                    .forEach(m -&gt; addHandlerMethod(beanEvent, m));</span>
+<span class="nc" id="L137">        } catch (NoSuchMethodError e) {</span>
+<span class="nc" id="L138">            beanEvent.addDefinitionError(</span>
+                    new IllegalStateException(&quot;direct handler methods need a CDI version &gt;= 4.1&quot;, e));
+<span class="fc" id="L140">        }</span>
+<span class="fc" id="L141">    }</span>
+
+    private &lt;T&gt; void addHandlerMethod(ProcessManagedBean&lt;T&gt; beanEvent, AnnotatedMethod&lt;? super T&gt; method) {
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (method.getParameters().size() != 1) {</span>
+<span class="nc" id="L145">            beanEvent.addDefinitionError(</span>
+                    new IllegalStateException(&quot;EventHandler method &quot; + method + &quot; must have exactly one argument&quot;));
+        } else {
+<span class="fc" id="L148">            Invoker&lt;T, ?&gt; invoker = beanEvent.createInvoker(method).withInstanceLookup().build();</span>
+<span class="fc" id="L149">            eventHandlerMethods.add(new EventHandlerMethod&lt;&gt;(invoker,</span>
+<span class="fc" id="L150">                    method.getParameters().get(0).getJavaParameter().getType(), method.getAnnotation(EventHandler.class)));</span>
+        }
+<span class="fc" id="L152">    }</span>
+
+    &lt;X extends EventDeserializer&lt;?&gt;&gt; void processEventDeserializerInjections(
+            @Observes ProcessInjectionPoint&lt;?, X&gt; event) {
+<span class="fc" id="L156">        processEventDeserializerInjections(event.getInjectionPoint());</span>
+<span class="fc" id="L157">    }</span>
+
+    void processEventDeserializerInjections(InjectionPoint injectionPoint) {
+<span class="fc" id="L160">        Type type = injectionPoint.getType();</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">        if (type instanceof ParameterizedType</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                &amp;&amp; EventDeserializer.class.equals(((ParameterizedType) type).getRawType())) {</span>
+<span class="fc" id="L163">            requiredEventDeserializers.add((ParameterizedType) type);</span>
+        }
+<span class="fc" id="L165">    }</span>
+
+    void addSyntheticEventHandlers(@Observes @Priority(LIBRARY_BEFORE) AfterBeanDiscovery event,
+            BeanManager beanManager) {
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        for (EventHandlerMethod&lt;?&gt; eventHandlerMethod : eventHandlerMethods) {</span>
+<span class="fc" id="L170">            InjectionPoint injectionPoint = eventHandlerMethod.getEventDeserializerInjectionPoint(beanManager);</span>
+<span class="fc" id="L171">            processEventDeserializerInjections(injectionPoint);</span>
+<span class="fc" id="L172">            Annotation[] qualifiers = eventHandlerMethod.getEventHandlerQualifiers();</span>
+<span class="fc" id="L173">            event.addBean().beanClass(SyntheticHandler.class) //</span>
+<span class="fc" id="L174">                    .types(Handler.class) //</span>
+<span class="fc" id="L175">                    .qualifiers(qualifiers) //</span>
+<span class="fc" id="L176">                    .addInjectionPoint(injectionPoint) //</span>
+<span class="fc" id="L177">                    .createWith(ctx -&gt; eventHandlerMethod.createHandler(ctx, beanManager));</span>
+<span class="fc" id="L178">        }</span>
+<span class="fc" id="L179">    }</span>
+
+    void addMissingEventDeserializers(@Observes @Priority(LIBRARY_AFTER) AfterBeanDiscovery event,
+            BeanManager beanManager) {
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        for (ParameterizedType type : requiredEventDeserializers) {</span>
+            try {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">                if (beanManager.resolve(beanManager.getBeans(type)) == null) {</span>
+<span class="fc" id="L186">                    Type eventType = type.getActualTypeArguments()[0];</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">                    Class&lt;?&gt; eventClass = eventType instanceof Class ? (Class&lt;?&gt;) eventType</span>
+<span class="pc" id="L188">                            : (Class&lt;?&gt;) ((ParameterizedType) eventType).getRawType();</span>
+<span class="fc" id="L189">                    genericSerializationEventTypes.add(eventClass);</span>
+<span class="fc" id="L190">                    event.addBean() //</span>
+<span class="fc" id="L191">                            .addType(type) //</span>
+<span class="fc" id="L192">                            .addType(ExtendedEventDeserializer.class) //</span>
+<span class="fc" id="L193">                            .scope(ApplicationScoped.class) //</span>
+<span class="fc" id="L194">                            .qualifiers(Default.Literal.INSTANCE) //</span>
+<span class="fc" id="L195">                            .produceWith(instance -&gt; createDefaultEventDeserializer(</span>
+<span class="fc" id="L196">                                    instance.select(GenericSerialization.class), eventClass));</span>
+                }
+<span class="nc" id="L198">            } catch (AmbiguousResolutionException e) {</span>
+                // ignore, will be reported later
+<span class="fc" id="L200">            }</span>
+<span class="fc" id="L201">        }</span>
+<span class="fc" id="L202">    }</span>
+
+    void verifyGenericSerializationEventTypes(@Observes AfterDeploymentValidation event, BeanManager beanManager) {
+<span class="fc" id="L205">        List&lt;GenericSerialization&gt; serializations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L206">        Instance&lt;GenericSerialization&gt; instance = beanManager.createInstance().select(GenericSerialization.class,</span>
+                Literal.INSTANCE);
+<span class="fc" id="L208">        instance.forEach(serializations::add);</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        for (Class&lt;?&gt; eventType : genericSerializationEventTypes) {</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">            if (serializations.stream().noneMatch(s -&gt; s.accepts(eventType))) {</span>
+<span class="nc" id="L211">                event.addDeploymentProblem(</span>
+                        new UnsatisfiedResolutionException(&quot;No GenericSerialization found for &quot; + eventType));
+            }
+<span class="fc" id="L214">        }</span>
+<span class="fc" id="L215">        serializations.forEach(instance::destroy);</span>
+<span class="fc" id="L216">    }</span>
+
+    public static &lt;T&gt; DefaultEventDeserializer&lt;T&gt; createDefaultEventDeserializer(Instance&lt;GenericSerialization&gt; instance,
+            Class&lt;T&gt; type) {
+<span class="fc" id="L220">        List&lt;GenericSerialization&gt; serializations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L221">        instance.forEach(serializations::add);</span>
+<span class="fc" id="L222">        sort(serializations, comparing(GenericSerialization::priority));</span>
+<span class="fc" id="L223">        DefaultEventDeserializer&lt;T&gt; result = null;</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        for (GenericSerialization serialization : serializations) {</span>
+<span class="fc bfc" id="L225" title="All 4 branches covered.">            if (result == null &amp;&amp; serialization.accepts(type)) {</span>
+<span class="fc" id="L226">                result = new DefaultEventDeserializer&lt;&gt;(type, serialization);</span>
+            } else {
+<span class="fc" id="L228">                instance.destroy(serialization);</span>
+            }
+<span class="fc" id="L230">        }</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (result == null) {</span>
+<span class="nc" id="L232">            throw new UnsatisfiedResolutionException(&quot;No GenericSerialization found for &quot; + type);</span>
+        }
+<span class="fc" id="L234">        return result;</span>
+    }
+
+    private Optional&lt;ParameterizedType&gt; getAbstractHandlerType(Set&lt;Type&gt; types) {
+<span class="fc" id="L238">        return types.stream() //</span>
+<span class="fc" id="L239">                .filter(ParameterizedType.class::isInstance) //</span>
+<span class="fc" id="L240">                .map(ParameterizedType.class::cast) //</span>
+<span class="fc" id="L241">                .filter(type -&gt; AbstractHandler.class.equals(type.getRawType())) //</span>
+<span class="fc" id="L242">                .findAny();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
