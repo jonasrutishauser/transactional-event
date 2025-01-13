@@ -2,9 +2,11 @@ package com.github.jonasrutishauser.transactional.event.quarkus.deployment;
 
 import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+import static java.util.stream.Stream.concat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,16 +21,19 @@ import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
 import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.cdi.DefaultEventDeserializer;
 import com.github.jonasrutishauser.transactional.event.core.cdi.ExtendedEventDeserializer;
+import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 import com.github.jonasrutishauser.transactional.event.core.cdi.TypedEventHandler;
 import com.github.jonasrutishauser.transactional.event.core.handler.EventHandlers;
 import com.github.jonasrutishauser.transactional.event.quarkus.DefaultEventDeserializerCreator;
+import com.github.jonasrutishauser.transactional.event.quarkus.LifecycleObserver;
 import com.github.jonasrutishauser.transactional.event.quarkus.handler.SyntheticHandlerCreator;
 
-import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.BeforeDestroyed;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Shutdown;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilder;
 import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
@@ -46,6 +51,7 @@ import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
 import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
 import jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents;
 import jakarta.enterprise.inject.build.compatible.spi.Types;
+import jakarta.enterprise.invoke.InvokerBuilder;
 import jakarta.enterprise.lang.model.AnnotationInfo;
 import jakarta.enterprise.lang.model.declarations.ClassInfo;
 import jakarta.enterprise.lang.model.declarations.MethodInfo;
@@ -66,6 +72,40 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
 
     private final List<ClassInfo> handledTypes = new ArrayList<>();
 
+    private final List<LifecycleObserverInfo> startupObservers = new ArrayList<>();
+    private final List<LifecycleObserverInfo> shutdownObservers = new ArrayList<>();
+
+    private static class LifecycleObserverInfo {
+        private final MethodInfo method;
+        private final boolean instanceLookup;
+        private InvokerInfo invoker;
+
+        LifecycleObserverInfo(MethodInfo method, boolean instanceLookup) {
+            this.method = method;
+            this.instanceLookup = instanceLookup;
+        }
+
+        MethodInfo method() {
+            return method;
+        }
+
+        InvokerInfo invoker() {
+            return invoker;
+        }
+
+        int priority() {
+            return method.parameters().get(0).annotation(Priority.class).value().asInt();
+        }
+
+        void createInvoker(BeanInfo bean, InvokerFactory invokerFactory) {
+            InvokerBuilder<InvokerInfo> builder = invokerFactory.createInvoker(bean, method);
+            if (instanceLookup) {
+                builder = builder.withInstanceLookup();
+            }
+            invoker = builder.build();
+        }
+    }
+
     @Enhancement(types = Object.class, withSubtypes = true)
     @Priority(LIBRARY_AFTER)
     public void createLockOwnerOnlyOnce(ClassConfig type) {
@@ -75,27 +115,66 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
         }
     }
 
-    @Enhancement(types = com.github.jonasrutishauser.transactional.event.core.cdi.Startup.class, withSubtypes = true)
+    @Enhancement(types = Startup.class, withSubtypes = true)
     @Priority(LIBRARY_AFTER)
-    public void fixStaticInitStartup(ClassConfig type) {
-        if (!com.github.jonasrutishauser.transactional.event.core.cdi.Startup.class.getName().equals(type.info().name())) {
-            changeInitializedApplicationScopedObserverToStartup(type);
+    public void fixStartupBeans(ClassConfig type, Types types) {
+        if (!Startup.class.getName().equals(type.info().name())) {
+            handleApplicationScopeObservers(type, types);
         }
     }
 
-    private void changeInitializedApplicationScopedObserverToStartup(ClassConfig type) {
-        type.addAnnotation(Startup.class);
+    private void handleApplicationScopeObservers(ClassConfig type, Types types) {
+        Type applicationScoped = types.of(ApplicationScoped.class);
         type.methods().forEach(method -> {
             if (!method.parameters().isEmpty()) {
                 ParameterConfig firstParameter = method.parameters().get(0);
                 if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
-                        .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name())
-                                && annotation.value().asType().isClass() && ApplicationScoped.class.getName()
-                                        .equals(annotation.value().asType().asClass().declaration().name()))) {
+                        .hasAnnotation(annotation -> (Initialized.class.getName().equals(annotation.name())
+                                || BeforeDestroyed.class.getName().equals(annotation.name()))
+                                && applicationScoped.equals(annotation.value().asType()))) {
                     firstParameter.removeAllAnnotations();
+                    if (firstParameter.info()
+                            .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name()))) {
+                        startupObservers.add(new LifecycleObserverInfo(method.info(), true));
+                    } else {
+                        shutdownObservers.add(new LifecycleObserverInfo(method.info(), false));
+                    }
                 }
             }
         });
+    }
+
+    @Registration(types = Startup.class)
+    @Priority(LIBRARY_AFTER)
+    public void processStartupBeans(BeanInfo beanInfo, InvokerFactory invokerFactory) {
+        Collection<MethodInfo> methods = beanInfo.declaringClass().methods();
+        concat(startupObservers.stream(), shutdownObservers.stream()) //
+                .filter(observer -> methods.contains(observer.method())) //
+                .forEach(observer -> observer.createInvoker(beanInfo, invokerFactory));
+    }
+
+    @Synthesis
+    @Priority(LIBRARY_BEFORE)
+    public void addSyntheticLifecycleObservers(SyntheticComponents components, Types types) {
+        for (LifecycleObserverInfo observer : startupObservers) {
+            if (observer.invoker() != null) {
+                components.addObserver(types.of(jakarta.enterprise.event.Startup.class)) //
+                        .priority(observer.priority()) //
+                        .declaringClass(observer.method().declaringClass()) //
+                        .observeWith(LifecycleObserver.class) //
+                        .withParam(LifecycleObserver.INVOKER, observer.invoker());
+            }
+        }
+        for (LifecycleObserverInfo observer : shutdownObservers) {
+            if (observer.invoker() != null) {
+                components.addObserver(types.of(Shutdown.class)) //
+                        .priority(observer.priority()) //
+                        .declaringClass(observer.method().declaringClass()) //
+                        .observeWith(LifecycleObserver.class) //
+                        .withParam(LifecycleObserver.INVOKER, observer.invoker()) //
+                        .withParam(LifecycleObserver.TYPE, observer.method().declaringClass());
+            }
+        }
     }
 
     @Enhancement(types = AbstractHandler.class, withSubtypes = true, withAnnotations = EventHandler.class)

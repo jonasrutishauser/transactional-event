@@ -66,7 +66,7 @@
 						<asciidoc>
 							<attributes>
 								<generated-dir>${project.build.directory}/quarkus-generated-doc</generated-dir>
-		                        <icons>font</icons>
+								<icons>font</icons>
 							</attributes>
 						</asciidoc>
 					</configuration>
@@ -89,7 +89,7 @@
 
 		<log4j.version>2.20.0</log4j.version>
 		<h2.version>2.2.220</h2.version>
-		<quarkus.version>3.16.4</quarkus.version>
+		<quarkus.version>3.17.6</quarkus.version>
 	</properties>
 
 	<scm>

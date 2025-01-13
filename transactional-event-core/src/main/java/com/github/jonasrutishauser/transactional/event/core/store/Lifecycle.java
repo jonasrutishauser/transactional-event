@@ -12,7 +12,6 @@ import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor;
 import com.github.jonasrutishauser.transactional.event.core.concurrent.EventExecutor.Task;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -46,11 +45,6 @@ class Lifecycle implements Startup {
     }
 
     void startup(@Observes @Priority(LIBRARY_AFTER + 500) @Initialized(ApplicationScoped.class) Object event) {
-        LOGGER.debug("initialized");
-    }
-
-    @PostConstruct
-    void startup() {
         scheduled = executor.schedule(this::safeSchedule, dispatcher::dispatchInterval);
     }
 

@@ -4,6 +4,7 @@ import static jakarta.interceptor.Interceptor.Priority.LIBRARY_AFTER;
 import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 import static java.util.Collections.sort;
 import static java.util.Comparator.comparing;
+import static java.util.function.Predicate.isEqual;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
@@ -26,7 +27,10 @@ import com.github.jonasrutishauser.transactional.event.core.handler.EventHandler
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.BeforeDestroyed;
+import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Shutdown;
 import jakarta.enterprise.inject.AmbiguousResolutionException;
 import jakarta.enterprise.inject.Any.Literal;
 import jakarta.enterprise.inject.Default;
@@ -43,6 +47,7 @@ import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
 import jakarta.enterprise.inject.spi.ProcessBean;
 import jakarta.enterprise.inject.spi.ProcessInjectionPoint;
 import jakarta.enterprise.inject.spi.ProcessManagedBean;
+import jakarta.enterprise.inject.spi.ProcessObserverMethod;
 import jakarta.enterprise.inject.spi.WithAnnotations;
 import jakarta.enterprise.invoke.Invoker;
 
@@ -63,6 +68,26 @@ public class EventHandlerExtension implements Extension, EventHandlers {
             }
         }
         return EventHandlerLiteral.of(type);
+    }
+
+    void useBetterLifecycleEventsIfPossible(
+            @Observes @Priority(LIBRARY_BEFORE) ProcessObserverMethod<Object, ? extends Startup> event) {
+        try {
+            if (event.getObserverMethod().getObservedQualifiers().stream().filter(Initialized.class::isInstance)
+                    .map(Initialized.class::cast).map(Initialized::value).anyMatch(isEqual(ApplicationScoped.class))) {
+                event.configureObserverMethod() //
+                        .observedType(jakarta.enterprise.event.Startup.class) //
+                        .qualifiers();
+            }
+            if (event.getObserverMethod().getObservedQualifiers().stream().filter(BeforeDestroyed.class::isInstance)
+                    .map(BeforeDestroyed.class::cast).map(BeforeDestroyed::value)
+                    .anyMatch(isEqual(ApplicationScoped.class))) {
+                event.configureObserverMethod().observedType(Shutdown.class) //
+                        .qualifiers();
+            }
+        } catch (NoClassDefFoundError e) {
+            // ignore
+        }
     }
 
     <T extends AbstractHandler<?>> void processTypedHandlers(
