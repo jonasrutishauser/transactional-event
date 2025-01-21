@@ -29,7 +29,9 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -66,6 +68,8 @@ import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.smallrye.metrics.MetricRegistries;
 import jakarta.annotation.Resource;
+import jakarta.enterprise.concurrent.ContextService;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -421,6 +425,40 @@ class TransactionalEventPublisherIT {
         @Override
         public Duration waitDurationForRetry(int tries) {
             return Duration.ofMillis(1);
+        }
+    }
+
+    @ApplicationScoped
+    static class NoOpContextServiceProvider {
+        @Produces
+        ContextService createContextService() {
+            return new ContextService() {
+                @Override
+                public Map<String, String> getExecutionProperties(Object contextualProxy) {
+                    return Collections.emptyMap();
+                }
+
+                @Override
+                public Object createContextualProxy(Object instance, Map<String, String> executionProperties,
+                        Class<?>... interfaces) {
+                    return instance;
+                }
+
+                @Override
+                public <T> T createContextualProxy(T instance, Map<String, String> executionProperties, Class<T> intf) {
+                    return instance;
+                }
+
+                @Override
+                public Object createContextualProxy(Object instance, Class<?>... interfaces) {
+                    return instance;
+                }
+
+                @Override
+                public <T> T createContextualProxy(T instance, Class<T> intf) {
+                    return instance;
+                }
+            };
         }
     }
 
