@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>transactional-event</artifactId>
-	<version>3.3.2-SNAPSHOT</version>
+	<version>3.3.2</version>
 	<packaging>pom</packaging>
 
 	<url>${url}</url>
@@ -96,7 +96,7 @@
 		<connection>${scm.connection}</connection>
 		<developerConnection>${scm.developerConnection}</developerConnection>
 		<url>${scm_url}</url>
-		<tag>HEAD</tag>
+		<tag>v3.3.2</tag>
 	</scm>
 
 	<distributionManagement>
