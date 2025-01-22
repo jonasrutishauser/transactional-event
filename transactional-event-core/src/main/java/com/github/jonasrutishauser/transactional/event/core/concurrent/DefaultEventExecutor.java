@@ -13,25 +13,23 @@ import jakarta.enterprise.concurrent.LastExecution;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.concurrent.Trigger;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.TransientReference;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class DefaultEventExecutor implements EventExecutor {
 
     private final ManagedScheduledExecutorService executor;
-    private final InContextWrapper wrapper;
+    private final ContextService contextService;
+    private InContextWrapper wrapper = InContextWrapper.DEFAULT;
 
     DefaultEventExecutor() {
         this(null, null);
     }
 
     @Inject
-    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor,
-            @TransientReference @Events ContextService contextService) {
+    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor, @Events ContextService contextService) {
         this.executor = executor;
-        this.wrapper = contextService == null ? null
-                : contextService.createContextualProxy(InContextWrapper.DEFAULT, InContextWrapper.class);
+        this.contextService = contextService;
     }
 
     @Override
@@ -41,6 +39,7 @@ public class DefaultEventExecutor implements EventExecutor {
 
     @Override
     public Task schedule(Runnable command, LongSupplier interval) {
+        wrapper = contextService.createContextualProxy(InContextWrapper.DEFAULT, InContextWrapper.class);
         ScheduledFuture<?> future = executor.schedule(command, new Trigger() {
             @Override
             public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
