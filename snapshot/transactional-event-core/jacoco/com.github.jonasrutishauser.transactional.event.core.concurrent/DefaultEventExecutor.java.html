@@ -3,50 +3,60 @@
 import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
+import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 
 import com.github.jonasrutishauser.transactional.event.api.Events;
 
+import jakarta.enterprise.concurrent.ContextService;
 import jakarta.enterprise.concurrent.LastExecution;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.concurrent.Trigger;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.TransientReference;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class DefaultEventExecutor implements EventExecutor {
 
     private final ManagedScheduledExecutorService executor;
+    private final InContextWrapper wrapper;
 
     DefaultEventExecutor() {
-<span class="nc" id="L22">        this(null);</span>
-<span class="nc" id="L23">    }</span>
+<span class="nc" id="L26">        this(null, null);</span>
+<span class="nc" id="L27">    }</span>
 
     @Inject
-<span class="nc" id="L26">    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor) {</span>
-<span class="nc" id="L27">        this.executor = executor;</span>
-<span class="nc" id="L28">    }</span>
+    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor,
+<span class="nc" id="L31">            @TransientReference @Events ContextService contextService) {</span>
+<span class="nc" id="L32">        this.executor = executor;</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        this.wrapper = contextService == null ? null</span>
+<span class="nc" id="L34">                : contextService.createContextualProxy(InContextWrapper.DEFAULT, InContextWrapper.class);</span>
+<span class="nc" id="L35">    }</span>
 
     @Override
     public void execute(Runnable command) {
-<span class="nc" id="L32">        executor.execute(command);</span>
-<span class="nc" id="L33">    }</span>
+<span class="nc" id="L39">        executor.execute(() -&gt; wrapper.accept(command));</span>
+<span class="nc" id="L40">    }</span>
 
     @Override
     public Task schedule(Runnable command, LongSupplier interval) {
-<span class="nc" id="L37">        ScheduledFuture&lt;?&gt; future = executor.schedule(command, new Trigger() {</span>
+<span class="nc" id="L44">        ScheduledFuture&lt;?&gt; future = executor.schedule(command, new Trigger() {</span>
             @Override
             public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
-<span class="nc" id="L40">                return false;</span>
+<span class="nc" id="L47">                return false;</span>
             }
 
             @Override
             public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
-<span class="nc" id="L45">                return Date.from(Instant.now().plusMillis(interval.getAsLong()));</span>
+<span class="nc" id="L52">                return Date.from(Instant.now().plusMillis(interval.getAsLong()));</span>
             }
         });
-<span class="nc" id="L48">        return () -&gt; future.cancel(false);</span>
+<span class="nc" id="L55">        return () -&gt; future.cancel(false);</span>
     }
 
+    public interface InContextWrapper extends Consumer&lt;Runnable&gt; {
+<span class="nc" id="L59">        InContextWrapper DEFAULT = Runnable::run;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

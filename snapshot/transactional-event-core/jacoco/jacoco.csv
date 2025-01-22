@@ -1,11 +1,12 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.random,Random,18,0,0,0,5,0,2,0,2,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor,33,0,0,0,9,0,5,0,5,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor,52,0,2,0,11,0,7,0,6,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor.InContextWrapper,3,0,0,0,1,0,1,0,1,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor.new Trigger() {...},18,0,0,0,3,0,3,0,3,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,SerializableSerialization,60,0,0,0,14,0,4,0,4,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JaxbSerialization,127,0,8,0,25,0,11,0,7,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,DefaultEventSerializer,32,25,4,0,7,7,4,2,2,2
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,DefaultEventSerializer,33,25,4,0,7,7,4,2,2,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultProcessingStrategy,0,16,0,0,0,4,0,4,0,4
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultConcurrencyProvider,3,0,0,0,1,0,1,0,1,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultEventTypeResolver,6,0,0,0,2,0,2,0,2,0
@@ -21,7 +22,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,InstrumentedProcessor,103,0,2,0,27,0,3,0,2,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.opentelemetry,Instrumenter,31,0,2,0,7,0,5,0,4,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,TypedEventHandler.Literal,14,0,0,0,5,0,3,0,3,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,582,0,46,0,124,0,45,0,22,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerExtension,589,0,46,0,124,0,45,0,22,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.new InjectionPoint() {...},35,0,0,0,9,0,9,0,9,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod.1.new ParameterizedType() {...},58,0,10,0,12,0,11,0,6,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.cdi,EventHandlerMethod,82,0,4,0,15,0,6,0,4,0
