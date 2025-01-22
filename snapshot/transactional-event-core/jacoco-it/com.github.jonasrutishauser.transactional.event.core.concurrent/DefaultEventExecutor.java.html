@@ -13,50 +13,49 @@ import jakarta.enterprise.concurrent.LastExecution;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.concurrent.Trigger;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.TransientReference;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class DefaultEventExecutor implements EventExecutor {
 
     private final ManagedScheduledExecutorService executor;
-    private final InContextWrapper wrapper;
+    private final ContextService contextService;
+<span class="fc" id="L23">    private InContextWrapper wrapper = InContextWrapper.DEFAULT;</span>
 
     DefaultEventExecutor() {
 <span class="nc" id="L26">        this(null, null);</span>
 <span class="nc" id="L27">    }</span>
 
     @Inject
-    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor,
-<span class="fc" id="L31">            @TransientReference @Events ContextService contextService) {</span>
-<span class="fc" id="L32">        this.executor = executor;</span>
-<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        this.wrapper = contextService == null ? null</span>
-<span class="fc" id="L34">                : contextService.createContextualProxy(InContextWrapper.DEFAULT, InContextWrapper.class);</span>
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L30">    DefaultEventExecutor(@Events ManagedScheduledExecutorService executor, @Events ContextService contextService) {</span>
+<span class="fc" id="L31">        this.executor = executor;</span>
+<span class="fc" id="L32">        this.contextService = contextService;</span>
+<span class="fc" id="L33">    }</span>
 
     @Override
     public void execute(Runnable command) {
-<span class="fc" id="L39">        executor.execute(() -&gt; wrapper.accept(command));</span>
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L37">        executor.execute(() -&gt; wrapper.accept(command));</span>
+<span class="fc" id="L38">    }</span>
 
     @Override
     public Task schedule(Runnable command, LongSupplier interval) {
-<span class="fc" id="L44">        ScheduledFuture&lt;?&gt; future = executor.schedule(command, new Trigger() {</span>
+<span class="fc" id="L42">        wrapper = contextService.createContextualProxy(InContextWrapper.DEFAULT, InContextWrapper.class);</span>
+<span class="fc" id="L43">        ScheduledFuture&lt;?&gt; future = executor.schedule(command, new Trigger() {</span>
             @Override
             public boolean skipRun(LastExecution lastExecutionInfo, Date scheduledRunTime) {
-<span class="fc" id="L47">                return false;</span>
+<span class="fc" id="L46">                return false;</span>
             }
 
             @Override
             public Date getNextRunTime(LastExecution lastExecutionInfo, Date taskScheduledTime) {
-<span class="fc" id="L52">                return Date.from(Instant.now().plusMillis(interval.getAsLong()));</span>
+<span class="fc" id="L51">                return Date.from(Instant.now().plusMillis(interval.getAsLong()));</span>
             }
         });
-<span class="fc" id="L55">        return () -&gt; future.cancel(false);</span>
+<span class="fc" id="L54">        return () -&gt; future.cancel(false);</span>
     }
 
     public interface InContextWrapper extends Consumer&lt;Runnable&gt; {
-<span class="fc" id="L59">        InContextWrapper DEFAULT = Runnable::run;</span>
+<span class="fc" id="L58">        InContextWrapper DEFAULT = Runnable::run;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
