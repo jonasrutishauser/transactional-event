@@ -10,52 +10,13 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: 17
-          server-id: central
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
-      - name: Setup Git
-        run: >
-          git config --global user.email "actions@github.com" && 
-          git config --global user.name "GitHub Actions" && 
-          echo '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-                  <servers>
-                    <server>
-                      <id>github</id>
-                      <username>${env.GITHUB_ACTOR}</username>
-                      <password>${env.GITHUB_TOKEN}</password>
-                    </server>
-                  </servers>
-                </settings>' > $GITHUB_WORKSPACE/git-settings.xml
-      - name: Prepare Release
-        run: mvn -V -gs $GITHUB_WORKSPACE/git-settings.xml -B -e -Dstyle.color=always release:clean release:prepare
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-      - name: Release
-        run: >
-          echo "RELEASED_VERSION=$(grep scm.tag= release.properties | cut -d'=' -f2 | cut -c2-)" >> $GITHUB_OUTPUT && 
-          mvn -gs $GITHUB_WORKSPACE/git-settings.xml -B -e -Dstyle.color=always release:perform
-        env:
-          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-          GITHUB_TOKEN: ${{ github.token }}
-        id: release
-      - name: Create Release Entry
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.release.outputs.RELEASED_VERSION }}
-          name: Transactional Event Library ${{ steps.release.outputs.RELEASED_VERSION }}
-          body: ${{ github.event.inputs.release-body }}
-          token: ${{ github.token }}
+    uses: jonasrutishauser/parent/.github/workflows/common-release.yml@v29
+    with:
+      name: 'Transactional Event Library'
+      java-version: '8'
+      release-body: ${{ github.event.inputs.release-body }}
+    secrets:
+      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+      CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
