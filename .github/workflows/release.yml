@@ -10,7 +10,7 @@ on:
 
 jobs:
   release:
-    uses: jonasrutishauser/parent/.github/workflows/common-release.yml@v30
+    uses: jonasrutishauser/parent/.github/workflows/common-release.yml@v31
     with:
       name: 'Transactional Event Library'
       java-version: '17'
