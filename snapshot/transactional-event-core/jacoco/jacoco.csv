@@ -3,8 +3,8 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor,55,0,0,0,12,0,6,0,6,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor.InContextWrapper,3,0,0,0,1,0,1,0,1,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.concurrent,DefaultEventExecutor.new Trigger() {...},18,0,0,0,3,0,3,0,3,0
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,SerializableSerialization,60,0,0,0,14,0,4,0,4,0
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JsonbSerialization,26,0,0,0,8,0,5,0,5,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,JaxbSerialization,127,0,8,0,25,0,11,0,7,0
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.serialization,DefaultEventSerializer,33,25,4,0,7,7,4,2,2,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.defaults,DefaultProcessingStrategy,0,16,0,0,0,4,0,4,0,4
