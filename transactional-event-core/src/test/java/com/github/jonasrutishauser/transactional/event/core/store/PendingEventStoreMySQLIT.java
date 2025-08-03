@@ -12,7 +12,7 @@ class PendingEventStoreMySQLIT extends PendingEventStoreTest {
     private static final class MySQLContainerUsingMariaDbDriver
             extends MySQLContainer<MySQLContainerUsingMariaDbDriver> {
         private MySQLContainerUsingMariaDbDriver() {
-            super("mysql");
+            super("mysql:8");
         }
 
         @Override
