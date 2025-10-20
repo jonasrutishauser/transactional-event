@@ -17,7 +17,7 @@ jobs:
   build:
     uses: jonasrutishauser/parent/.github/workflows/common-ci.yml@v35
     with:
-      java-versions: '["17", "21"]'
+      java-versions: '["17", "21", "25"]'
       deploy-site: ${{ github.event_name == 'push' }}
       publish-test-report: true
       publish-coverage-report: true
