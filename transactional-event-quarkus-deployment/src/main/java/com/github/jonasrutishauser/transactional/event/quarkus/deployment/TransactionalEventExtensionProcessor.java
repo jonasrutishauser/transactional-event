@@ -19,6 +19,7 @@ import com.github.jonasrutishauser.transactional.event.quarkus.TransactionalEven
 
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.ExcludedTypeBuildItem;
+import io.quarkus.arc.deployment.KnownCompatibleBeanArchiveBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.datasource.common.runtime.DataSourceUtil;
 import io.quarkus.datasource.common.runtime.DatabaseKind;
@@ -43,6 +44,14 @@ public class TransactionalEventExtensionProcessor {
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
+    }
+
+    @BuildStep
+    void markApiAsKnownCompatibleBeanArchive(BuildProducer<KnownCompatibleBeanArchiveBuildItem> knownCompatibleBeanArchives){
+        knownCompatibleBeanArchives.produce(
+                KnownCompatibleBeanArchiveBuildItem.builder("io.github.jonasrutishauser", "transactional-event-api")
+                        .addReason(KnownCompatibleBeanArchiveBuildItem.Reason.SPECIALIZES_ANNOTATION).build()
+        );
     }
 
     @BuildStep
