@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LockOwner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">LockOwner.java</span></div><h1>LockOwner.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
+
+import static com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
+
+import java.time.Clock;
+import java.time.Instant;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingBlockedEvent;
+import com.github.jonasrutishauser.transactional.event.api.ProcessingStrategy;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
+@ApplicationScoped
+class LockOwner {
+
+<span class="fc" id="L23">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    private final Clock clock;
+    private final String id;
+    private final Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent;
+    private final ProcessingStrategy processingStrategy;
+
+    LockOwner() {
+<span class="nc" id="L31">        this(null, null);</span>
+<span class="nc" id="L32">    }</span>
+
+    @Inject
+    public LockOwner(Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent, ProcessingStrategy processingStrategy) {
+<span class="nc" id="L36">        this(Clock.systemUTC(), randomId(), processingBlockedEvent, processingStrategy);</span>
+<span class="nc" id="L37">    }</span>
+
+    LockOwner(Clock clock, String id, Event&lt;ProcessingBlockedEvent&gt; processingBlockedEvent,
+<span class="fc" id="L40">            ProcessingStrategy processingStrategy) {</span>
+<span class="fc" id="L41">        LOGGER.info(&quot;using lock id: {}&quot;, id);</span>
+<span class="fc" id="L42">        this.id = id;</span>
+<span class="fc" id="L43">        this.clock = clock;</span>
+<span class="fc" id="L44">        this.processingBlockedEvent = processingBlockedEvent;</span>
+<span class="fc" id="L45">        this.processingStrategy = processingStrategy;</span>
+<span class="fc" id="L46">    }</span>
+
+    @Produces
+    @Named(&quot;lockOwner.id&quot;)
+    public String getId() {
+<span class="fc" id="L51">        return id;</span>
+    }
+
+    public long getUntilToProcess() {
+<span class="fc" id="L55">        return Instant.now(clock).plus(processingStrategy.processingLockDuration()).toEpochMilli();</span>
+    }
+
+    public long getUntilForRetry(int tries, String eventId) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (tries &gt; processingStrategy.maxTries()) {</span>
+<span class="fc" id="L60">            maxAttemptsReached(eventId);</span>
+<span class="fc" id="L61">            return Long.MAX_VALUE;</span>
+        }
+<span class="fc" id="L63">        return Instant.now(clock).plus(processingStrategy.waitDurationForRetry(tries)).toEpochMilli();</span>
+    }
+
+    protected void maxAttemptsReached(String eventId) {
+<span class="fc" id="L67">        LOGGER.info(&quot;max attempts used, event with id '{}' will be blocked&quot;, eventId);</span>
+<span class="fc" id="L68">        processingBlockedEvent.fire(new ProcessingBlockedEvent(eventId));</span>
+<span class="fc" id="L69">    }</span>
+
+    public long getMinUntilForAquire() {
+<span class="fc" id="L72">        return Instant.now(clock).toEpochMilli();</span>
+    }
+
+    public boolean isOwningForProcessing(String owner, long lockedUntil) {
+<span class="fc bfc" id="L76" title="All 4 branches covered.">        return id.equals(owner) &amp;&amp; lockedUntil &gt; Instant.now(clock).toEpochMilli();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

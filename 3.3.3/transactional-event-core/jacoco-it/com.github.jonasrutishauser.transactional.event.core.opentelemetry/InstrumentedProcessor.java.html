@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstrumentedProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.opentelemetry</a> &gt; <span class="el_source">InstrumentedProcessor.java</span></div><h1>InstrumentedProcessor.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.opentelemetry;
+
+import static io.opentelemetry.api.trace.SpanKind.CONSUMER;
+import static io.opentelemetry.api.trace.StatusCode.ERROR;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
+
+import java.util.Properties;
+
+import jakarta.annotation.Priority;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
+import com.github.jonasrutishauser.transactional.event.api.Events;
+import com.github.jonasrutishauser.transactional.event.api.context.ContextualProcessor;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.propagation.TextMapGetter;
+import io.opentelemetry.context.propagation.TextMapPropagator;
+
+@Decorator
+@Priority(LIBRARY_BEFORE)
+public class InstrumentedProcessor implements ContextualProcessor {
+
+    private final ContextualProcessor delegate;
+
+    private final Tracer tracer;
+    private final TextMapPropagator propagator;
+    private final String lockOwnerId;
+<span class="fc" id="L39">    private final TextMapGetter&lt;Properties&gt; getter = new TextMapGetter&lt;Properties&gt;() {</span>
+        @Override
+        public String get(Properties carrier, String key) {
+<span class="fc" id="L42">            return carrier.getProperty(key);</span>
+        }
+
+        @Override
+        public Iterable&lt;String&gt; keys(Properties carrier) {
+<span class="nc" id="L47">            return carrier.stringPropertyNames();</span>
+        }
+    };
+
+    @Inject
+    InstrumentedProcessor(@Delegate @Any ContextualProcessor delegate, @Events Tracer tracer,
+<span class="fc" id="L53">            @Events TextMapPropagator propagator, @Named(&quot;lockOwner.id&quot;) String lockOwnerId) {</span>
+<span class="fc" id="L54">        this.delegate = delegate;</span>
+<span class="fc" id="L55">        this.tracer = tracer;</span>
+<span class="fc" id="L56">        this.propagator = propagator;</span>
+<span class="fc" id="L57">        this.lockOwnerId = lockOwnerId;</span>
+<span class="fc" id="L58">    }</span>
+
+    @Override
+    public void process(String id, String type, Properties context, String payload, Handler handler) {
+<span class="fc" id="L62">        Context extractedContext = propagator.extract(Context.current(), context, getter);</span>
+<span class="fc" id="L63">        SpanBuilder spanBuilder = tracer.spanBuilder(type + &quot; process&quot;) //</span>
+<span class="fc" id="L64">                .setSpanKind(CONSUMER) //</span>
+<span class="fc" id="L65">                .setAttribute(&quot;messaging.system&quot;, &quot;transactional-event&quot;) //</span>
+<span class="fc" id="L66">                .setAttribute(&quot;messaging.destination&quot;, type) //</span>
+<span class="fc" id="L67">                .setAttribute(&quot;messaging.message_id&quot;, id) //</span>
+<span class="fc" id="L68">                .setAttribute(&quot;messaging.message_payload_size_bytes&quot;, payload.getBytes(UTF_8).length) //</span>
+<span class="fc" id="L69">                .setAttribute(&quot;messaging.operation&quot;, &quot;process&quot;) //</span>
+<span class="fc" id="L70">                .setAttribute(&quot;messaging.consumer_id&quot;, lockOwnerId);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (extractedContext != context) {</span>
+<span class="fc" id="L72">            spanBuilder.addLink(Span.fromContext(extractedContext).getSpanContext());</span>
+        }
+<span class="fc" id="L74">        Span span = spanBuilder.startSpan();</span>
+<span class="fc" id="L75">        try (Scope unused = span.makeCurrent()) {</span>
+<span class="fc" id="L76">            delegate.process(id, type, context, payload, handler);</span>
+<span class="fc" id="L77">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L78">            span.setStatus(ERROR, &quot;Processing failed&quot;);</span>
+<span class="fc" id="L79">            span.recordException(e, Attributes.builder().put(&quot;exception.escaped&quot;, true).build());</span>
+<span class="fc" id="L80">            throw e;</span>
+        } finally {
+<span class="fc" id="L82">            span.end();</span>
+        }
+<span class="fc" id="L84">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
