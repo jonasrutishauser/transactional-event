@@ -55,6 +55,7 @@
 		<module>transactional-event-liberty-it</module>
 		<module>transactional-event-quarkus</module>
 		<module>transactional-event-quarkus-deployment</module>
+		<module>transactional-event-quarkus-it</module>
 	</modules>
 
 	<build>
@@ -89,7 +90,7 @@
 
 		<log4j.version>2.20.0</log4j.version>
 		<h2.version>2.2.220</h2.version>
-		<quarkus.version>3.17.6</quarkus.version>
+		<quarkus.version>3.30.6</quarkus.version>
 	</properties>
 
 	<scm>
