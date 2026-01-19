@@ -69,13 +69,13 @@
 
 	<dependencyManagement>
 		<dependencies>
-	        <dependency>
-	            <groupId>io.quarkus</groupId>
-	            <artifactId>quarkus-bom</artifactId>
+			<dependency>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-bom</artifactId>
 				<version>${quarkus.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-	        </dependency>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -109,6 +109,7 @@
 						<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
 						<maven.home>${maven.home}</maven.home>
 					</systemPropertyVariables>
+					<argLine>--add-opens java.base/java.lang=ALL-UNNAMED ${argLine}</argLine> <!-- for JDK 25 needed until quarkus supports it -->
 				</configuration>
 			</plugin>
 		</plugins>
