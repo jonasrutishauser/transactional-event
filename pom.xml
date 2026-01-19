@@ -55,6 +55,7 @@
 		<module>transactional-event-liberty-it</module>
 		<module>transactional-event-quarkus</module>
 		<module>transactional-event-quarkus-deployment</module>
+		<module>transactional-event-quarkus-it</module>
 	</modules>
 
 	<build>
