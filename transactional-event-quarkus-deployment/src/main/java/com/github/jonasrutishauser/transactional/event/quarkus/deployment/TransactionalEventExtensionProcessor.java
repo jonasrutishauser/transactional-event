@@ -27,7 +27,7 @@ import io.quarkus.datasource.deployment.spi.DefaultDataSourceDbKindBuildItem;
 import io.quarkus.datasource.runtime.DataSourcesBuildTimeConfig;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.Capability;
-import io.quarkus.deployment.IsNormal;
+import io.quarkus.deployment.IsProduction;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
@@ -85,14 +85,14 @@ public class TransactionalEventExtensionProcessor {
         }
     }
 
-    @BuildStep(onlyIfNot = IsNormal.class)
+    @BuildStep(onlyIfNot = IsProduction.class)
     UnremovableBeanBuildItem ensureDbSchemaIsNotRemoved() {
         return UnremovableBeanBuildItem.beanTypes(DbSchema.class);
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
     @Consume(BeanContainerBuildItem.class)
-    @BuildStep(onlyIfNot = IsNormal.class)
+    @BuildStep(onlyIfNot = IsProduction.class)
     ServiceStartBuildItem initDb(TransactionalEventBuildTimeConfiguration configuration,
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             List<DefaultDataSourceDbKindBuildItem> installedDrivers, DbSchemaRecorder recorder) {
