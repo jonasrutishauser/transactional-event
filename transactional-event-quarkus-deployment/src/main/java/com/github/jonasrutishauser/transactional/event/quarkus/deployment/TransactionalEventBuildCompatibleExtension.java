@@ -298,10 +298,16 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
         }
     }
 
-    @Registration(types = EventDeserializer.class)
+    @Registration(types = Object.class)
     @Priority(LIBRARY_BEFORE)
-    public void processEventDeserializers(BeanInfo beanInfo, Messages messages) {
-        declaredEventDeserializers.addAll(beanInfo.types());
+    public void processEventDeserializers(BeanInfo beanInfo) {
+        if (beanInfo.isClassBean()) {
+            beanInfo.types().stream()
+                    .filter(Type::isParameterizedType)
+                    .map(Type::asParameterizedType)
+                    .filter(type -> EventDeserializer.class.getName().equals(type.declaration().name()))
+                    .forEach(declaredEventDeserializers::add);
+        }
     }
 
     @Synthesis

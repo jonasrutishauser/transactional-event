@@ -30,6 +30,12 @@ public class TestPublisher {
 
     @Transactional
     @ActivateRequestContext
+    public void publishCustom(String message) {
+        publisher.publish(new TestEventWithCustomSerialization(message));
+    }
+
+    @Transactional
+    @ActivateRequestContext
     public void publishString(String message) {
         publisher.publish(message);
     }
