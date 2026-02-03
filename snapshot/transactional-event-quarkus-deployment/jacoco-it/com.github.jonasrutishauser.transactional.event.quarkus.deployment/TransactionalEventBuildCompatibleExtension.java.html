@@ -298,29 +298,35 @@ import jakarta.inject.Singleton;
 <span class="fc" id="L298">        }</span>
 <span class="fc" id="L299">    }</span>
 
-    @Registration(types = EventDeserializer.class)
+    @Registration(types = Object.class)
     @Priority(LIBRARY_BEFORE)
-    public void processEventDeserializers(BeanInfo beanInfo, Messages messages) {
-<span class="nc" id="L304">        declaredEventDeserializers.addAll(beanInfo.types());</span>
-<span class="nc" id="L305">    }</span>
+    public void processEventDeserializers(BeanInfo beanInfo) {
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        if (beanInfo.isClassBean()) {</span>
+<span class="fc" id="L305">            beanInfo.types().stream()</span>
+<span class="fc" id="L306">                    .filter(Type::isParameterizedType)</span>
+<span class="fc" id="L307">                    .map(Type::asParameterizedType)</span>
+<span class="fc" id="L308">                    .filter(type -&gt; EventDeserializer.class.getName().equals(type.declaration().name()))</span>
+<span class="fc" id="L309">                    .forEach(declaredEventDeserializers::add);</span>
+        }
+<span class="fc" id="L311">    }</span>
 
     @Synthesis
     @Priority(LIBRARY_AFTER)
     public void addMissingEventDeserializers(SyntheticComponents components) {
-<span class="fc" id="L310">        requiredEventDeserializers.removeAll(declaredEventDeserializers);</span>
-<span class="fc bfc" id="L311" title="All 2 branches covered.">        for (ParameterizedType type : requiredEventDeserializers) {</span>
-<span class="fc" id="L312">            Type eventType = type.typeArguments().get(0);</span>
-<span class="pc bpc" id="L313" title="1 of 2 branches missed.">            ClassType eventClass = eventType.isClass() ? eventType.asClass()</span>
-<span class="pc" id="L314">                    : eventType.asParameterizedType().genericClass();</span>
-<span class="fc" id="L315">            components.addBean(DefaultEventDeserializer.class) //</span>
-<span class="fc" id="L316">                .type(type) //</span>
-<span class="fc" id="L317">                .type(ExtendedEventDeserializer.class) //</span>
-<span class="fc" id="L318">                .scope(Singleton.class) //</span>
-<span class="fc" id="L319">                .qualifier(Default.Literal.INSTANCE) //</span>
-<span class="fc" id="L320">                .createWith(DefaultEventDeserializerCreator.class) //</span>
-<span class="fc" id="L321">                .withParam(DefaultEventDeserializerCreator.TYPE, eventClass.declaration());</span>
-<span class="fc" id="L322">        }</span>
-<span class="fc" id="L323">    }</span>
+<span class="fc" id="L316">        requiredEventDeserializers.removeAll(declaredEventDeserializers);</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        for (ParameterizedType type : requiredEventDeserializers) {</span>
+<span class="fc" id="L318">            Type eventType = type.typeArguments().get(0);</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">            ClassType eventClass = eventType.isClass() ? eventType.asClass()</span>
+<span class="pc" id="L320">                    : eventType.asParameterizedType().genericClass();</span>
+<span class="fc" id="L321">            components.addBean(DefaultEventDeserializer.class) //</span>
+<span class="fc" id="L322">                .type(type) //</span>
+<span class="fc" id="L323">                .type(ExtendedEventDeserializer.class) //</span>
+<span class="fc" id="L324">                .scope(Singleton.class) //</span>
+<span class="fc" id="L325">                .qualifier(Default.Literal.INSTANCE) //</span>
+<span class="fc" id="L326">                .createWith(DefaultEventDeserializerCreator.class) //</span>
+<span class="fc" id="L327">                .withParam(DefaultEventDeserializerCreator.TYPE, eventClass.declaration());</span>
+<span class="fc" id="L328">        }</span>
+<span class="fc" id="L329">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
