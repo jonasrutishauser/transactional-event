@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventHandlerMethod.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.cdi</a> &gt; <span class="el_source">EventHandlerMethod.java</span></div><h1>EventHandlerMethod.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.cdi;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Member;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+
+import com.github.jonasrutishauser.transactional.event.api.handler.EventHandler;
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
+
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.spi.Annotated;
+import jakarta.enterprise.inject.spi.AnnotatedParameter;
+import jakarta.enterprise.inject.spi.AnnotatedType;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.invoke.Invoker;
+
+class EventHandlerMethod&lt;T&gt; {
+    private final Invoker&lt;T, ?&gt; invoker;
+    private final Class&lt;?&gt; eventType;
+    private final EventHandler eventHandlerQualifier;
+    private InjectionPoint injectionPoint;
+
+<span class="nc" id="L31">    public EventHandlerMethod(Invoker&lt;T, ?&gt; invoker, Class&lt;?&gt; eventType, EventHandler eventHandlerQualifier) {</span>
+<span class="nc" id="L32">        this.invoker = invoker;</span>
+<span class="nc" id="L33">        this.eventType = eventType;</span>
+<span class="nc" id="L34">        this.eventHandlerQualifier = eventHandlerQualifier;</span>
+<span class="nc" id="L35">    }</span>
+
+    public Annotation[] getEventHandlerQualifiers() {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(eventHandlerQualifier.eventType())) {</span>
+<span class="nc" id="L39">            return new Annotation[] {eventHandlerQualifier, TypedEventHandler.Literal.of(eventType)};</span>
+        }
+<span class="nc" id="L41">        return new Annotation[] {eventHandlerQualifier};</span>
+    }
+
+    public Handler createHandler(CreationalContext&lt;?&gt; ctx, BeanManager beanManager) {
+<span class="nc" id="L45">        EventDeserializer&lt;?&gt; deserializer = (EventDeserializer&lt;?&gt;) beanManager.getInjectableReference(getEventDeserializerInjectionPoint(beanManager), ctx);</span>
+<span class="nc" id="L46">        return new SyntheticHandler&lt;&gt;(deserializer, invoker);</span>
+    }
+    
+    public InjectionPoint getEventDeserializerInjectionPoint(BeanManager beanManager) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (injectionPoint == null) {</span>
+            @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="nc" id="L52">            AnnotatedType&lt;SyntheticHandler&gt; annotatedType = beanManager.createAnnotatedType(SyntheticHandler.class);</span>
+            @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="nc" id="L54">            AnnotatedParameter&lt;SyntheticHandler&gt; parameter = annotatedType.getConstructors().iterator().next().getParameters().get(0);</span>
+<span class="nc" id="L55">            injectionPoint = new InjectionPoint() {</span>
+                @Override
+                public boolean isTransient() {
+<span class="nc" id="L58">                    return false;</span>
+                }
+                
+                @Override
+                public boolean isDelegate() {
+<span class="nc" id="L63">                    return false;</span>
+                }
+                
+                @Override
+                public Type getType() {
+<span class="nc" id="L68">                    return new ParameterizedType() {</span>
+                        @Override
+                        public Type getRawType() {
+<span class="nc" id="L71">                            return EventDeserializer.class;</span>
+                        }
+                        
+                        @Override
+                        public Type getOwnerType() {
+<span class="nc" id="L76">                            return null;</span>
+                        }
+                        
+                        @Override
+                        public Type[] getActualTypeArguments() {
+<span class="nc" id="L81">                            return new Type[] {eventType};</span>
+                        }
+
+                        @Override
+                        public int hashCode() {
+<span class="nc" id="L86">                            return Arrays.hashCode(getActualTypeArguments()) ^ EventDeserializer.class.hashCode();</span>
+                        }
+
+                        @Override
+                        public boolean equals(Object obj) {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                            if (this == obj) {</span>
+<span class="nc" id="L92">                                return true;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                            } else if (obj instanceof ParameterizedType) {</span>
+<span class="nc" id="L94">                                ParameterizedType that = (ParameterizedType) obj;</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">                                return that.getOwnerType() == null &amp;&amp; EventDeserializer.class.equals(that.getRawType())</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                                        &amp;&amp; Arrays.equals(getActualTypeArguments(), that.getActualTypeArguments());</span>
+                            }
+<span class="nc" id="L98">                            return false;</span>
+                        }
+                    };
+                }
+                
+                @Override
+                public Set&lt;Annotation&gt; getQualifiers() {
+<span class="nc" id="L105">                    return Collections.singleton(Default.Literal.INSTANCE);</span>
+                }
+                
+                @Override
+                public Member getMember() {
+<span class="nc" id="L110">                    return parameter.getDeclaringCallable().getJavaMember();</span>
+                }
+                
+                @Override
+                public Bean&lt;?&gt; getBean() {
+<span class="nc" id="L115">                    return null;</span>
+                }
+                
+                @Override
+                public Annotated getAnnotated() {
+<span class="nc" id="L120">                    return parameter;</span>
+                }
+
+                @Override
+                public String toString() {
+<span class="nc" id="L125">                    return parameter.toString();</span>
+                }
+            };
+        }
+<span class="nc" id="L129">        return injectionPoint;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
