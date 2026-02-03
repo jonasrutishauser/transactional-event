@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SyntheticHandlerCreator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus.handler</a> &gt; <span class="el_source">SyntheticHandlerCreator.java</span></div><h1>SyntheticHandlerCreator.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus.handler;
+
+import java.lang.reflect.ParameterizedType;
+import java.util.function.Predicate;
+
+import com.github.jonasrutishauser.transactional.event.api.handler.Handler;
+import com.github.jonasrutishauser.transactional.event.api.serialization.EventDeserializer;
+import com.github.jonasrutishauser.transactional.event.core.cdi.SyntheticHandler;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Instance.Handle;
+import jakarta.enterprise.inject.build.compatible.spi.Parameters;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
+import jakarta.enterprise.invoke.Invoker;
+import jakarta.enterprise.util.TypeLiteral;
+
+<span class="fc" id="L17">public class SyntheticHandlerCreator implements SyntheticBeanCreator&lt;Handler&gt; {</span>
+
+<span class="fc" id="L19">    private static final TypeLiteral&lt;EventDeserializer&lt;?&gt;&gt; EVENT_DESIRIALIZERS = new TypeLiteral&lt;EventDeserializer&lt;?&gt;&gt;() {</span>
+        private static final long serialVersionUID = 1L;
+    };
+
+    @Override
+    public Handler create(Instance&lt;Object&gt; lookup, Parameters params) {
+<span class="fc" id="L25">        EventDeserializer&lt;?&gt; deserializer = lookup.select(EVENT_DESIRIALIZERS) //</span>
+<span class="fc" id="L26">                .handlesStream() //</span>
+<span class="fc" id="L27">                .filter(matchesType(params.get(&quot;type&quot;, Class.class))) //</span>
+<span class="fc" id="L28">                .findAny() //</span>
+<span class="fc" id="L29">                .orElseThrow() //</span>
+<span class="fc" id="L30">                .get();</span>
+<span class="fc" id="L31">        Invoker&lt;?, ?&gt; invoker = params.get(&quot;invoker&quot;, Invoker.class);</span>
+<span class="fc" id="L32">        return new SyntheticHandler&lt;&gt;(deserializer, invoker);</span>
+    }
+
+    private Predicate&lt;Handle&lt;?&gt;&gt; matchesType(Class&lt;?&gt; eventType) {
+<span class="fc" id="L36">        return h -&gt; eventType.equals(h.getBean().getTypes().stream() //</span>
+<span class="fc" id="L37">                .filter(ParameterizedType.class::isInstance) //</span>
+<span class="fc" id="L38">                .map(ParameterizedType.class::cast) //</span>
+<span class="fc" id="L39">                .filter(t -&gt; EventDeserializer.class.equals(t.getRawType())) //</span>
+<span class="fc" id="L40">                .findAny() //</span>
+<span class="fc" id="L41">                .orElseThrow() //</span>
+<span class="fc" id="L42">                .getActualTypeArguments()[0]);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
