@@ -1,4 +1,9 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.micrometer,CountedInterceptor,0,18,0,0,0,5,0,2,0,2
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.micrometer,ConcurrentGaugeInterceptor,0,31,2,2,0,10,2,2,0,2
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.micrometer,MetricsRegistry,0,92,1,1,0,17,1,7,0,7
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.micrometer,MetricsRecorder,0,29,0,0,0,5,0,3,0,3
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.micrometer,GaugeMetricsRegistrator,7,49,0,2,2,7,0,3,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor.DefaultExecutorService,0,9,0,0,0,4,0,2,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor,0,30,0,0,0,11,0,4,0,4
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.concurrent,QuarkusEventExecutor.ScheduledTask,0,75,2,2,0,18,2,5,0,5
@@ -6,8 +11,8 @@ Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactiona
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,TransactionalEventSchemaProvider,24,0,2,0,8,0,5,0,4,0
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,DbSchemaRecorder,1,22,1,1,1,7,1,2,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,QuarkusConfiguration,0,33,0,0,0,10,0,7,0,7
-Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,DbSchema,10,40,2,2,3,13,1,4,0,3
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,GenericSerializersValidator,0,4,0,0,0,2,0,2,0,2
+Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,DbSchema,10,40,2,2,3,13,1,4,0,3
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,LifecycleObserver,1,48,1,3,1,10,1,3,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus,DefaultDataSourceProvider,0,9,0,0,0,4,0,2,0,2
 Transactional Event Library for Quarkus,com.github.jonasrutishauser.transactional.event.quarkus.handler,QuarkusEventHandlers,3,27,1,3,1,7,1,3,0,2
