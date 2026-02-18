@@ -225,7 +225,7 @@
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>             String line;
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">while</strong> ((line = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                 builder.append(line);
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                 <strong class="jxr_keyword">if</strong> (builder.length() &gt; 0 &amp;&amp; builder.charAt(builder.length() - 1) == ';') {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>                 <strong class="jxr_keyword">if</strong> (!builder.isEmpty() &amp;&amp; builder.charAt(builder.length() - 1) == ';') {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                     statements.add(builder.substring(0, builder.length() - 1).trim()
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>                             .replace(Configuration.DEFAULT_TABLE_NAME, configuration.tableName()));
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                     builder.setLength(0);
