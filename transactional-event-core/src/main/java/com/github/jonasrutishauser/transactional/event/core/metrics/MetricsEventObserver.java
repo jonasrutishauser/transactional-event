@@ -1,9 +1,12 @@
 package com.github.jonasrutishauser.transactional.event.core.metrics;
 
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.event.TransactionPhase;
+
+import static jakarta.interceptor.Interceptor.Priority.LIBRARY_BEFORE;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,15 +18,16 @@ import com.github.jonasrutishauser.transactional.event.api.monitoring.Processing
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingUnblockedEvent;
 import com.github.jonasrutishauser.transactional.event.api.monitoring.PublishingEvent;
+import com.github.jonasrutishauser.transactional.event.core.cdi.Startup;
 
 @ApplicationScoped
-public class MetricsEventObserver {
+public class MetricsEventObserver implements Startup {
 
     private static final String EVENT_LOG_MESSAGE = "Got event {}";
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+    public void init(@Observes @Priority(LIBRARY_BEFORE) @Initialized(ApplicationScoped.class) Object init) {
         LOGGER.debug("initialized");
     }
 

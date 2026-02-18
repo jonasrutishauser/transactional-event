@@ -11,6 +11,10 @@
 
 	<name>Transactional Event Library Quarkus Deployment</name>
 
+	<properties>
+		<maven.compiler.release>17</maven.compiler.release>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>

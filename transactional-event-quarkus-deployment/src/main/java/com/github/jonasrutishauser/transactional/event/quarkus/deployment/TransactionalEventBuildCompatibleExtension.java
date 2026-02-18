@@ -128,10 +128,11 @@ public class TransactionalEventBuildCompatibleExtension implements BuildCompatib
         type.methods().forEach(method -> {
             if (!method.parameters().isEmpty()) {
                 ParameterConfig firstParameter = method.parameters().get(0);
-                if (firstParameter.info().hasAnnotation(Observes.class) && firstParameter.info()
-                        .hasAnnotation(annotation -> (Initialized.class.getName().equals(annotation.name())
+                if (firstParameter.info().hasAnnotation(Observes.class) && !firstParameter.info()
+                        .annotations(annotation -> (Initialized.class.getName().equals(annotation.name())
                                 || BeforeDestroyed.class.getName().equals(annotation.name()))
-                                && applicationScoped.equals(annotation.value().asType()))) {
+                                && applicationScoped.equals(annotation.value().asType()))
+                        .isEmpty()) { // don't use hasAnnotation as there is a bug in quarkus to look at method annotations
                     firstParameter.removeAllAnnotations();
                     if (firstParameter.info()
                             .hasAnnotation(annotation -> Initialized.class.getName().equals(annotation.name()))) {

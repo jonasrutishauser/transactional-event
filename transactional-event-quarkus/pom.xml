@@ -39,17 +39,22 @@
 			<artifactId>log4j2-jboss-logmanager</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
-	        <dependency>
-	            <groupId>io.quarkus</groupId>
-	            <artifactId>quarkus-bom</artifactId>
+			<dependency>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-bom</artifactId>
 				<version>${quarkus.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-	        </dependency>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
