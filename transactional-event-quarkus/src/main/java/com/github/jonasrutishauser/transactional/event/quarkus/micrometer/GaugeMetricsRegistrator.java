@@ -10,6 +10,9 @@ import jakarta.enterprise.invoke.Invoker;
 
 class GaugeMetricsRegistrator {
 
+    private GaugeMetricsRegistrator() {
+    }
+
     public static void register(Map<String, Object> params) {
         var builder = Gauge.builder((String) params.get("name"), (Invoker<?, ?>) params.get("invoker"), invoker -> {
             try {

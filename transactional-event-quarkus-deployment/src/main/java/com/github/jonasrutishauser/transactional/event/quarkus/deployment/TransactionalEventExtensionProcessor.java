@@ -217,7 +217,7 @@ public class TransactionalEventExtensionProcessor {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
-                if (builder.length() > 0 && builder.charAt(builder.length() - 1) == ';') {
+                if (!builder.isEmpty() && builder.charAt(builder.length() - 1) == ';') {
                     statements.add(builder.substring(0, builder.length() - 1).trim()
                             .replace(Configuration.DEFAULT_TABLE_NAME, configuration.tableName()));
                     builder.setLength(0);
