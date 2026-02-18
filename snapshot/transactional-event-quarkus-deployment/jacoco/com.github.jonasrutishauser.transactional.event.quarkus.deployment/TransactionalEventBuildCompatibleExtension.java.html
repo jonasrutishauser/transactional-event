@@ -128,205 +128,206 @@ import jakarta.inject.Singleton;
 <span class="fc" id="L128">        type.methods().forEach(method -&gt; {</span>
 <span class="fc bfc" id="L129" title="All 2 branches covered.">            if (!method.parameters().isEmpty()) {</span>
 <span class="fc" id="L130">                ParameterConfig firstParameter = method.parameters().get(0);</span>
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                if (firstParameter.info().hasAnnotation(Observes.class) &amp;&amp; firstParameter.info()</span>
-<span class="fc bfc" id="L132" title="All 4 branches covered.">                        .hasAnnotation(annotation -&gt; (Initialized.class.getName().equals(annotation.name())</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                if (firstParameter.info().hasAnnotation(Observes.class) &amp;&amp; !firstParameter.info()</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                        .annotations(annotation -&gt; (Initialized.class.getName().equals(annotation.name())</span>
 <span class="fc bfc" id="L133" title="All 2 branches covered.">                                || BeforeDestroyed.class.getName().equals(annotation.name()))</span>
-<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                                &amp;&amp; applicationScoped.equals(annotation.value().asType()))) {</span>
-<span class="fc" id="L135">                    firstParameter.removeAllAnnotations();</span>
-<span class="fc" id="L136">                    if (firstParameter.info()</span>
-<span class="fc bfc" id="L137" title="All 2 branches covered.">                            .hasAnnotation(annotation -&gt; Initialized.class.getName().equals(annotation.name()))) {</span>
-<span class="fc" id="L138">                        startupObservers.add(new LifecycleObserverInfo(method.info(), true));</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                                &amp;&amp; applicationScoped.equals(annotation.value().asType()))</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">                        .isEmpty()) { // don't use hasAnnotation as there is a bug in quarkus to look at method annotations</span>
+<span class="fc" id="L136">                    firstParameter.removeAllAnnotations();</span>
+<span class="fc" id="L137">                    if (firstParameter.info()</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                            .hasAnnotation(annotation -&gt; Initialized.class.getName().equals(annotation.name()))) {</span>
+<span class="fc" id="L139">                        startupObservers.add(new LifecycleObserverInfo(method.info(), true));</span>
                     } else {
-<span class="fc" id="L140">                        shutdownObservers.add(new LifecycleObserverInfo(method.info(), false));</span>
+<span class="fc" id="L141">                        shutdownObservers.add(new LifecycleObserverInfo(method.info(), false));</span>
                     }
                 }
             }
-<span class="fc" id="L144">        });</span>
-<span class="fc" id="L145">    }</span>
+<span class="fc" id="L145">        });</span>
+<span class="fc" id="L146">    }</span>
 
     @Registration(types = Startup.class)
     @Priority(LIBRARY_AFTER)
     public void processStartupBeans(BeanInfo beanInfo, InvokerFactory invokerFactory) {
-<span class="fc" id="L150">        Collection&lt;MethodInfo&gt; methods = beanInfo.declaringClass().methods();</span>
-<span class="fc" id="L151">        concat(startupObservers.stream(), shutdownObservers.stream()) //</span>
-<span class="fc" id="L152">                .filter(observer -&gt; methods.contains(observer.method())) //</span>
-<span class="fc" id="L153">                .forEach(observer -&gt; observer.createInvoker(beanInfo, invokerFactory));</span>
-<span class="fc" id="L154">    }</span>
+<span class="fc" id="L151">        Collection&lt;MethodInfo&gt; methods = beanInfo.declaringClass().methods();</span>
+<span class="fc" id="L152">        concat(startupObservers.stream(), shutdownObservers.stream()) //</span>
+<span class="fc" id="L153">                .filter(observer -&gt; methods.contains(observer.method())) //</span>
+<span class="fc" id="L154">                .forEach(observer -&gt; observer.createInvoker(beanInfo, invokerFactory));</span>
+<span class="fc" id="L155">    }</span>
 
     @Synthesis
     @Priority(LIBRARY_BEFORE)
     public void addSyntheticLifecycleObservers(SyntheticComponents components, Types types) {
-<span class="fc bfc" id="L159" title="All 2 branches covered.">        for (LifecycleObserverInfo observer : startupObservers) {</span>
-<span class="fc bfc" id="L160" title="All 2 branches covered.">            if (observer.invoker() != null) {</span>
-<span class="fc" id="L161">                components.addObserver(types.of(jakarta.enterprise.event.Startup.class)) //</span>
-<span class="fc" id="L162">                        .priority(observer.priority()) //</span>
-<span class="fc" id="L163">                        .declaringClass(observer.method().declaringClass()) //</span>
-<span class="fc" id="L164">                        .observeWith(LifecycleObserver.class) //</span>
-<span class="fc" id="L165">                        .withParam(LifecycleObserver.INVOKER, observer.invoker());</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        for (LifecycleObserverInfo observer : startupObservers) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (observer.invoker() != null) {</span>
+<span class="fc" id="L162">                components.addObserver(types.of(jakarta.enterprise.event.Startup.class)) //</span>
+<span class="fc" id="L163">                        .priority(observer.priority()) //</span>
+<span class="fc" id="L164">                        .declaringClass(observer.method().declaringClass()) //</span>
+<span class="fc" id="L165">                        .observeWith(LifecycleObserver.class) //</span>
+<span class="fc" id="L166">                        .withParam(LifecycleObserver.INVOKER, observer.invoker());</span>
             }
-<span class="fc" id="L167">        }</span>
-<span class="fc bfc" id="L168" title="All 2 branches covered.">        for (LifecycleObserverInfo observer : shutdownObservers) {</span>
-<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            if (observer.invoker() != null) {</span>
-<span class="fc" id="L170">                components.addObserver(types.of(Shutdown.class)) //</span>
-<span class="fc" id="L171">                        .priority(observer.priority()) //</span>
-<span class="fc" id="L172">                        .declaringClass(observer.method().declaringClass()) //</span>
-<span class="fc" id="L173">                        .observeWith(LifecycleObserver.class) //</span>
-<span class="fc" id="L174">                        .withParam(LifecycleObserver.INVOKER, observer.invoker()) //</span>
-<span class="fc" id="L175">                        .withParam(LifecycleObserver.TYPE, observer.method().declaringClass());</span>
+<span class="fc" id="L168">        }</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        for (LifecycleObserverInfo observer : shutdownObservers) {</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">            if (observer.invoker() != null) {</span>
+<span class="fc" id="L171">                components.addObserver(types.of(Shutdown.class)) //</span>
+<span class="fc" id="L172">                        .priority(observer.priority()) //</span>
+<span class="fc" id="L173">                        .declaringClass(observer.method().declaringClass()) //</span>
+<span class="fc" id="L174">                        .observeWith(LifecycleObserver.class) //</span>
+<span class="fc" id="L175">                        .withParam(LifecycleObserver.INVOKER, observer.invoker()) //</span>
+<span class="fc" id="L176">                        .withParam(LifecycleObserver.TYPE, observer.method().declaringClass());</span>
             }
-<span class="fc" id="L177">        }</span>
-<span class="fc" id="L178">    }</span>
+<span class="fc" id="L178">        }</span>
+<span class="fc" id="L179">    }</span>
 
     @Enhancement(types = AbstractHandler.class, withSubtypes = true, withAnnotations = EventHandler.class)
     @Priority(LIBRARY_AFTER)
     public void processTypedHandlers(ClassConfig typeConfig, Types types, Messages messages) {
-<span class="nc" id="L183">        ClassInfo type = typeConfig.info();</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (type.hasAnnotation(EventHandler.class) &amp;&amp; EventHandler.ABSTRACT_HANDLER_TYPE</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                .equals(type.annotation(EventHandler.class).member(EVENT_TYPE).asString())) {</span>
-<span class="nc" id="L186">            Optional&lt;ClassType&gt; eventType = type.methods().stream() //</span>
-<span class="nc" id="L187">                    .filter(m -&gt; &quot;handle&quot;.equals(m.name())) //</span>
-<span class="nc" id="L188">                    .filter(m -&gt; types.ofVoid().equals(m.returnType())) //</span>
-<span class="nc bnc" id="L189" title="All 2 branches missed.">                    .filter(m -&gt; !m.isAbstract()) //</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                    .filter(m -&gt; !m.isStatic()) //</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">                    .filter(m -&gt; m.parameters().size() == 1) //</span>
-<span class="nc" id="L192">                    .map(MethodInfo::parameters) //</span>
-<span class="nc" id="L193">                    .map(params -&gt; params.get(0)) //</span>
-<span class="nc" id="L194">                    .map(ParameterInfo::type) //</span>
-<span class="nc" id="L195">                    .filter(Type::isClass) //</span>
-<span class="nc" id="L196">                    .map(Type::asClass) //</span>
-<span class="nc" id="L197">                    .findAny();</span>
-<span class="nc bnc" id="L198" title="All 2 branches missed.">            if (eventType.isEmpty()) {</span>
-<span class="nc" id="L199">                messages.warn(&quot;Failed to determine event type&quot;, type);</span>
+<span class="nc" id="L184">        ClassInfo type = typeConfig.info();</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (type.hasAnnotation(EventHandler.class) &amp;&amp; EventHandler.ABSTRACT_HANDLER_TYPE</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                .equals(type.annotation(EventHandler.class).member(EVENT_TYPE).asString())) {</span>
+<span class="nc" id="L187">            Optional&lt;ClassType&gt; eventType = type.methods().stream() //</span>
+<span class="nc" id="L188">                    .filter(m -&gt; &quot;handle&quot;.equals(m.name())) //</span>
+<span class="nc" id="L189">                    .filter(m -&gt; types.ofVoid().equals(m.returnType())) //</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                    .filter(m -&gt; !m.isAbstract()) //</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                    .filter(m -&gt; !m.isStatic()) //</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                    .filter(m -&gt; m.parameters().size() == 1) //</span>
+<span class="nc" id="L193">                    .map(MethodInfo::parameters) //</span>
+<span class="nc" id="L194">                    .map(params -&gt; params.get(0)) //</span>
+<span class="nc" id="L195">                    .map(ParameterInfo::type) //</span>
+<span class="nc" id="L196">                    .filter(Type::isClass) //</span>
+<span class="nc" id="L197">                    .map(Type::asClass) //</span>
+<span class="nc" id="L198">                    .findAny();</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (eventType.isEmpty()) {</span>
+<span class="nc" id="L200">                messages.warn(&quot;Failed to determine event type&quot;, type);</span>
             } else {
-<span class="nc" id="L201">                typeConfig.addAnnotation(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.get()).build());</span>
+<span class="nc" id="L202">                typeConfig.addAnnotation(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.get()).build());</span>
             }
         }
-<span class="nc" id="L204">    }</span>
+<span class="nc" id="L205">    }</span>
 
     @Registration(types = Handler.class)
     @Priority(LIBRARY_AFTER)
     public void processHandlers(BeanInfo beanInfo, Messages messages) {
-<span class="fc" id="L209">        Optional&lt;AnnotationInfo&gt; eventHandlerAnnotation = beanInfo.qualifiers().stream()</span>
-<span class="fc" id="L210">                .filter(annotation -&gt; EventHandler.class.getName().equals(annotation.name())).findAny();</span>
-<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (eventHandlerAnnotation.isEmpty()) {</span>
-<span class="fc" id="L212">            messages.error(&quot;EventHandler annotation is missing on bean&quot;, beanInfo);</span>
+<span class="fc" id="L210">        Optional&lt;AnnotationInfo&gt; eventHandlerAnnotation = beanInfo.qualifiers().stream()</span>
+<span class="fc" id="L211">                .filter(annotation -&gt; EventHandler.class.getName().equals(annotation.name())).findAny();</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (eventHandlerAnnotation.isEmpty()) {</span>
+<span class="fc" id="L213">            messages.error(&quot;EventHandler annotation is missing on bean&quot;, beanInfo);</span>
         } else {
-<span class="fc" id="L214">            if (EventHandler.ABSTRACT_HANDLER_TYPE</span>
-<span class="fc bfc" id="L215" title="All 2 branches covered.">                    .equals(eventHandlerAnnotation.get().member(EVENT_TYPE).asString())) {</span>
-<span class="fc" id="L216">                Optional&lt;AnnotationInfo&gt; typedEventHandler = beanInfo.qualifiers().stream() //</span>
-<span class="fc" id="L217">                        .filter(a -&gt; TypedEventHandler.class.getName().equals(a.name())) //</span>
-<span class="fc" id="L218">                        .findAny();</span>
-<span class="pc bpc" id="L219" title="1 of 2 branches missed.">                if (typedEventHandler.isEmpty()) {</span>
-<span class="fc" id="L220">                    messages.error(&quot;AbstractHandler type is missing on bean with implicit event type&quot;, beanInfo);</span>
+<span class="fc" id="L215">            if (EventHandler.ABSTRACT_HANDLER_TYPE</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                    .equals(eventHandlerAnnotation.get().member(EVENT_TYPE).asString())) {</span>
+<span class="fc" id="L217">                Optional&lt;AnnotationInfo&gt; typedEventHandler = beanInfo.qualifiers().stream() //</span>
+<span class="fc" id="L218">                        .filter(a -&gt; TypedEventHandler.class.getName().equals(a.name())) //</span>
+<span class="fc" id="L219">                        .findAny();</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">                if (typedEventHandler.isEmpty()) {</span>
+<span class="fc" id="L221">                    messages.error(&quot;AbstractHandler type is missing on bean with implicit event type&quot;, beanInfo);</span>
                 } else {
-<span class="nc" id="L222">                    handledTypes.add(typedEventHandler.get().value().asType().asClass().declaration());</span>
+<span class="nc" id="L223">                    handledTypes.add(typedEventHandler.get().value().asType().asClass().declaration());</span>
                 }
             }
         }
-<span class="fc" id="L226">    }</span>
+<span class="fc" id="L227">    }</span>
 
     @Registration(types = Object.class)
     @Priority(LIBRARY_AFTER)
     public void processHandlerMethods(BeanInfo beanInfo, InvokerFactory invokerFactory, Messages messages) {
-<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (beanInfo.isClassBean()) {</span>
-<span class="fc" id="L232">            beanInfo.declaringClass().methods().stream() //</span>
-<span class="fc" id="L233">                .filter(m -&gt; m.hasAnnotation(EventHandler.class)) //</span>
-<span class="pc" id="L234">                .forEach(m -&gt; addHandlerMethod(beanInfo, m, invokerFactory, messages));</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        if (beanInfo.isClassBean()) {</span>
+<span class="fc" id="L233">            beanInfo.declaringClass().methods().stream() //</span>
+<span class="fc" id="L234">                .filter(m -&gt; m.hasAnnotation(EventHandler.class)) //</span>
+<span class="pc" id="L235">                .forEach(m -&gt; addHandlerMethod(beanInfo, m, invokerFactory, messages));</span>
         }
-<span class="fc" id="L236">    }</span>
+<span class="fc" id="L237">    }</span>
 
     private void addHandlerMethod(BeanInfo beanInfo, MethodInfo method, InvokerFactory invokerFactory, Messages messages) {
-<span class="nc bnc" id="L239" title="All 2 branches missed.">        if (method.parameters().size() != 1) {</span>
-<span class="nc" id="L240">            messages.error(&quot;EventHandler method must have exactly one argument&quot;, method);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (method.parameters().size() != 1) {</span>
+<span class="nc" id="L241">            messages.error(&quot;EventHandler method must have exactly one argument&quot;, method);</span>
         } else {
-<span class="nc" id="L242">            InvokerInfo invoker = invokerFactory.createInvoker(beanInfo, method).withInstanceLookup().build();</span>
-<span class="nc" id="L243">            eventHandlerMethods.put(method, invoker);</span>
+<span class="nc" id="L243">            InvokerInfo invoker = invokerFactory.createInvoker(beanInfo, method).withInstanceLookup().build();</span>
+<span class="nc" id="L244">            eventHandlerMethods.put(method, invoker);</span>
         }
-<span class="nc" id="L245">    }</span>
+<span class="nc" id="L246">    }</span>
 
     @Synthesis
     @Priority(LIBRARY_BEFORE)
     public void addSyntheticEventHandlers(SyntheticComponents components, Types types) {
-<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        for (Entry&lt;MethodInfo, InvokerInfo&gt; eventHandlerMethod : eventHandlerMethods.entrySet()) {</span>
-<span class="nc" id="L251">            ClassType eventType = eventHandlerMethod.getKey().parameters().get(0).type().asClass();</span>
-<span class="nc" id="L252">            components.addBean(Handler.class) //</span>
-<span class="nc" id="L253">                    .type(Handler.class) //</span>
-<span class="nc" id="L254">                    .qualifier(eventHandlerMethod.getKey().annotation(EventHandler.class)) //</span>
-<span class="nc" id="L255">                    .qualifier(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.declaration()).build()) //</span>
-<span class="nc" id="L256">                    .createWith(SyntheticHandlerCreator.class) //</span>
-<span class="nc" id="L257">                    .withParam(&quot;type&quot;, eventType.declaration()) //</span>
-<span class="nc" id="L258">                    .withParam(&quot;invoker&quot;, eventHandlerMethod.getValue());</span>
-<span class="nc bnc" id="L259" title="All 2 branches missed.">            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(</span>
-<span class="nc" id="L260">                    eventHandlerMethod.getKey().annotation(EventHandler.class).member(EVENT_TYPE).asString())) {</span>
-<span class="nc" id="L261">                handledTypes.add(eventType.declaration());</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        for (Entry&lt;MethodInfo, InvokerInfo&gt; eventHandlerMethod : eventHandlerMethods.entrySet()) {</span>
+<span class="nc" id="L252">            ClassType eventType = eventHandlerMethod.getKey().parameters().get(0).type().asClass();</span>
+<span class="nc" id="L253">            components.addBean(Handler.class) //</span>
+<span class="nc" id="L254">                    .type(Handler.class) //</span>
+<span class="nc" id="L255">                    .qualifier(eventHandlerMethod.getKey().annotation(EventHandler.class)) //</span>
+<span class="nc" id="L256">                    .qualifier(AnnotationBuilder.of(TypedEventHandler.class).value(eventType.declaration()).build()) //</span>
+<span class="nc" id="L257">                    .createWith(SyntheticHandlerCreator.class) //</span>
+<span class="nc" id="L258">                    .withParam(&quot;type&quot;, eventType.declaration()) //</span>
+<span class="nc" id="L259">                    .withParam(&quot;invoker&quot;, eventHandlerMethod.getValue());</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            if (EventHandler.ABSTRACT_HANDLER_TYPE.equals(</span>
+<span class="nc" id="L261">                    eventHandlerMethod.getKey().annotation(EventHandler.class).member(EVENT_TYPE).asString())) {</span>
+<span class="nc" id="L262">                handledTypes.add(eventType.declaration());</span>
             }
-<span class="nc" id="L263">            requiredEventDeserializers.add(types.parameterized(EventDeserializer.class, eventType));</span>
-<span class="nc" id="L264">        }</span>
-<span class="fc" id="L265">    }</span>
+<span class="nc" id="L264">            requiredEventDeserializers.add(types.parameterized(EventDeserializer.class, eventType));</span>
+<span class="nc" id="L265">        }</span>
+<span class="fc" id="L266">    }</span>
 
     @Synthesis
     @Priority(LIBRARY_AFTER)
     public void addEventHandlersBean(SyntheticComponents components) throws ClassNotFoundException {
-<span class="fc" id="L270">        Class&lt;?&gt; quarkusEventHandlers = Class</span>
-<span class="fc" id="L271">                .forName(&quot;com.github.jonasrutishauser.transactional.event.quarkus.handler.QuarkusEventHandlers&quot;);</span>
-<span class="fc" id="L272">        addCreator( //</span>
-<span class="fc" id="L273">                components.addBean(quarkusEventHandlers) //</span>
-<span class="fc" id="L274">                        .type(EventHandlers.class) //</span>
-<span class="fc" id="L275">                        .type(quarkusEventHandlers) //</span>
-<span class="fc" id="L276">                        .scope(Singleton.class) //</span>
-<span class="fc" id="L277">                        .withParam(&quot;types&quot;, handledTypes.toArray(ClassInfo[]::new)), //</span>
+<span class="fc" id="L271">        Class&lt;?&gt; quarkusEventHandlers = Class</span>
+<span class="fc" id="L272">                .forName(&quot;com.github.jonasrutishauser.transactional.event.quarkus.handler.QuarkusEventHandlers&quot;);</span>
+<span class="fc" id="L273">        addCreator( //</span>
+<span class="fc" id="L274">                components.addBean(quarkusEventHandlers) //</span>
+<span class="fc" id="L275">                        .type(EventHandlers.class) //</span>
+<span class="fc" id="L276">                        .type(quarkusEventHandlers) //</span>
+<span class="fc" id="L277">                        .scope(Singleton.class) //</span>
+<span class="fc" id="L278">                        .withParam(&quot;types&quot;, handledTypes.toArray(ClassInfo[]::new)), //</span>
                 quarkusEventHandlers);
-<span class="fc" id="L279">    }</span>
+<span class="fc" id="L280">    }</span>
 
     @SuppressWarnings(&quot;unchecked&quot;)
     private &lt;T&gt; void addCreator(SyntheticBeanBuilder&lt;T&gt; builder, Class&lt;?&gt; creatorHost) {
-<span class="fc" id="L283">        builder.createWith(</span>
-<span class="fc" id="L284">                Arrays.stream(creatorHost.getNestMembers()).filter(SyntheticBeanCreator.class::isAssignableFrom)</span>
-<span class="fc" id="L285">                        .map(c -&gt; (Class&lt;? extends SyntheticBeanCreator&lt;T&gt;&gt;) c).findAny()</span>
-<span class="fc" id="L286">                        .orElseThrow(IllegalStateException::new));</span>
-<span class="fc" id="L287">    }</span>
+<span class="fc" id="L284">        builder.createWith(</span>
+<span class="fc" id="L285">                Arrays.stream(creatorHost.getNestMembers()).filter(SyntheticBeanCreator.class::isAssignableFrom)</span>
+<span class="fc" id="L286">                        .map(c -&gt; (Class&lt;? extends SyntheticBeanCreator&lt;T&gt;&gt;) c).findAny()</span>
+<span class="fc" id="L287">                        .orElseThrow(IllegalStateException::new));</span>
+<span class="fc" id="L288">    }</span>
 
     @Registration(types = Object.class)
     @Priority(LIBRARY_BEFORE)
     public void processEventDeserializerInjections(BeanInfo beanInfo, Types types, Messages messages) {
-<span class="fc bfc" id="L292" title="All 2 branches covered.">        for (InjectionPointInfo injectionPoint : beanInfo.injectionPoints()) {</span>
-<span class="fc" id="L293">            Type type = injectionPoint.type();</span>
-<span class="fc bfc" id="L294" title="All 2 branches covered.">            if (type.isParameterizedType()</span>
-<span class="fc bfc" id="L295" title="All 2 branches covered.">                    &amp;&amp; EventDeserializer.class.getName().equals(type.asParameterizedType().declaration().name())) {</span>
-<span class="fc" id="L296">                requiredEventDeserializers.add(type.asParameterizedType());</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">        for (InjectionPointInfo injectionPoint : beanInfo.injectionPoints()) {</span>
+<span class="fc" id="L294">            Type type = injectionPoint.type();</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            if (type.isParameterizedType()</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">                    &amp;&amp; EventDeserializer.class.getName().equals(type.asParameterizedType().declaration().name())) {</span>
+<span class="fc" id="L297">                requiredEventDeserializers.add(type.asParameterizedType());</span>
             }
-<span class="fc" id="L298">        }</span>
-<span class="fc" id="L299">    }</span>
+<span class="fc" id="L299">        }</span>
+<span class="fc" id="L300">    }</span>
 
     @Registration(types = Object.class)
     @Priority(LIBRARY_BEFORE)
     public void processEventDeserializers(BeanInfo beanInfo) {
-<span class="fc bfc" id="L304" title="All 2 branches covered.">        if (beanInfo.isClassBean()) {</span>
-<span class="fc" id="L305">            beanInfo.types().stream()</span>
-<span class="fc" id="L306">                    .filter(Type::isParameterizedType)</span>
-<span class="fc" id="L307">                    .map(Type::asParameterizedType)</span>
-<span class="fc" id="L308">                    .filter(type -&gt; EventDeserializer.class.getName().equals(type.declaration().name()))</span>
-<span class="fc" id="L309">                    .forEach(declaredEventDeserializers::add);</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        if (beanInfo.isClassBean()) {</span>
+<span class="fc" id="L306">            beanInfo.types().stream()</span>
+<span class="fc" id="L307">                    .filter(Type::isParameterizedType)</span>
+<span class="fc" id="L308">                    .map(Type::asParameterizedType)</span>
+<span class="fc" id="L309">                    .filter(type -&gt; EventDeserializer.class.getName().equals(type.declaration().name()))</span>
+<span class="fc" id="L310">                    .forEach(declaredEventDeserializers::add);</span>
         }
-<span class="fc" id="L311">    }</span>
+<span class="fc" id="L312">    }</span>
 
     @Synthesis
     @Priority(LIBRARY_AFTER)
     public void addMissingEventDeserializers(SyntheticComponents components) {
-<span class="fc" id="L316">        requiredEventDeserializers.removeAll(declaredEventDeserializers);</span>
-<span class="fc bfc" id="L317" title="All 2 branches covered.">        for (ParameterizedType type : requiredEventDeserializers) {</span>
-<span class="fc" id="L318">            Type eventType = type.typeArguments().get(0);</span>
-<span class="pc bpc" id="L319" title="1 of 2 branches missed.">            ClassType eventClass = eventType.isClass() ? eventType.asClass()</span>
-<span class="pc" id="L320">                    : eventType.asParameterizedType().genericClass();</span>
-<span class="fc" id="L321">            components.addBean(DefaultEventDeserializer.class) //</span>
-<span class="fc" id="L322">                .type(type) //</span>
-<span class="fc" id="L323">                .type(ExtendedEventDeserializer.class) //</span>
-<span class="fc" id="L324">                .scope(Singleton.class) //</span>
-<span class="fc" id="L325">                .qualifier(Default.Literal.INSTANCE) //</span>
-<span class="fc" id="L326">                .createWith(DefaultEventDeserializerCreator.class) //</span>
-<span class="fc" id="L327">                .withParam(DefaultEventDeserializerCreator.TYPE, eventClass.declaration());</span>
-<span class="fc" id="L328">        }</span>
-<span class="fc" id="L329">    }</span>
+<span class="fc" id="L317">        requiredEventDeserializers.removeAll(declaredEventDeserializers);</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">        for (ParameterizedType type : requiredEventDeserializers) {</span>
+<span class="fc" id="L319">            Type eventType = type.typeArguments().get(0);</span>
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">            ClassType eventClass = eventType.isClass() ? eventType.asClass()</span>
+<span class="pc" id="L321">                    : eventType.asParameterizedType().genericClass();</span>
+<span class="fc" id="L322">            components.addBean(DefaultEventDeserializer.class) //</span>
+<span class="fc" id="L323">                .type(type) //</span>
+<span class="fc" id="L324">                .type(ExtendedEventDeserializer.class) //</span>
+<span class="fc" id="L325">                .scope(Singleton.class) //</span>
+<span class="fc" id="L326">                .qualifier(Default.Literal.INSTANCE) //</span>
+<span class="fc" id="L327">                .createWith(DefaultEventDeserializerCreator.class) //</span>
+<span class="fc" id="L328">                .withParam(DefaultEventDeserializerCreator.TYPE, eventClass.declaration());</span>
+<span class="fc" id="L329">        }</span>
+<span class="fc" id="L330">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
