@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.github.jonasrutishauser.transactional.event.quarkus.deployment"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"com.github.jonasrutishauser.transactional.event.quarkus.deployment"}];updateSearchResults();
