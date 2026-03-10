@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LifecycleObserver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus</a> &gt; <span class="el_source">LifecycleObserver.java</span></div><h1>LifecycleObserver.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus;
+
+import io.quarkus.arc.Arc;
+import io.quarkus.arc.ArcContainer;
+import io.quarkus.arc.InstanceHandle;
+import jakarta.enterprise.inject.build.compatible.spi.Parameters;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticObserver;
+import jakarta.enterprise.inject.spi.EventContext;
+import jakarta.enterprise.invoke.Invoker;
+
+<span class="fc" id="L11">public class LifecycleObserver implements SyntheticObserver&lt;Object&gt; {</span>
+
+    public static final String INVOKER = &quot;invoker&quot;;
+    public static final String TYPE = &quot;type&quot;;
+
+    @Override
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void observe(EventContext&lt;Object&gt; event, Parameters params) throws Exception {
+<span class="fc" id="L19">        Object instance = null;</span>
+<span class="fc" id="L20">        Class&lt;?&gt; type = params.get(TYPE, Class.class);</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        if (type != null) {</span>
+<span class="fc" id="L22">            ArcContainer container = Arc.container();</span>
+<span class="fc" id="L23">            InstanceHandle&lt;?&gt; handle = container.instance(type);</span>
+<span class="fc" id="L24">            instance = container.getActiveContext(handle.getBean().getScope()).get(handle.getBean());</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">            if (instance == null) {</span>
+<span class="nc" id="L26">                return;</span>
+            }
+        }
+<span class="fc" id="L29">        params.get(INVOKER, Invoker.class).invoke(instance, new Object[] {event.getEvent()});</span>
+<span class="fc" id="L30">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

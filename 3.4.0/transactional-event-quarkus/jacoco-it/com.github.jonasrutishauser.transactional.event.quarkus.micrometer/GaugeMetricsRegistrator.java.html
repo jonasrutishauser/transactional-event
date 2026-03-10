@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GaugeMetricsRegistrator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus.micrometer</a> &gt; <span class="el_source">GaugeMetricsRegistrator.java</span></div><h1>GaugeMetricsRegistrator.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus.micrometer;
+
+
+import java.util.Map;
+
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.quarkus.arc.Arc;
+import jakarta.enterprise.invoke.Invoker;
+
+class GaugeMetricsRegistrator {
+
+    private GaugeMetricsRegistrator() {
+    }
+
+    public static void register(Map&lt;String, Object&gt; params) {
+<span class="fc" id="L17">        var builder = Gauge.builder((String) params.get(&quot;name&quot;), (Invoker&lt;?, ?&gt;) params.get(&quot;invoker&quot;), invoker -&gt; {</span>
+            try {
+<span class="fc" id="L19">                return ((Number) invoker.invoke(null, null)).doubleValue();</span>
+<span class="nc" id="L20">            } catch (Exception e) {</span>
+<span class="nc" id="L21">                throw new IllegalStateException(&quot;Failed to invoke gauge method&quot;, e);</span>
+            }
+<span class="fc" id="L23">        }).description((String) params.get(&quot;description&quot;));</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (!&quot;none&quot;.equals(params.get(&quot;unit&quot;))) {</span>
+<span class="fc" id="L25">            builder = builder.baseUnit((String) params.get(&quot;unit&quot;));</span>
+        }
+<span class="fc" id="L27">        builder.strongReference(true).register(Arc.container().instance(MeterRegistry.class).get());</span>
+<span class="fc" id="L28">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

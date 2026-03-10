@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MetricsRegistry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library for Quarkus</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.quarkus.micrometer</a> &gt; <span class="el_source">MetricsRegistry.java</span></div><h1>MetricsRegistry.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.quarkus.micrometer;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+@Singleton
+class MetricsRegistry {
+
+    private final MeterRegistry registry;
+<span class="fc" id="L18">    private final Map&lt;Class&lt;?&gt;, Map&lt;String, Counter&gt;&gt; counters = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L19">    private final Map&lt;Class&lt;?&gt;, Map&lt;String, AtomicLong&gt;&gt; gauges = new ConcurrentHashMap&lt;&gt;();</span>
+
+    @Inject
+<span class="fc" id="L22">    MetricsRegistry(MeterRegistry registry) {</span>
+<span class="fc" id="L23">        this.registry = registry;</span>
+<span class="fc" id="L24">    }</span>
+
+    public void addCounter(Class&lt;?&gt; beanClass, String methodName, String metricName, String description) {
+<span class="fc" id="L27">        counters.computeIfAbsent(beanClass, k -&gt; new ConcurrentHashMap&lt;&gt;()).put(methodName,</span>
+<span class="fc" id="L28">                Counter.builder(metricName).description(description).register(registry));</span>
+<span class="fc" id="L29">    }</span>
+
+    public void addConcurrentGauge(Class&lt;?&gt; beanClass, String methodName, String metricName, String description) {
+<span class="fc" id="L32">        AtomicLong gauge = new AtomicLong();</span>
+<span class="fc" id="L33">        gauges.computeIfAbsent(beanClass, k -&gt; new ConcurrentHashMap&lt;&gt;()).put(methodName,</span>
+                gauge);
+<span class="fc" id="L35">        Gauge.builder(metricName + &quot;.current&quot;, gauge, AtomicLong::get).description(description).register(registry);</span>
+<span class="fc" id="L36">    }</span>
+
+    public void incrementCounter(Class&lt;?&gt; declaringClass, String method) {
+<span class="fc" id="L39">        Counter counter = counters.getOrDefault(declaringClass, Collections.emptyMap()).get(method);</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (counter != null) {</span>
+<span class="fc" id="L41">            counter.increment();</span>
+        }
+<span class="fc" id="L43">    }</span>
+
+    public AtomicLong getConcurrentGauge(Class&lt;?&gt; declaringClass, String method) {
+<span class="fc" id="L46">        return gauges.getOrDefault(declaringClass, Collections.emptyMap()).get(method);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
