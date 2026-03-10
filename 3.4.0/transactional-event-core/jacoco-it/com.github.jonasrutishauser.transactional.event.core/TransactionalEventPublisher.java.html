@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionalEventPublisher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core</a> &gt; <span class="el_source">TransactionalEventPublisher.java</span></div><h1>TransactionalEventPublisher.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core;
+
+import static java.time.Instant.now;
+import static com.github.jonasrutishauser.transactional.event.core.TransactionalPublisher.DELAYED_UNTIL_KEY;
+import static com.github.jonasrutishauser.transactional.event.core.random.Random.randomId;
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
+
+import java.time.temporal.TemporalAmount;
+import java.util.Properties;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.github.jonasrutishauser.transactional.event.api.EventPublisher;
+import com.github.jonasrutishauser.transactional.event.api.EventTypeResolver;
+import com.github.jonasrutishauser.transactional.event.api.context.ContextualPublisher;
+
+@Dependent
+public class TransactionalEventPublisher implements EventPublisher {
+
+<span class="fc" id="L25">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    private final EventTypeResolver typeResolver;
+    private final Serializer eventSerializer;
+    private final ContextualPublisher publisher;
+
+    TransactionalEventPublisher() {
+<span class="nc" id="L32">        this(null, null, null);</span>
+<span class="nc" id="L33">    }</span>
+
+    @Inject
+    TransactionalEventPublisher(EventTypeResolver typeResolver, Serializer eventSerializer,
+<span class="fc" id="L37">            ContextualPublisher publisher) {</span>
+<span class="fc" id="L38">        this.typeResolver = typeResolver;</span>
+<span class="fc" id="L39">        this.eventSerializer = eventSerializer;</span>
+<span class="fc" id="L40">        this.publisher = publisher;</span>
+<span class="fc" id="L41">    }</span>
+
+    @Override
+    @Transactional(MANDATORY)
+    public void publish(Object event) {
+<span class="fc" id="L46">        String id = randomId();</span>
+<span class="fc" id="L47">        String type = typeResolver.resolve(event.getClass());</span>
+<span class="fc" id="L48">        String payload = eventSerializer.serialize(event);</span>
+
+<span class="fc" id="L50">        publisher.publish(id, type, new Properties(), payload);</span>
+
+<span class="fc" id="L52">        LOGGER.debug(&quot;enqueued event '{}' with type '{}' (payload '{}')&quot;, id, type, payload);</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    @Transactional(MANDATORY)
+    public void publishDelayed(Object event, TemporalAmount delay) {
+<span class="fc" id="L58">        String id = randomId();</span>
+<span class="fc" id="L59">        String type = typeResolver.resolve(event.getClass());</span>
+<span class="fc" id="L60">        String payload = eventSerializer.serialize(event);</span>
+<span class="fc" id="L61">        Properties context = new Properties();</span>
+<span class="fc" id="L62">        context.put(DELAYED_UNTIL_KEY, now().plus(delay));</span>
+
+<span class="fc" id="L64">        publisher.publish(id, type, context, payload);</span>
+
+<span class="fc" id="L66">        LOGGER.debug(&quot;enqueued event '{}' with type '{}' (payload '{}') and delay {}&quot;, id, type, payload, delay);</span>
+<span class="fc" id="L67">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

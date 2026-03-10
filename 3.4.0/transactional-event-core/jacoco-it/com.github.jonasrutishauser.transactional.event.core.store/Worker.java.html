@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Worker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Transactional Event Library Core</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.transactional.event.core.store</a> &gt; <span class="el_source">Worker.java</span></div><h1>Worker.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.transactional.event.core.store;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.microprofile.metrics.annotation.ConcurrentGauge;
+
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingFailedEvent;
+import com.github.jonasrutishauser.transactional.event.api.monitoring.ProcessingSuccessEvent;
+
+@Dependent
+class Worker {
+
+<span class="fc" id="L18">    private static final Logger LOGGER = LogManager.getLogger();</span>
+
+    private final TransactionalWorker transactional;
+
+    private final Event&lt;ProcessingSuccessEvent&gt; processingSuccessEvent;
+    private final Event&lt;ProcessingFailedEvent&gt; processingFailedEvent;
+
+    @Inject
+    Worker(TransactionalWorker transactional, Event&lt;ProcessingSuccessEvent&gt; processingSuccessEvent,
+<span class="fc" id="L27">            Event&lt;ProcessingFailedEvent&gt; processingFailedEvent) {</span>
+<span class="fc" id="L28">        this.transactional = transactional;</span>
+<span class="fc" id="L29">        this.processingSuccessEvent = processingSuccessEvent;</span>
+<span class="fc" id="L30">        this.processingFailedEvent = processingFailedEvent;</span>
+<span class="fc" id="L31">    }</span>
+
+    @ActivateRequestContext
+    @ConcurrentGauge(name = &quot;com.github.jonasrutishauser.transaction.event.processing&quot;,
+            description = &quot;number of events in processing&quot;, absolute = true)
+    public boolean process(String eventId) {
+        try {
+<span class="fc" id="L38">            processAttempt(eventId);</span>
+<span class="fc" id="L39">            transactional.process(eventId);</span>
+<span class="fc" id="L40">            processSuccess(eventId);</span>
+<span class="fc" id="L41">            return true;</span>
+<span class="fc" id="L42">        } catch (Exception e) {</span>
+<span class="fc" id="L43">            processAttemptFailed(eventId, e);</span>
+<span class="fc" id="L44">            transactional.processFailed(eventId);</span>
+<span class="fc" id="L45">            return false;</span>
+        }
+    }
+
+    private void processAttemptFailed(String eventId, Exception e) {
+<span class="fc" id="L50">        processingFailedEvent.fire(new ProcessingFailedEvent(eventId, e));</span>
+<span class="fc" id="L51">        LOGGER.warn(&quot;Failed to process event with id '{}'&quot;, eventId, e);</span>
+<span class="fc" id="L52">    }</span>
+
+    protected void processSuccess(String eventId) {
+<span class="fc" id="L55">        processingSuccessEvent.fire(new ProcessingSuccessEvent(eventId));</span>
+<span class="fc" id="L56">        LOGGER.debug(&quot;sucessfully processed event with id '{}'&quot;, eventId);</span>
+<span class="fc" id="L57">    }</span>
+
+    protected void processAttempt(String eventId) {
+<span class="fc" id="L60">        LOGGER.debug(&quot;processing event with id '{}'&quot;, eventId);</span>
+<span class="fc" id="L61">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
