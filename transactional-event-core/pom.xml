@@ -13,7 +13,7 @@
 
 	<properties>
 		<testcontainers.version>1.21.4</testcontainers.version>
-		<opentelemetry.version>1.28.0</opentelemetry.version>
+		<opentelemetry.version>1.62.0</opentelemetry.version>
 	</properties>
 
 	<dependencies>
