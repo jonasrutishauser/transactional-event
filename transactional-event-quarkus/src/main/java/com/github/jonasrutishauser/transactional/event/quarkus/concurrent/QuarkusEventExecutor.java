@@ -27,6 +27,9 @@ class QuarkusEventExecutor implements EventExecutor {
 
     private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
+    private final ThreadContext executorThreadContext = ThreadContext.builder()
+          .cleared(ThreadContext.CDI, ThreadContext.SECURITY)
+          .build();
 
     QuarkusEventExecutor() {
         this(null, null);
@@ -40,8 +43,7 @@ class QuarkusEventExecutor implements EventExecutor {
 
     @Override
     public void execute(Runnable command) {
-        final Runnable wrapped = toContextualRunnable(command);
-        executor.execute(wrapped);
+        executor.execute(executorThreadContext.contextualRunnable(command));
     }
 
     @Override
@@ -49,13 +51,6 @@ class QuarkusEventExecutor implements EventExecutor {
         ScheduledTask task = new ScheduledTask(command, intervalInMillis);
         task.start();
         return task;
-    }
-
-    private static Runnable toContextualRunnable(final Runnable command) {
-        final ThreadContext threadContext = ThreadContext.builder()
-              .cleared(ThreadContext.CDI, ThreadContext.SECURITY)
-              .build();
-        return threadContext.contextualRunnable(command);
     }
 
     private class ScheduledTask implements Task {
