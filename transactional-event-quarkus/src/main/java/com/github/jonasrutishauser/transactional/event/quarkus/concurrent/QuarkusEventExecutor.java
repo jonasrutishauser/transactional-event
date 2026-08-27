@@ -20,6 +20,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
+import org.eclipse.microprofile.context.ThreadContext;
+
 @ApplicationScoped
 class QuarkusEventExecutor implements EventExecutor {
 
@@ -38,7 +40,8 @@ class QuarkusEventExecutor implements EventExecutor {
 
     @Override
     public void execute(Runnable command) {
-        executor.execute(command);
+        final Runnable wrapped = toContextualRunnable(command);
+        executor.execute(wrapped);
     }
 
     @Override
@@ -46,6 +49,13 @@ class QuarkusEventExecutor implements EventExecutor {
         ScheduledTask task = new ScheduledTask(command, intervalInMillis);
         task.start();
         return task;
+    }
+
+    private static Runnable toContextualRunnable(final Runnable command) {
+        final ThreadContext threadContext = ThreadContext.builder()
+              .cleared(ThreadContext.CDI, ThreadContext.SECURITY)
+              .build();
+        return threadContext.contextualRunnable(command);
     }
 
     private class ScheduledTask implements Task {
