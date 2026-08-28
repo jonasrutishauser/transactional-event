@@ -15,13 +15,20 @@ public class TestEventHandler extends AbstractHandler<TestEvent> {
 
     private Messages messages;
 
+    private RequestContextProbe requestContextProbe;
+
     @Inject
-    TestEventHandler(Messages messages) {
+    TestEventHandler(Messages messages, RequestContextProbe requestContextProbe) {
         this.messages = messages;
+        this.requestContextProbe = requestContextProbe;
     }
 
     @Override
     protected void handle(TestEvent event) {
+        if (event.getMessage().equals("request context")) {
+            messages.add(requestContextProbe.isMarked() ? "request context propagated" : "request context missing");
+            return;
+        }
         if (event.getMessage().contains("failure") && messages.addFailure(event.getMessage())) {
             throw new IllegalStateException(event.getMessage());
         }
