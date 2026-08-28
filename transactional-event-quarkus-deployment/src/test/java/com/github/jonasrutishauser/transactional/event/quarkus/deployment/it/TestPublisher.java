@@ -16,10 +16,13 @@ public class TestPublisher {
 
     private final Messages messages;
 
+    private final RequestContextProbe requestContextProbe;
+
     @Inject
-    TestPublisher(EventPublisher publisher, Messages messages) {
+    TestPublisher(EventPublisher publisher, Messages messages, RequestContextProbe requestContextProbe) {
         this.publisher = publisher;
         this.messages = messages;
+        this.requestContextProbe = requestContextProbe;
     }
 
     @Transactional
@@ -38,6 +41,13 @@ public class TestPublisher {
     @ActivateRequestContext
     public void publishString(String message) {
         publisher.publish(message);
+    }
+
+    @Transactional
+    @ActivateRequestContext
+    public void publishWithRequestContext(String message) {
+        requestContextProbe.mark();
+        publisher.publish(new TestEvent(message));
     }
 
     public Collection<String> getMessages() {
