@@ -20,63 +20,68 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
+import org.eclipse.microprofile.context.ThreadContext;
+
 @ApplicationScoped
 class QuarkusEventExecutor implements EventExecutor {
 
     private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
+<span class="fc" id="L30">    private final ThreadContext executorThreadContext = ThreadContext.builder()</span>
+<span class="fc" id="L31">          .cleared(ThreadContext.CDI, ThreadContext.SECURITY)</span>
+<span class="fc" id="L32">          .build();</span>
 
     QuarkusEventExecutor() {
-<span class="fc" id="L30">        this(null, null);</span>
-<span class="fc" id="L31">    }</span>
+<span class="fc" id="L35">        this(null, null);</span>
+<span class="fc" id="L36">    }</span>
 
     @Inject
-<span class="fc" id="L34">    QuarkusEventExecutor(@Events ExecutorService executor, ScheduledExecutorService scheduler) {</span>
-<span class="fc" id="L35">        this.executor = executor;</span>
-<span class="fc" id="L36">        this.scheduler = scheduler;</span>
-<span class="fc" id="L37">    }</span>
-
-    @Override
-    public void execute(Runnable command) {
-<span class="fc" id="L41">        executor.execute(command);</span>
+<span class="fc" id="L39">    QuarkusEventExecutor(@Events ExecutorService executor, ScheduledExecutorService scheduler) {</span>
+<span class="fc" id="L40">        this.executor = executor;</span>
+<span class="fc" id="L41">        this.scheduler = scheduler;</span>
 <span class="fc" id="L42">    }</span>
 
     @Override
+    public void execute(Runnable command) {
+<span class="fc" id="L46">        executor.execute(executorThreadContext.contextualRunnable(command));</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
     public Task schedule(Runnable command, LongSupplier intervalInMillis) {
-<span class="fc" id="L46">        ScheduledTask task = new ScheduledTask(command, intervalInMillis);</span>
-<span class="fc" id="L47">        task.start();</span>
-<span class="fc" id="L48">        return task;</span>
+<span class="fc" id="L51">        ScheduledTask task = new ScheduledTask(command, intervalInMillis);</span>
+<span class="fc" id="L52">        task.start();</span>
+<span class="fc" id="L53">        return task;</span>
     }
 
     private class ScheduledTask implements Task {
-<span class="fc" id="L52">        private final AtomicBoolean running = new AtomicBoolean(true);</span>
-<span class="fc" id="L53">        private final AtomicReference&lt;Future&lt;?&gt;&gt; future = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L57">        private final AtomicBoolean running = new AtomicBoolean(true);</span>
+<span class="fc" id="L58">        private final AtomicReference&lt;Future&lt;?&gt;&gt; future = new AtomicReference&lt;&gt;();</span>
         private final Runnable command;
         private final LongSupplier intervalInMillis;
 
-<span class="fc" id="L57">        public ScheduledTask(Runnable command, LongSupplier intervalInMillis) {</span>
-<span class="fc" id="L58">            this.command = command;</span>
-<span class="fc" id="L59">            this.intervalInMillis = intervalInMillis;</span>
-<span class="fc" id="L60">        }</span>
+<span class="fc" id="L62">        public ScheduledTask(Runnable command, LongSupplier intervalInMillis) {</span>
+<span class="fc" id="L63">            this.command = command;</span>
+<span class="fc" id="L64">            this.intervalInMillis = intervalInMillis;</span>
+<span class="fc" id="L65">        }</span>
 
         public void start() {
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">            if (running.get()) {</span>
-<span class="fc" id="L64">                CompletableFuture&lt;Void&gt; commandRun = CompletableFuture.runAsync(command,</span>
-<span class="fc" id="L65">                        runnable -&gt; scheduler.schedule(() -&gt; {</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                            if (running.get()) {</span>
-<span class="fc" id="L67">                                runnable.run();</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">            if (running.get()) {</span>
+<span class="fc" id="L69">                CompletableFuture&lt;Void&gt; commandRun = CompletableFuture.runAsync(command,</span>
+<span class="fc" id="L70">                        runnable -&gt; scheduler.schedule(() -&gt; {</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                            if (running.get()) {</span>
+<span class="fc" id="L72">                                runnable.run();</span>
                             }
-<span class="fc" id="L69">                        }, intervalInMillis.getAsLong(), MILLISECONDS));</span>
-<span class="fc" id="L70">                future.set(commandRun);</span>
-<span class="fc" id="L71">                commandRun.thenRun(this::start);</span>
+<span class="fc" id="L74">                        }, intervalInMillis.getAsLong(), MILLISECONDS));</span>
+<span class="fc" id="L75">                future.set(commandRun);</span>
+<span class="fc" id="L76">                commandRun.thenRun(this::start);</span>
             }
-<span class="fc" id="L73">        }</span>
+<span class="fc" id="L78">        }</span>
 
         @Override
         public void cancel() {
-<span class="fc" id="L77">            running.set(false);</span>
-<span class="fc" id="L78">            future.get().cancel(true);</span>
-<span class="fc" id="L79">        }</span>
+<span class="fc" id="L82">            running.set(false);</span>
+<span class="fc" id="L83">            future.get().cancel(true);</span>
+<span class="fc" id="L84">        }</span>
     }
 
     @Dependent
@@ -84,15 +89,15 @@ class QuarkusEventExecutor implements EventExecutor {
         private final ExecutorService executor;
 
         @Inject
-<span class="fc" id="L87">        DefaultExecutorService(@VirtualThreads ExecutorService executor) {</span>
-<span class="fc" id="L88">            this.executor = executor;</span>
-<span class="fc" id="L89">        }</span>
+<span class="fc" id="L92">        DefaultExecutorService(@VirtualThreads ExecutorService executor) {</span>
+<span class="fc" id="L93">            this.executor = executor;</span>
+<span class="fc" id="L94">        }</span>
 
         @Events
         @Produces
         @DefaultBean
         ExecutorService getExecutor() {
-<span class="fc" id="L95">            return executor;</span>
+<span class="fc" id="L100">            return executor;</span>
         }
     }
 }
