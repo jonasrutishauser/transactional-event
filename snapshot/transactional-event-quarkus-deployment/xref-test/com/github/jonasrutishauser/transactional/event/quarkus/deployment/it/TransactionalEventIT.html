@@ -28,7 +28,7 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> QuarkusUnitTest config = <strong class="jxr_keyword">new</strong> QuarkusUnitTest() <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>              .setFlatClassPath(<strong class="jxr_keyword">true</strong>) <em class="jxr_comment">// needed for invoker</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>              .withApplicationRoot(archive -&gt; archive <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>                      .addClasses(Messages.<strong class="jxr_keyword">class</strong>, TestEvent.<strong class="jxr_keyword">class</strong>, TestEventHandler.<strong class="jxr_keyword">class</strong>, TestPublisher.<strong class="jxr_keyword">class</strong>, TestHandlerMethod.<strong class="jxr_keyword">class</strong>, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>                      .addClasses(Messages.<strong class="jxr_keyword">class</strong>, RequestContextProbe.<strong class="jxr_keyword">class</strong>, TestEvent.<strong class="jxr_keyword">class</strong>, TestEventHandler.<strong class="jxr_keyword">class</strong>, TestPublisher.<strong class="jxr_keyword">class</strong>, TestHandlerMethod.<strong class="jxr_keyword">class</strong>, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>                              TestEventWithCustomSerialization.<strong class="jxr_keyword">class</strong>, TestEventWithCustomSerializationHandler.<strong class="jxr_keyword">class</strong>, TestEventWithCustomSerializationSerialization.<strong class="jxr_keyword">class</strong>) <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>                      .addAsManifestResource(EmptyAsset.INSTANCE, <span class="jxr_string">"beans.xml"</span>) <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>              ).overrideRuntimeConfigKey(<span class="jxr_string">"quarkus.transactional.event.initial-dispatch-interval"</span>, <span class="jxr_string">"1"</span>);
@@ -58,22 +58,29 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">void</strong> testFailure() {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          publisher.publish(<span class="jxr_string">"test failure"</span>);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 10; i &lt; 50; i++) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              publisher.publish(<span class="jxr_string">"failure "</span> + i);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">void</strong> testClearsRequestContextBeforeHandling() {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          publisher.publishWithRequestContext(<span class="jxr_string">"request context"</span>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          await().until(processedMessagesContains(<span class="jxr_string">"request context missing"</span>));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          await().pollInterval(10, MILLISECONDS).until(processedMessagesContains(<span class="jxr_string">"test failure"</span>));
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 10; i &lt; 50; i++) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              await().pollInterval(10, MILLISECONDS).until(processedMessagesContains(<span class="jxr_string">"failure "</span> + i));
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> Callable&lt;Boolean&gt; processedMessagesContains(String content) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">return</strong> () -&gt; publisher.getMessages().contains(content);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Test
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">void</strong> testFailure() {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          publisher.publish(<span class="jxr_string">"test failure"</span>);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 10; i &lt; 50; i++) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              publisher.publish(<span class="jxr_string">"failure "</span> + i);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          await().pollInterval(10, MILLISECONDS).until(processedMessagesContains(<span class="jxr_string">"test failure"</span>));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 10; i &lt; 50; i++) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              await().pollInterval(10, MILLISECONDS).until(processedMessagesContains(<span class="jxr_string">"failure "</span> + i));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> Callable&lt;Boolean&gt; processedMessagesContains(String content) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">return</strong> () -&gt; publisher.getMessages().contains(content);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2026</div>
