@@ -16,7 +16,7 @@ public class TransactionalEventChangeIT {
     @RegisterExtension
     static final QuarkusDevModeTest test = new QuarkusDevModeTest() //
             .withApplicationRoot(archive -> archive //
-                    .addClasses(Messages.class, TestEvent.class, TestEventHandler.class, TestResource.class) //
+                    .addClasses(Messages.class, RequestContextProbe.class, TestEvent.class, TestEventHandler.class, TestResource.class) //
                     .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml") //
             );
 
