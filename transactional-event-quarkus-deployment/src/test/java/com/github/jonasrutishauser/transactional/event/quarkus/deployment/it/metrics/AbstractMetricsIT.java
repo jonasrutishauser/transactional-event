@@ -8,6 +8,7 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.junit.jupiter.api.Test;
 
 import com.github.jonasrutishauser.transactional.event.quarkus.deployment.it.Messages;
+import com.github.jonasrutishauser.transactional.event.quarkus.deployment.it.RequestContextProbe;
 import com.github.jonasrutishauser.transactional.event.quarkus.deployment.it.TestEvent;
 import com.github.jonasrutishauser.transactional.event.quarkus.deployment.it.TestEventHandler;
 import com.github.jonasrutishauser.transactional.event.quarkus.deployment.it.TestEventWithCustomSerialization;
@@ -26,7 +27,7 @@ abstract class AbstractMetricsIT {
         return new QuarkusUnitTest() //
                 .setFlatClassPath(true) // needed for invoker
                 .withApplicationRoot(archive -> archive //
-                        .addClasses(Messages.class, TestEvent.class, TestEventHandler.class, TestPublisher.class,
+                        .addClasses(Messages.class, RequestContextProbe.class, TestEvent.class, TestEventHandler.class, TestPublisher.class,
                                 TestHandlerMethod.class, //
                                 TestEventWithCustomSerialization.class, TestEventWithCustomSerializationHandler.class,
                                 TestEventWithCustomSerializationSerialization.class) //
