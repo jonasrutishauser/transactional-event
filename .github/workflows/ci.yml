@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    uses: jonasrutishauser/parent/.github/workflows/common-ci.yml@0a30703ee016e2fecc97b3917150eb4a99efdfb9 # v43
+    uses: jonasrutishauser/parent/.github/workflows/common-ci.yml@4dac04553930df21b755585af083cdcfdf2c4cfe # v44
     with:
       java-versions: '["25", "21", "17"]'
       deploy-site: ${{ github.event_name == 'push' }}
