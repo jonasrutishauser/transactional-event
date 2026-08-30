@@ -39,7 +39,7 @@ Transactional Event Library Core,com.github.jonasrutishauser.transactional.event
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,Lifecycle,5,54,0,2,2,20,0,9,0,8
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SimpleQueryAdapter,0,4,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.SkipLockedQueryAdapter,0,8,0,0,0,1,0,1,0,1
-Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,0,762,0,44,0,177,0,41,0,19
+Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,PendingEventStore,0,762,1,43,0,177,1,40,0,19
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.OracleQueryAdapter,0,13,0,0,0,2,0,2,0,2
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,QueryAdapterFactory.LimitQueryAdapter,0,5,0,0,0,1,0,1,0,1
 Transactional Event Library Core,com.github.jonasrutishauser.transactional.event.core.store,EventsPublished,0,37,0,4,0,8,0,5,0,3
