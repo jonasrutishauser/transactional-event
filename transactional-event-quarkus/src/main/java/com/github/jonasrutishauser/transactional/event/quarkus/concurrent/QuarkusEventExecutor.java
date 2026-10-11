@@ -20,6 +20,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.context.ThreadContext;
 
 @ApplicationScoped
@@ -27,9 +28,10 @@ class QuarkusEventExecutor implements EventExecutor {
 
     private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
-    private final ThreadContext executorThreadContext = ThreadContext.builder()
-          .cleared(ThreadContext.CDI, ThreadContext.SECURITY)
-          .build();
+    private final ManagedExecutor contextClearer = ManagedExecutor.builder()
+            .cleared(ThreadContext.CDI, ThreadContext.SECURITY, ThreadContext.TRANSACTION)
+            .propagated(ThreadContext.ALL_REMAINING)
+            .build();
 
     QuarkusEventExecutor() {
         this(null, null);
@@ -43,7 +45,7 @@ class QuarkusEventExecutor implements EventExecutor {
 
     @Override
     public void execute(Runnable command) {
-        executor.execute(executorThreadContext.contextualRunnable(command));
+        contextClearer.execute(() -> executor.execute(command));
     }
 
     @Override
